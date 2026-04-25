@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -226,11 +226,14 @@ export function AdminCupSettingsPage(): JSX.Element {
       className="flex max-w-3xl flex-col gap-6"
       noValidate
     >
-      <header className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-2">
+        <Button asChild variant="ghost" size="sm" className="-ml-3 self-start">
+          <Link to="/admin">← {t('admin.cup.backToOverview')}</Link>
+        </Button>
         <h1 className="text-2xl font-semibold tracking-tight">
           {isEdit ? t('admin.cup.editTitle') : t('admin.cup.newTitle')}
         </h1>
-      </header>
+      </div>
 
       <Card>
         <CardHeader>
@@ -489,14 +492,24 @@ export function AdminCupSettingsPage(): JSX.Element {
         <Button type="submit" disabled={isSubmitting}>
           {t('admin.cup.save')}
         </Button>
+        {isEdit && existing && (
+          <Button asChild variant="outline">
+            <Link
+              to={`/c/${existing.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('admin.cup.preview')}
+            </Link>
+          </Button>
+        )}
         {isEdit && status === 'draft' && (
           <Button
             type="button"
-            variant="secondary"
             disabled={isSubmitting}
             onClick={() => void save(true)}
           >
-            {t('admin.cup.saveAndOpen')}
+            {t('admin.cup.publish')}
           </Button>
         )}
         {savedFlash && (

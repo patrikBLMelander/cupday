@@ -27,7 +27,9 @@
       "newTitle": "Ny cup",
       "editTitle": "Redigera cup",
       "save": "Spara",
-      "saveAndOpen": "Spara och öppna anmälan",
+      "publish": "Publicera",
+      "preview": "Förhandsgranska",
+      "backToOverview": "Tillbaka till översikt",
       "savedFlash": "Sparat",
       "saveFailed": "Kunde inte spara — försök igen"
     },
@@ -77,5 +79,36 @@
     "languageSwedish": "Svenska",
     "languageEnglish": "Engelska",
     "loading": "Laddar..."
+  },
+  "public": {
+    "tabs": {
+      "info": "Info",
+      "teams": "Lag",
+      "schedule": "Spelschema"
+    },
+    "info": {
+      "dates": "Datum",
+      "venue": "Anläggning",
+      "fee": "Anmälningsavgift",
+      "organizer": "Arrangör",
+      "contactName": "Kontaktperson",
+      "contactEmail": "E-post",
+      "contactPhone": "Telefon",
+      "paymentInstructions": "Betalningsinstruktioner",
+      "registerCta": "Anmäl lag",
+      "registrationsClosed": "Anmälan är inte öppen"
+    },
+    "empty": {
+      "teams": "Lag visas här när anmälan är öppen.",
+      "schedule": "Spelschemat visas när det publicerats."
+    },
+    "notFound": {
+      "title": "Cupen hittades inte",
+      "body": "Länken kanske är gammal eller felstavad.",
+      "backHome": "Till startsidan"
+    },
+    "placeholder": {
+      "comingSoon": "Kommer snart"
+    }
   }
 }

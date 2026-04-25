@@ -27,7 +27,9 @@
       "newTitle": "New cup",
       "editTitle": "Edit cup",
       "save": "Save",
-      "saveAndOpen": "Save and open registrations",
+      "publish": "Publish",
+      "preview": "Preview",
+      "backToOverview": "Back to overview",
       "savedFlash": "Saved",
       "saveFailed": "Save failed — please try again"
     },
@@ -77,5 +79,36 @@
     "languageSwedish": "Swedish",
     "languageEnglish": "English",
     "loading": "Loading..."
+  },
+  "public": {
+    "tabs": {
+      "info": "Info",
+      "teams": "Teams",
+      "schedule": "Schedule"
+    },
+    "info": {
+      "dates": "Dates",
+      "venue": "Venue",
+      "fee": "Registration fee",
+      "organizer": "Organizer",
+      "contactName": "Contact",
+      "contactEmail": "Email",
+      "contactPhone": "Phone",
+      "paymentInstructions": "Payment instructions",
+      "registerCta": "Register team",
+      "registrationsClosed": "Registrations are not open"
+    },
+    "empty": {
+      "teams": "Teams will appear here once registration opens.",
+      "schedule": "The schedule will appear here once it's published."
+    },
+    "notFound": {
+      "title": "Cup not found",
+      "body": "This link may be outdated or mistyped.",
+      "backHome": "Back to home"
+    },
+    "placeholder": {
+      "comingSoon": "Coming soon"
+    }
   }
 }

@@ -136,5 +136,31 @@
       "nameTaken": "The name is already taken — add a number or color to keep teams apart"
     },
     "generalFailure": "Registration failed — please try again"
+  },
+  "payment": {
+    "title": "Thanks for registering!",
+    "subtitle": "Secure your spot by paying the registration fee.",
+    "teamsCard": {
+      "title": "Registered teams",
+      "statusReserved": "Reserved"
+    },
+    "paymentCard": {
+      "title": "Payment",
+      "fee": "Fee",
+      "instructions": "Instructions",
+      "qrAlt": "Lagkassan QR code",
+      "openLagkassan": "Open Lagkassan"
+    },
+    "cancelCard": {
+      "title": "Cancel registration",
+      "body": "Need to cancel? Contact the organizer.",
+      "contactEmail": "Email",
+      "contactPhone": "Phone"
+    },
+    "backToCup": "Back to the cup",
+    "notFound": {
+      "title": "Registration not found",
+      "body": "This link may be outdated or mistyped."
+    }
   }
 }

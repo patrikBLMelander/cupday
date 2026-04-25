@@ -10,6 +10,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth';
 import { AdminCupListPage } from '@/features/cups/AdminCupListPage';
 import { AdminCupSettingsPage } from '@/features/cups/AdminCupSettingsPage';
 import { PublicCupLandingPage } from '@/features/cups/PublicCupLandingPage';
+import { PaymentPage } from '@/features/teams/PaymentPage';
 import { RegistrationFormPage } from '@/features/teams/RegistrationFormPage';
 
 function ComingSoon(): JSX.Element {
@@ -50,7 +51,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <PublicCupLandingPage /> },
       { path: 'register', element: <RegistrationFormPage /> },
-      { path: 'payment/:registrationId', element: <ComingSoon /> },
+      { path: 'payment/:registrationId', element: <PaymentPage /> },
       { path: 'schedule', element: <ComingSoon /> },
     ],
   },

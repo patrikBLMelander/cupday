@@ -5,6 +5,7 @@ import type {
   PublicTeam,
   RegistrationCreateRequest,
   RegistrationCreateResponse,
+  RegistrationDetail,
 } from '@/features/teams/teamTypes';
 
 function resolveBaseUrl(): string {
@@ -28,13 +29,17 @@ export const teamsApi = createApi({
   }),
   // Cup tags are shared with cupsApi so creating a registration invalidates
   // the cup cache (status may auto-transition to 'full' on the server).
-  tagTypes: ['Teams', 'Cup', 'Cups'],
+  tagTypes: ['Teams', 'Cup', 'Cups', 'Registration'],
   endpoints: (builder) => ({
     listPublicTeamsByCup: builder.query<PublicTeam[], string>({
       query: (cupId) => `/cups/${cupId}/teams`,
       providesTags: (_result, _err, cupId) => [
         { type: 'Teams' as const, id: cupId },
       ],
+    }),
+    getRegistration: builder.query<RegistrationDetail, string>({
+      query: (id) => `/registrations/${id}`,
+      providesTags: (_result, _err, id) => [{ type: 'Registration', id }],
     }),
     createRegistration: builder.mutation<
       RegistrationCreateResponse,
@@ -56,5 +61,6 @@ export const teamsApi = createApi({
 
 export const {
   useListPublicTeamsByCupQuery,
+  useGetRegistrationQuery,
   useCreateRegistrationMutation,
 } = teamsApi;

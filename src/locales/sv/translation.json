@@ -136,5 +136,31 @@
       "nameTaken": "Namnet är upptaget — lägg till en siffra eller färg för att skilja lagen åt"
     },
     "generalFailure": "Anmälan misslyckades — försök igen"
+  },
+  "payment": {
+    "title": "Tack för anmälan!",
+    "subtitle": "Säkra platsen genom att betala anmälningsavgiften.",
+    "teamsCard": {
+      "title": "Anmälda lag",
+      "statusReserved": "Reserverad"
+    },
+    "paymentCard": {
+      "title": "Betalning",
+      "fee": "Avgift",
+      "instructions": "Instruktioner",
+      "qrAlt": "QR-kod till Lagkassan",
+      "openLagkassan": "Öppna Lagkassan"
+    },
+    "cancelCard": {
+      "title": "Avbryt anmälan",
+      "body": "Vill du avbryta anmälan? Hör av dig till arrangören.",
+      "contactEmail": "E-post",
+      "contactPhone": "Telefon"
+    },
+    "backToCup": "Tillbaka till cupen",
+    "notFound": {
+      "title": "Anmälan hittades inte",
+      "body": "Länken kan vara gammal eller felstavad."
+    }
   }
 }

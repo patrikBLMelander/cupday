@@ -46,3 +46,8 @@ export type RegistrationCreateResponse = {
   registrationId: string;
   teamIds: string[];
 };
+
+export type RegistrationDetail = {
+  registration: Registration;
+  teams: PublicTeam[];
+};

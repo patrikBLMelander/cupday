@@ -9,6 +9,7 @@ import type {
   PublicTeam,
   RegistrationCreateRequest,
   RegistrationCreateResponse,
+  RegistrationDetail,
   Team,
 } from '@/features/teams/teamTypes';
 import { db, type MockUser } from '@/mocks/db';
@@ -368,5 +369,27 @@ export const handlers = [
       teamIds: newTeams.map((t) => t.id),
     };
     return HttpResponse.json(payload, { status: 201 });
+  }),
+
+  http.get('/api/registrations/:id', ({ params }) => {
+    const state = db.read();
+    const registration = state.registrations.find((r) => r.id === params.id);
+    if (!registration) {
+      return problem(
+        404,
+        'Not found',
+        `Registration ${String(params.id)} not found`,
+      );
+    }
+    const teams = state.teams
+      .filter((t) => t.registrationId === registration.id)
+      .map<PublicTeam>((t) => ({
+        id: t.id,
+        name: t.name,
+        groupLabel: t.groupLabel,
+        status: t.status,
+      }));
+    const payload: RegistrationDetail = { registration, teams };
+    return HttpResponse.json(payload);
   }),
 ];

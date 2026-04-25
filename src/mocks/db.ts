@@ -1,14 +1,15 @@
 const STORAGE_KEY = 'cup.mock.db.v1';
 
 import type { Cup } from '@/features/cups/cupTypes';
+import type { Registration, Team } from '@/features/teams/teamTypes';
 
 export type MockUser = { id: string; email: string };
 
 export type MockDB = {
   users: MockUser[];
   cups: Cup[];
-  teams: unknown[];
-  registrations: unknown[];
+  teams: Team[];
+  registrations: Registration[];
   matches: unknown[];
   sessions: Array<{ token: string; userId: string }>;
 };

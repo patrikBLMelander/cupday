@@ -110,5 +110,31 @@
     "placeholder": {
       "comingSoon": "Kommer snart"
     }
+  },
+  "registration": {
+    "title": "Anmäl lag",
+    "description": "Fyll i klubbens kontaktuppgifter och lagets namn.",
+    "fields": {
+      "clubName": "Klubb",
+      "contactName": "Kontaktperson",
+      "contactEmail": "E-post",
+      "contactPhone": "Telefon",
+      "teamName1": "Lagets namn",
+      "teamName2": "Andra lagets namn",
+      "teamName2Hint": "Valfritt",
+      "addAnotherTeam": "+ Anmäl ett lag till",
+      "removeSecondTeam": "Ta bort"
+    },
+    "submit": "Anmäl",
+    "cupNotOpen": "Anmälan är inte öppen för den här cupen.",
+    "cupFull": "Cupen är fullsatt.",
+    "backToCup": "Tillbaka till cupen",
+    "validation": {
+      "required": "Obligatoriskt fält",
+      "emailInvalid": "Ogiltig e-post",
+      "sameNames": "Lagen måste ha olika namn",
+      "nameTaken": "Namnet är upptaget — lägg till en siffra eller färg för att skilja lagen åt"
+    },
+    "generalFailure": "Anmälan misslyckades — försök igen"
   }
 }

@@ -110,5 +110,31 @@
     "placeholder": {
       "comingSoon": "Coming soon"
     }
+  },
+  "registration": {
+    "title": "Register team",
+    "description": "Fill in your club's contact details and team name(s).",
+    "fields": {
+      "clubName": "Club",
+      "contactName": "Contact name",
+      "contactEmail": "Email",
+      "contactPhone": "Phone",
+      "teamName1": "Team name",
+      "teamName2": "Second team name",
+      "teamName2Hint": "Optional",
+      "addAnotherTeam": "+ Register another team",
+      "removeSecondTeam": "Remove"
+    },
+    "submit": "Submit",
+    "cupNotOpen": "Registration is not open for this cup.",
+    "cupFull": "This cup is full.",
+    "backToCup": "Back to the cup",
+    "validation": {
+      "required": "Required",
+      "emailInvalid": "Invalid email",
+      "sameNames": "Teams must have different names",
+      "nameTaken": "The name is already taken — add a number or color to keep teams apart"
+    },
+    "generalFailure": "Registration failed — please try again"
   }
 }

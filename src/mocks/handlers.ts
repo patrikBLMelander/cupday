@@ -5,6 +5,12 @@ import type {
   CupCreateRequest,
   CupUpdateRequest,
 } from '@/features/cups/cupTypes';
+import type {
+  PublicTeam,
+  RegistrationCreateRequest,
+  RegistrationCreateResponse,
+  Team,
+} from '@/features/teams/teamTypes';
 import { db, type MockUser } from '@/mocks/db';
 
 const EMAIL_RE = /^.+@.+\..+$/;
@@ -238,5 +244,129 @@ export const handlers = [
       );
     }
     return HttpResponse.json(cup);
+  }),
+
+  // --- Teams (public) ---
+  http.get('/api/cups/:id/teams', ({ params }) => {
+    const cup = db.read().cups.find((c) => c.id === params.id);
+    if (!cup) {
+      return problem(404, 'Not found', `Cup ${String(params.id)} not found`);
+    }
+    const teams = db
+      .read()
+      .teams.filter((t) => t.cupId === cup.id && t.status !== 'cancelled')
+      .map<PublicTeam>((t) => ({
+        id: t.id,
+        name: t.name,
+        groupLabel: t.groupLabel,
+        status: t.status,
+      }));
+    return HttpResponse.json(teams);
+  }),
+
+  // --- Registration (public) ---
+  http.post('/api/cups/:id/registrations', async ({ request, params }) => {
+    const cup = db.read().cups.find((c) => c.id === params.id);
+    if (!cup) {
+      return problem(404, 'Not found', `Cup ${String(params.id)} not found`);
+    }
+    if (cup.status !== 'open') {
+      return problem(
+        422,
+        'Registration not open',
+        'Registration is not open for this cup',
+      );
+    }
+    const body = (await request.json()) as Partial<RegistrationCreateRequest>;
+    const teamNames = Array.isArray(body.teamNames) ? body.teamNames : [];
+    if (teamNames.length < 1 || teamNames.length > 2) {
+      return problem(400, 'Validation', 'teamNames must contain 1 or 2 entries');
+    }
+    const trimmedNames = teamNames.map((n) => n.trim());
+    if (trimmedNames.some((n) => n.length === 0)) {
+      return problem(400, 'Validation', 'team names cannot be empty');
+    }
+    if (
+      trimmedNames.length === 2 &&
+      trimmedNames[0].toLowerCase() === trimmedNames[1].toLowerCase()
+    ) {
+      return problem(400, 'Validation', 'Team names must differ');
+    }
+    if (!body.clubName?.trim()) return problem(400, 'Validation', 'clubName is required');
+    if (!body.contactName?.trim()) return problem(400, 'Validation', 'contactName is required');
+    if (!body.contactEmail || !EMAIL_RE.test(body.contactEmail)) {
+      return problem(400, 'Validation', 'contactEmail is invalid');
+    }
+    if (!body.contactPhone?.trim()) return problem(400, 'Validation', 'contactPhone is required');
+
+    const existingActive = db
+      .read()
+      .teams.filter((t) => t.cupId === cup.id && t.status !== 'cancelled');
+    for (const name of trimmedNames) {
+      const collision = existingActive.find(
+        (t) => t.name.trim().toLowerCase() === name.toLowerCase(),
+      );
+      if (collision) {
+        return HttpResponse.json(
+          {
+            type: 'about:blank',
+            title: 'Slug already exists',
+            status: 409,
+            detail: `The name "${name}" is already taken — add a number or color to keep teams apart`,
+            teamName: name,
+          },
+          {
+            status: 409,
+            headers: { 'Content-Type': 'application/problem+json' },
+          },
+        );
+      }
+    }
+    if (existingActive.length + trimmedNames.length > cup.maxTeams) {
+      return problem(422, 'Cup is full', 'No remaining capacity for this cup');
+    }
+
+    const registrationId = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+    const newTeams: Team[] = trimmedNames.map((name) => ({
+      id: crypto.randomUUID(),
+      cupId: cup.id,
+      registrationId,
+      name,
+      clubName: body.clubName!.trim(),
+      contactName: body.contactName!.trim(),
+      contactEmail: body.contactEmail!.trim(),
+      contactPhone: body.contactPhone!.trim(),
+      groupLabel: null,
+      status: 'reserved',
+      createdAt,
+      paidAt: null,
+      cancelledAt: null,
+    }));
+
+    db.write((draft) => {
+      draft.teams.push(...newTeams);
+      draft.registrations.push({
+        id: registrationId,
+        cupId: cup.id,
+        teamIds: newTeams.map((t) => t.id),
+        createdAt,
+      });
+      const cupIdx = draft.cups.findIndex((c) => c.id === cup.id);
+      if (cupIdx >= 0) {
+        const activeAfter = draft.teams.filter(
+          (t) => t.cupId === cup.id && t.status !== 'cancelled',
+        );
+        if (activeAfter.length >= draft.cups[cupIdx].maxTeams) {
+          draft.cups[cupIdx] = { ...draft.cups[cupIdx], status: 'full' };
+        }
+      }
+    });
+
+    const payload: RegistrationCreateResponse = {
+      registrationId,
+      teamIds: newTeams.map((t) => t.id),
+    };
+    return HttpResponse.json(payload, { status: 201 });
   }),
 ];

@@ -25,6 +25,17 @@ dist-ssr
 .vite
 *.tsbuildinfo
 
+# Maven / Java build
+target/
+*.class
+*.jar
+!**/.mvn/wrapper/maven-wrapper.jar
+pom.xml.versionsBackup
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.next
+hs_err_pid*.log
+
 # Test coverage
 coverage
 

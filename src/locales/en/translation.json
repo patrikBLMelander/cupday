@@ -2,5 +2,21 @@
   "app": {
     "title": "Cup",
     "tagline": "Run football cups with ease"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "logout": "Sign out",
+    "invalidCredentials": "Invalid email or password",
+    "loginFailed": "Login failed — please try again"
+  },
+  "admin": {
+    "welcome": "Welcome"
+  },
+  "common": {
+    "languageSwedish": "Swedish",
+    "languageEnglish": "English",
+    "loading": "Loading..."
   }
 }

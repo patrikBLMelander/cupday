@@ -3,11 +3,16 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { useDispatch, useSelector } from 'react-redux';
 import type { TypedUseSelectorHook } from 'react-redux';
 
+import { authApi } from '@/features/auth/authApi';
+import { authReducer } from '@/features/auth/authSlice';
+
 export const store = configureStore({
   reducer: {
-    // Feature reducers and RTK Query slices register here as they are added.
+    auth: authReducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(authApi.middleware),
 });
 
 setupListeners(store.dispatch);

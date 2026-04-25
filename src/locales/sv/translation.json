@@ -2,5 +2,21 @@
   "app": {
     "title": "Cup",
     "tagline": "Arrangera fotbollscuper enkelt"
+  },
+  "auth": {
+    "signIn": "Logga in",
+    "email": "E-post",
+    "password": "Lösenord",
+    "logout": "Logga ut",
+    "invalidCredentials": "Felaktig e-post eller lösenord",
+    "loginFailed": "Inloggning misslyckades — försök igen"
+  },
+  "admin": {
+    "welcome": "Välkommen"
+  },
+  "common": {
+    "languageSwedish": "Svenska",
+    "languageEnglish": "Engelska",
+    "loading": "Laddar..."
   }
 }

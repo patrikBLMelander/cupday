@@ -74,6 +74,37 @@
       "scheduled": "Scheduled",
       "finished": "Finished"
     },
+    "schedule": {
+      "title": "Schedule",
+      "manageCta": "Schedule",
+      "backToSettings": "Back to cup settings",
+      "requirements": {
+        "title": "Requirements to generate a schedule",
+        "body": "Each group must have exactly 4 paid teams before a schedule can be generated.",
+        "currentCounts": "Currently: Group A {{a}}/4, Group B {{b}}/4",
+        "manageTeamsLink": "Manage teams"
+      },
+      "settings": {
+        "title": "Settings",
+        "startTime": "Start time",
+        "matchDuration": "Match duration (min)",
+        "breakDuration": "Break between matches (min)",
+        "generateCta": "Generate schedule",
+        "regenerateCta": "Regenerate schedule"
+      },
+      "matchList": {
+        "title": "Matches",
+        "empty": "No matches yet — generate the schedule above.",
+        "vs": "vs",
+        "pitchLabel": "Pitch {{pitch}}",
+        "groupLabel": "Group {{group}}",
+        "cancelledHint": "Some teams were cancelled after the schedule was generated — regenerate if needed."
+      },
+      "errors": {
+        "generationFailed": "Could not generate schedule — please try again",
+        "updateFailed": "Could not save the match"
+      }
+    },
     "teams": {
       "title": "Manage teams",
       "manageCta": "Manage teams",

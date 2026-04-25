@@ -5,6 +5,12 @@ import type {
   CupCreateRequest,
   CupUpdateRequest,
 } from '@/features/cups/cupTypes';
+import { generateSchedule } from '@/features/schedule/scheduleGenerator';
+import type {
+  Match,
+  Pitch,
+  ScheduleSettingsRequest,
+} from '@/features/schedule/scheduleTypes';
 import type {
   GroupLabel,
   PublicTeam,
@@ -438,6 +444,127 @@ export const handlers = [
     });
     if (!updated) {
       return problem(404, 'Not found', `Team ${String(params.id)} not found`);
+    }
+    return HttpResponse.json(updated);
+  }),
+
+  // --- Schedule ---
+  http.get('/api/cups/:id/matches', ({ params }) => {
+    const cup = db.read().cups.find((c) => c.id === params.id);
+    if (!cup) {
+      return problem(404, 'Not found', `Cup ${String(params.id)} not found`);
+    }
+    const matches = db
+      .read()
+      .matches.filter((m) => m.cupId === cup.id)
+      .slice()
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    return HttpResponse.json(matches);
+  }),
+
+  http.post('/api/admin/cups/:id/schedule/generate', async ({ request, params }) => {
+    const auth = requireAuth(request);
+    if (isAuthErr(auth)) return auth.error;
+    const cup = db.read().cups.find((c) => c.id === params.id);
+    if (!cup) {
+      return problem(404, 'Not found', `Cup ${String(params.id)} not found`);
+    }
+    if (cup.status === 'draft') {
+      return problem(
+        422,
+        'Cup not ready',
+        'Open registrations before generating a schedule',
+      );
+    }
+    const body = (await request.json()) as Partial<ScheduleSettingsRequest>;
+    if (
+      !body.startTime ||
+      typeof body.matchDurationMinutes !== 'number' ||
+      typeof body.breakBetweenMatchesMinutes !== 'number'
+    ) {
+      return problem(400, 'Validation', 'Missing or invalid schedule settings');
+    }
+    if (body.matchDurationMinutes < 1 || body.matchDurationMinutes > 120) {
+      return problem(400, 'Validation', 'matchDurationMinutes must be between 1 and 120');
+    }
+    if (body.breakBetweenMatchesMinutes < 0 || body.breakBetweenMatchesMinutes > 60) {
+      return problem(400, 'Validation', 'breakBetweenMatchesMinutes must be between 0 and 60');
+    }
+    const startTime = new Date(body.startTime);
+    if (Number.isNaN(startTime.getTime())) {
+      return problem(400, 'Validation', 'startTime is not a valid date');
+    }
+
+    const paid = db
+      .read()
+      .teams.filter((t) => t.cupId === cup.id && t.status === 'paid');
+    const groupA = paid.filter((t) => t.groupLabel === 'A');
+    const groupB = paid.filter((t) => t.groupLabel === 'B');
+    if (groupA.length !== 4 || groupB.length !== 4) {
+      return problem(
+        422,
+        'Schedule requirements not met',
+        `Need 4 paid teams in each group (A=${groupA.length}, B=${groupB.length})`,
+      );
+    }
+
+    const partial = generateSchedule({
+      cupId: cup.id,
+      groupATeams: groupA,
+      groupBTeams: groupB,
+      startTime,
+      matchDurationMinutes: body.matchDurationMinutes,
+      breakBetweenMatchesMinutes: body.breakBetweenMatchesMinutes,
+    });
+    const newMatches: Match[] = partial.map((p) => ({
+      ...p,
+      id: crypto.randomUUID(),
+    }));
+
+    db.write((draft) => {
+      draft.matches = draft.matches.filter((m) => m.cupId !== cup.id);
+      draft.matches.push(...newMatches);
+      const cupIdx = draft.cups.findIndex((c) => c.id === cup.id);
+      if (cupIdx >= 0) {
+        const status = draft.cups[cupIdx].status;
+        if (status === 'open' || status === 'full') {
+          draft.cups[cupIdx] = { ...draft.cups[cupIdx], status: 'scheduled' };
+        }
+      }
+    });
+
+    const sorted = newMatches
+      .slice()
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    return HttpResponse.json(sorted);
+  }),
+
+  http.patch('/api/admin/matches/:id', async ({ request, params }) => {
+    const auth = requireAuth(request);
+    if (isAuthErr(auth)) return auth.error;
+    const body = (await request.json()) as Partial<{
+      startTime: string;
+      pitch: Pitch;
+    }>;
+    let updated: Match | undefined;
+    db.write((draft) => {
+      const idx = draft.matches.findIndex((m) => m.id === params.id);
+      if (idx === -1) return;
+      const next: Match = { ...draft.matches[idx] };
+      if (typeof body.startTime === 'string') {
+        const parsed = new Date(body.startTime);
+        if (!Number.isNaN(parsed.getTime())) {
+          next.startTime = parsed.toISOString();
+        }
+      }
+      if (body.pitch === 1 || body.pitch === 2) {
+        next.pitch = body.pitch;
+      }
+      draft.matches[idx] = next;
+      updated = next;
+    });
+    if (!updated) {
+      return problem(404, 'Not found', `Match ${String(params.id)} not found`);
     }
     return HttpResponse.json(updated);
   }),

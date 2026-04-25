@@ -235,11 +235,18 @@ export function AdminCupSettingsPage(): JSX.Element {
             {isEdit ? t('admin.cup.editTitle') : t('admin.cup.newTitle')}
           </h1>
           {isEdit && id && (
-            <Button asChild variant="outline" size="sm">
-              <Link to={`/admin/cups/${id}/teams`}>
-                {t('admin.teams.manageCta')}
-              </Link>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/admin/cups/${id}/teams`}>
+                  {t('admin.teams.manageCta')}
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/admin/cups/${id}/schedule`}>
+                  {t('admin.schedule.manageCta')}
+                </Link>
+              </Button>
+            </div>
           )}
         </div>
       </div>

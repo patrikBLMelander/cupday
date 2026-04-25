@@ -12,7 +12,66 @@
     "loginFailed": "Login failed — please try again"
   },
   "admin": {
-    "welcome": "Welcome"
+    "welcome": "Welcome",
+    "cups": {
+      "title": "Cups",
+      "createCta": "Create cup",
+      "emptyState": "No cups yet — create your first one.",
+      "loadFailed": "Failed to load cups",
+      "edit": "Edit",
+      "dates": "Dates",
+      "status": "Status",
+      "teams": "teams"
+    },
+    "cup": {
+      "newTitle": "New cup",
+      "editTitle": "Edit cup",
+      "save": "Save",
+      "saveAndOpen": "Save and open registrations",
+      "savedFlash": "Saved",
+      "saveFailed": "Save failed — please try again"
+    },
+    "cupForm": {
+      "basics": "Basics",
+      "name": "Name",
+      "slug": "Slug (URL handle)",
+      "organizingClub": "Organizing club",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "venue": "Venue",
+      "capacity": "Capacity",
+      "pitchCount": "Pitch count",
+      "maxTeams": "Max teams",
+      "branding": "Colors",
+      "primaryColor": "Primary color",
+      "accentColor": "Accent color",
+      "preview": "Preview",
+      "registration": "Registration & payment",
+      "fee": "Registration fee (SEK)",
+      "paymentInstructions": "Payment instructions",
+      "lagkassanLink": "Lagkassan link",
+      "lagkassanQrUrl": "Lagkassan QR image (URL)",
+      "contact": "Organizer contact",
+      "contactName": "Name",
+      "contactEmail": "Email",
+      "contactPhone": "Phone",
+      "validation": {
+        "required": "Required",
+        "slugInvalid": "Only lowercase letters, numbers, and hyphens",
+        "dateOrder": "End date must be after start date",
+        "emailInvalid": "Invalid email",
+        "minPitchCount": "At least 1 pitch",
+        "minMaxTeams": "At least 2 teams",
+        "nonNegative": "Must be 0 or more"
+      }
+    },
+    "cupStatus": {
+      "draft": "Draft",
+      "open": "Registrations open",
+      "full": "Full",
+      "scheduled": "Scheduled",
+      "finished": "Finished"
+    }
   },
   "common": {
     "languageSwedish": "Swedish",

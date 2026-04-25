@@ -12,7 +12,66 @@
     "loginFailed": "Inloggning misslyckades — försök igen"
   },
   "admin": {
-    "welcome": "Välkommen"
+    "welcome": "Välkommen",
+    "cups": {
+      "title": "Cuper",
+      "createCta": "Skapa cup",
+      "emptyState": "Inga cuper än — skapa din första.",
+      "loadFailed": "Kunde inte ladda cuper",
+      "edit": "Redigera",
+      "dates": "Datum",
+      "status": "Status",
+      "teams": "lag"
+    },
+    "cup": {
+      "newTitle": "Ny cup",
+      "editTitle": "Redigera cup",
+      "save": "Spara",
+      "saveAndOpen": "Spara och öppna anmälan",
+      "savedFlash": "Sparat",
+      "saveFailed": "Kunde inte spara — försök igen"
+    },
+    "cupForm": {
+      "basics": "Grundläggande",
+      "name": "Namn",
+      "slug": "Slug (URL-namn)",
+      "organizingClub": "Arrangerande klubb",
+      "startDate": "Startdatum",
+      "endDate": "Slutdatum",
+      "venue": "Anläggning",
+      "capacity": "Kapacitet",
+      "pitchCount": "Antal planer",
+      "maxTeams": "Max antal lag",
+      "branding": "Färger",
+      "primaryColor": "Primärfärg",
+      "accentColor": "Accentfärg",
+      "preview": "Förhandsvisning",
+      "registration": "Anmälan & betalning",
+      "fee": "Anmälningsavgift (SEK)",
+      "paymentInstructions": "Betalningsinstruktioner",
+      "lagkassanLink": "Lagkassan-länk",
+      "lagkassanQrUrl": "Lagkassan QR-bild (URL)",
+      "contact": "Arrangörens kontakt",
+      "contactName": "Namn",
+      "contactEmail": "E-post",
+      "contactPhone": "Telefon",
+      "validation": {
+        "required": "Obligatoriskt fält",
+        "slugInvalid": "Endast små bokstäver, siffror och bindestreck",
+        "dateOrder": "Slutdatum måste vara efter startdatum",
+        "emailInvalid": "Ogiltig e-post",
+        "minPitchCount": "Minst 1 plan",
+        "minMaxTeams": "Minst 2 lag",
+        "nonNegative": "Måste vara 0 eller mer"
+      }
+    },
+    "cupStatus": {
+      "draft": "Utkast",
+      "open": "Anmälan öppen",
+      "full": "Fullsatt",
+      "scheduled": "Schemalagd",
+      "finished": "Avslutad"
+    }
   },
   "common": {
     "languageSwedish": "Svenska",

@@ -7,18 +7,21 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { authApi } from '@/features/auth/authApi';
 import { authReducer } from '@/features/auth/authSlice';
+import { cupsApi } from '@/features/cups/cupsApi';
 
 export function makeTestStore(): ReturnType<typeof configureStore<{
   auth: ReturnType<typeof authReducer>;
   [authApi.reducerPath]: ReturnType<typeof authApi.reducer>;
+  [cupsApi.reducerPath]: ReturnType<typeof cupsApi.reducer>;
 }>> {
   const store = configureStore({
     reducer: {
       auth: authReducer,
       [authApi.reducerPath]: authApi.reducer,
+      [cupsApi.reducerPath]: cupsApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(authApi.middleware),
+      getDefaultMiddleware().concat(authApi.middleware, cupsApi.middleware),
   });
   setupListeners(store.dispatch);
   return store;

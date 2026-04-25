@@ -5,14 +5,16 @@ import type { TypedUseSelectorHook } from 'react-redux';
 
 import { authApi } from '@/features/auth/authApi';
 import { authReducer } from '@/features/auth/authSlice';
+import { cupsApi } from '@/features/cups/cupsApi';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     [authApi.reducerPath]: authApi.reducer,
+    [cupsApi.reducerPath]: cupsApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware),
+    getDefaultMiddleware().concat(authApi.middleware, cupsApi.middleware),
 });
 
 setupListeners(store.dispatch);

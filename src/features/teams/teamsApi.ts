@@ -2,10 +2,13 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { TOKEN_STORAGE_KEY } from '@/features/auth/authSlice';
 import type {
+  GroupLabel,
   PublicTeam,
   RegistrationCreateRequest,
   RegistrationCreateResponse,
   RegistrationDetail,
+  Team,
+  TeamStatus,
 } from '@/features/teams/teamTypes';
 
 function resolveBaseUrl(): string {
@@ -29,12 +32,18 @@ export const teamsApi = createApi({
   }),
   // Cup tags are shared with cupsApi so creating a registration invalidates
   // the cup cache (status may auto-transition to 'full' on the server).
-  tagTypes: ['Teams', 'Cup', 'Cups', 'Registration'],
+  tagTypes: ['Teams', 'AdminTeams', 'Cup', 'Cups', 'Registration'],
   endpoints: (builder) => ({
     listPublicTeamsByCup: builder.query<PublicTeam[], string>({
       query: (cupId) => `/cups/${cupId}/teams`,
       providesTags: (_result, _err, cupId) => [
         { type: 'Teams' as const, id: cupId },
+      ],
+    }),
+    listAdminTeamsByCup: builder.query<Team[], string>({
+      query: (cupId) => `/admin/cups/${cupId}/teams`,
+      providesTags: (_result, _err, cupId) => [
+        { type: 'AdminTeams' as const, id: cupId },
       ],
     }),
     getRegistration: builder.query<RegistrationDetail, string>({
@@ -56,11 +65,33 @@ export const teamsApi = createApi({
         { type: 'Cups', id: 'LIST' },
       ],
     }),
+    updateTeam: builder.mutation<
+      Team,
+      {
+        id: string;
+        cupId: string;
+        patch: { status?: TeamStatus; groupLabel?: GroupLabel | null };
+      }
+    >({
+      query: ({ id, patch }) => ({
+        url: `/admin/teams/${id}`,
+        method: 'PATCH',
+        body: patch,
+      }),
+      invalidatesTags: (_result, _err, { cupId }) => [
+        { type: 'AdminTeams', id: cupId },
+        { type: 'Teams', id: cupId },
+        { type: 'Cup', id: cupId },
+        { type: 'Cups', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
 export const {
   useListPublicTeamsByCupQuery,
+  useListAdminTeamsByCupQuery,
   useGetRegistrationQuery,
   useCreateRegistrationMutation,
+  useUpdateTeamMutation,
 } = teamsApi;

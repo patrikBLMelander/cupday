@@ -73,6 +73,34 @@
       "full": "Full",
       "scheduled": "Scheduled",
       "finished": "Finished"
+    },
+    "teams": {
+      "title": "Manage teams",
+      "manageCta": "Manage teams",
+      "filterAll": "All",
+      "filterReserved": "Reserved",
+      "filterPaid": "Paid",
+      "filterCancelled": "Cancelled",
+      "emptyState": "No teams match this filter.",
+      "columns": {
+        "team": "Team",
+        "club": "Club",
+        "contact": "Contact",
+        "status": "Status",
+        "group": "Group",
+        "actions": "Actions"
+      },
+      "actions": {
+        "markPaid": "Mark paid",
+        "cancel": "Cancel",
+        "confirmCancel": "Cancel this team?"
+      },
+      "groupNone": "No group",
+      "groupA": "Group A",
+      "groupB": "Group B",
+      "statusReserved": "Reserved",
+      "statusPaid": "Paid",
+      "statusCancelled": "Cancelled"
     }
   },
   "common": {
@@ -101,6 +129,13 @@
     "empty": {
       "teams": "Teams will appear here once registration opens.",
       "schedule": "The schedule will appear here once it's published."
+    },
+    "teamsList": {
+      "groupA": "Group A",
+      "groupB": "Group B",
+      "unassigned": "Unassigned",
+      "reservedBadge": "Reserved",
+      "paidBadge": "Paid"
     },
     "notFound": {
       "title": "Cup not found",

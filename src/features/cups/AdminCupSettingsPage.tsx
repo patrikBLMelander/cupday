@@ -230,9 +230,18 @@ export function AdminCupSettingsPage(): JSX.Element {
         <Button asChild variant="ghost" size="sm" className="-ml-3 self-start">
           <Link to="/admin">← {t('admin.cup.backToOverview')}</Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {isEdit ? t('admin.cup.editTitle') : t('admin.cup.newTitle')}
-        </h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {isEdit ? t('admin.cup.editTitle') : t('admin.cup.newTitle')}
+          </h1>
+          {isEdit && id && (
+            <Button asChild variant="outline" size="sm">
+              <Link to={`/admin/cups/${id}/teams`}>
+                {t('admin.teams.manageCta')}
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       <Card>

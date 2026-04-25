@@ -3,13 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { Link, useOutletContext } from 'react-router-dom';
 
 import type { PublicCupOutletContext } from '@/app/layouts/PublicLayout';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useListPublicTeamsByCupQuery } from '@/features/teams/teamsApi';
+import type { PublicTeam } from '@/features/teams/teamTypes';
 
 export function PublicCupLandingPage(): JSX.Element {
   const { t, i18n } = useTranslation();
   const { cup } = useOutletContext<PublicCupOutletContext>();
+  const { data: publicTeams = [], isLoading: isLoadingTeams } =
+    useListPublicTeamsByCupQuery(cup.id);
 
   const dateFormatter = new Intl.DateTimeFormat(
     i18n.resolvedLanguage ?? 'sv',
@@ -102,11 +107,21 @@ export function PublicCupLandingPage(): JSX.Element {
         </TabsContent>
 
         <TabsContent value="teams">
-          <Card>
-            <CardContent className="py-10 text-center text-muted-foreground">
-              {t('public.empty.teams')}
-            </CardContent>
-          </Card>
+          {isLoadingTeams ? (
+            <Card>
+              <CardContent className="py-10 text-center text-muted-foreground">
+                {t('common.loading')}
+              </CardContent>
+            </Card>
+          ) : publicTeams.length === 0 ? (
+            <Card>
+              <CardContent className="py-10 text-center text-muted-foreground">
+                {t('public.empty.teams')}
+              </CardContent>
+            </Card>
+          ) : (
+            <PublicTeamsList teams={publicTeams} t={t} />
+          )}
         </TabsContent>
 
         <TabsContent value="schedule">
@@ -135,5 +150,80 @@ function InfoRow({
       </span>
       <span className="text-sm">{children}</span>
     </div>
+  );
+}
+
+function PublicTeamsList({
+  teams,
+  t,
+}: {
+  teams: PublicTeam[];
+  t: (k: string) => string;
+}): JSX.Element {
+  const groupA = teams.filter((team) => team.groupLabel === 'A');
+  const groupB = teams.filter((team) => team.groupLabel === 'B');
+  const unassigned = teams.filter((team) => team.groupLabel === null);
+
+  return (
+    <div className="flex flex-col gap-3">
+      {groupA.length > 0 && (
+        <TeamsGroup
+          title={t('public.teamsList.groupA')}
+          teams={groupA}
+          t={t}
+        />
+      )}
+      {groupB.length > 0 && (
+        <TeamsGroup
+          title={t('public.teamsList.groupB')}
+          teams={groupB}
+          t={t}
+        />
+      )}
+      {unassigned.length > 0 && (
+        <TeamsGroup
+          title={t('public.teamsList.unassigned')}
+          teams={unassigned}
+          t={t}
+        />
+      )}
+    </div>
+  );
+}
+
+function TeamsGroup({
+  title,
+  teams,
+  t,
+}: {
+  title: string;
+  teams: PublicTeam[];
+  t: (k: string) => string;
+}): JSX.Element {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ul className="flex flex-col gap-2">
+          {teams.map((team) => (
+            <li
+              key={team.id}
+              className="flex items-center justify-between gap-3"
+            >
+              <span className="text-sm">{team.name}</span>
+              <Badge
+                variant={team.status === 'paid' ? 'default' : 'secondary'}
+              >
+                {team.status === 'paid'
+                  ? t('public.teamsList.paidBadge')
+                  : t('public.teamsList.reservedBadge')}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
 }

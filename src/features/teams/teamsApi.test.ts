@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { authApi } from '@/features/auth/authApi';
+import { TOKEN_STORAGE_KEY } from '@/features/auth/authSlice';
 import type { Cup } from '@/features/cups/cupTypes';
 import { hexToHslChannels } from '@/lib/color';
 import { teamsApi } from '@/features/teams/teamsApi';
@@ -92,5 +94,55 @@ describe('teamsApi (integration)', () => {
     const e = second as { status?: number; data?: { teamName?: string } };
     expect(e.status).toBe(409);
     expect(e.data?.teamName).toBe('ifk');
+  });
+
+  it('marks paid + cancels and rebounds the cup from full to open', async () => {
+    const cup = seedOpenCup({ id: 'cup-rebound', slug: 'rebound', maxTeams: 2 });
+    const store = makeTestStore();
+    const login = await store
+      .dispatch(
+        authApi.endpoints.login.initiate({
+          email: 'admin@example.com',
+          password: 'secret123',
+        }),
+      )
+      .unwrap();
+    window.localStorage.setItem(TOKEN_STORAGE_KEY, login.token);
+
+    const reg = await store
+      .dispatch(
+        teamsApi.endpoints.createRegistration.initiate({
+          cupId: cup.id,
+          body: { ...baseBody, teamNames: ['Lag 1', 'Lag 2'] },
+        }),
+      )
+      .unwrap();
+
+    expect(db.read().cups.find((c) => c.id === cup.id)?.status).toBe('full');
+
+    const firstTeamId = reg.teamIds[0];
+    const paid = await store
+      .dispatch(
+        teamsApi.endpoints.updateTeam.initiate({
+          id: firstTeamId,
+          cupId: cup.id,
+          patch: { status: 'paid' },
+        }),
+      )
+      .unwrap();
+    expect(paid.status).toBe('paid');
+    expect(paid.paidAt).not.toBeNull();
+
+    await store
+      .dispatch(
+        teamsApi.endpoints.updateTeam.initiate({
+          id: firstTeamId,
+          cupId: cup.id,
+          patch: { status: 'cancelled' },
+        }),
+      )
+      .unwrap();
+
+    expect(db.read().cups.find((c) => c.id === cup.id)?.status).toBe('open');
   });
 });

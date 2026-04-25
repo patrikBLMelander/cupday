@@ -73,6 +73,34 @@
       "full": "Fullsatt",
       "scheduled": "Schemalagd",
       "finished": "Avslutad"
+    },
+    "teams": {
+      "title": "Hantera lag",
+      "manageCta": "Hantera lag",
+      "filterAll": "Alla",
+      "filterReserved": "Reserverade",
+      "filterPaid": "Betalda",
+      "filterCancelled": "Avbrutna",
+      "emptyState": "Inga lag matchar filtret.",
+      "columns": {
+        "team": "Lag",
+        "club": "Klubb",
+        "contact": "Kontakt",
+        "status": "Status",
+        "group": "Grupp",
+        "actions": "Åtgärder"
+      },
+      "actions": {
+        "markPaid": "Markera betalt",
+        "cancel": "Avbryt",
+        "confirmCancel": "Är du säker på att du vill avbryta laget?"
+      },
+      "groupNone": "Ingen grupp",
+      "groupA": "Grupp A",
+      "groupB": "Grupp B",
+      "statusReserved": "Reserverad",
+      "statusPaid": "Betald",
+      "statusCancelled": "Avbruten"
     }
   },
   "common": {
@@ -101,6 +129,13 @@
     "empty": {
       "teams": "Lag visas här när anmälan är öppen.",
       "schedule": "Spelschemat visas när det publicerats."
+    },
+    "teamsList": {
+      "groupA": "Grupp A",
+      "groupB": "Grupp B",
+      "unassigned": "Ej grupperade",
+      "reservedBadge": "Reserverad",
+      "paidBadge": "Betald"
     },
     "notFound": {
       "title": "Cupen hittades inte",

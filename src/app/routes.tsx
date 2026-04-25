@@ -10,6 +10,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth';
 import { AdminCupListPage } from '@/features/cups/AdminCupListPage';
 import { AdminCupSettingsPage } from '@/features/cups/AdminCupSettingsPage';
 import { PublicCupLandingPage } from '@/features/cups/PublicCupLandingPage';
+import { AdminTeamsPage } from '@/features/teams/AdminTeamsPage';
 import { PaymentPage } from '@/features/teams/PaymentPage';
 import { RegistrationFormPage } from '@/features/teams/RegistrationFormPage';
 
@@ -41,6 +42,7 @@ export const router = createBrowserRouter([
           { index: true, element: <AdminCupListPage /> },
           { path: 'cups/new', element: <AdminCupSettingsPage /> },
           { path: 'cups/:id', element: <AdminCupSettingsPage /> },
+          { path: 'cups/:id/teams', element: <AdminTeamsPage /> },
         ],
       },
     ],

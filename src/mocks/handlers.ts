@@ -6,11 +6,13 @@ import type {
   CupUpdateRequest,
 } from '@/features/cups/cupTypes';
 import type {
+  GroupLabel,
   PublicTeam,
   RegistrationCreateRequest,
   RegistrationCreateResponse,
   RegistrationDetail,
   Team,
+  TeamStatus,
 } from '@/features/teams/teamTypes';
 import { db, type MockUser } from '@/mocks/db';
 
@@ -369,6 +371,75 @@ export const handlers = [
       teamIds: newTeams.map((t) => t.id),
     };
     return HttpResponse.json(payload, { status: 201 });
+  }),
+
+  // --- Teams (admin) ---
+  http.get('/api/admin/cups/:id/teams', ({ request, params }) => {
+    const auth = requireAuth(request);
+    if (isAuthErr(auth)) return auth.error;
+    const cup = db.read().cups.find((c) => c.id === params.id);
+    if (!cup) {
+      return problem(404, 'Not found', `Cup ${String(params.id)} not found`);
+    }
+    const teams = db
+      .read()
+      .teams.filter((t) => t.cupId === cup.id)
+      .slice()
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    return HttpResponse.json(teams);
+  }),
+
+  http.patch('/api/admin/teams/:id', async ({ request, params }) => {
+    const auth = requireAuth(request);
+    if (isAuthErr(auth)) return auth.error;
+    const body = (await request.json()) as {
+      status?: TeamStatus;
+      groupLabel?: GroupLabel | null;
+    };
+    let updated: Team | undefined;
+    db.write((draft) => {
+      const idx = draft.teams.findIndex((t) => t.id === params.id);
+      if (idx === -1) return;
+      const team = draft.teams[idx];
+      const now = new Date().toISOString();
+      const next: Team = { ...team };
+      if (body.status !== undefined && body.status !== team.status) {
+        next.status = body.status;
+        if (body.status === 'paid') {
+          next.paidAt = now;
+          next.cancelledAt = null;
+        } else if (body.status === 'cancelled') {
+          next.cancelledAt = now;
+        }
+      }
+      if (body.groupLabel !== undefined) {
+        next.groupLabel = body.groupLabel;
+      }
+      draft.teams[idx] = next;
+      updated = next;
+
+      if (
+        body.status === 'cancelled' &&
+        team.status !== 'cancelled'
+      ) {
+        const cupIdx = draft.cups.findIndex((c) => c.id === team.cupId);
+        if (cupIdx >= 0 && draft.cups[cupIdx].status === 'full') {
+          const activeCount = draft.teams.filter(
+            (t) => t.cupId === team.cupId && t.status !== 'cancelled',
+          ).length;
+          if (activeCount < draft.cups[cupIdx].maxTeams) {
+            draft.cups[cupIdx] = {
+              ...draft.cups[cupIdx],
+              status: 'open',
+            };
+          }
+        }
+      }
+    });
+    if (!updated) {
+      return problem(404, 'Not found', `Team ${String(params.id)} not found`);
+    }
+    return HttpResponse.json(updated);
   }),
 
   http.get('/api/registrations/:id', ({ params }) => {

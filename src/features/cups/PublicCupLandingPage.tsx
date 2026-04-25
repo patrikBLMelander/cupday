@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PublicScheduleView } from '@/features/schedule/PublicScheduleView';
 import { useListPublicTeamsByCupQuery } from '@/features/teams/teamsApi';
 import type { PublicTeam } from '@/features/teams/teamTypes';
 
@@ -125,11 +126,7 @@ export function PublicCupLandingPage(): JSX.Element {
         </TabsContent>
 
         <TabsContent value="schedule">
-          <Card>
-            <CardContent className="py-10 text-center text-muted-foreground">
-              {t('public.empty.schedule')}
-            </CardContent>
-          </Card>
+          <PublicScheduleView cupId={cup.id} />
         </TabsContent>
       </Tabs>
     </div>

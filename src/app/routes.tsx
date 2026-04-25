@@ -1,5 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
-import { useTranslation } from 'react-i18next';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import HomePlaceholder from '@/HomePlaceholder';
@@ -11,18 +9,10 @@ import { AdminCupListPage } from '@/features/cups/AdminCupListPage';
 import { AdminCupSettingsPage } from '@/features/cups/AdminCupSettingsPage';
 import { PublicCupLandingPage } from '@/features/cups/PublicCupLandingPage';
 import { AdminSchedulePage } from '@/features/schedule/AdminSchedulePage';
+import { PublicSchedulePage } from '@/features/schedule/PublicSchedulePage';
 import { AdminTeamsPage } from '@/features/teams/AdminTeamsPage';
 import { PaymentPage } from '@/features/teams/PaymentPage';
 import { RegistrationFormPage } from '@/features/teams/RegistrationFormPage';
-
-function ComingSoon(): JSX.Element {
-  const { t } = useTranslation();
-  return (
-    <p className="py-10 text-center text-muted-foreground">
-      {t('public.placeholder.comingSoon')}
-    </p>
-  );
-}
 
 export const router = createBrowserRouter([
   {
@@ -56,7 +46,7 @@ export const router = createBrowserRouter([
       { index: true, element: <PublicCupLandingPage /> },
       { path: 'register', element: <RegistrationFormPage /> },
       { path: 'payment/:registrationId', element: <PaymentPage /> },
-      { path: 'schedule', element: <ComingSoon /> },
+      { path: 'schedule', element: <PublicSchedulePage /> },
     ],
   },
   {

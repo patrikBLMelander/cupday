@@ -158,8 +158,7 @@
       "registrationsClosed": "Registrations are not open"
     },
     "empty": {
-      "teams": "Teams will appear here once registration opens.",
-      "schedule": "The schedule will appear here once it's published."
+      "teams": "Teams will appear here once registration opens."
     },
     "teamsList": {
       "groupA": "Group A",
@@ -168,13 +167,21 @@
       "reservedBadge": "Reserved",
       "paidBadge": "Paid"
     },
+    "schedule": {
+      "filterAll": "All",
+      "filterGroupA": "Group A",
+      "filterGroupB": "Group B",
+      "pitchLabel": "Pitch {{n}}",
+      "groupBadge": "Group {{label}}",
+      "vs": "vs",
+      "empty": "The schedule has not been published yet.",
+      "emptyForFilter": "No matches in this group.",
+      "backToCup": "Back to the cup"
+    },
     "notFound": {
       "title": "Cup not found",
       "body": "This link may be outdated or mistyped.",
       "backHome": "Back to home"
-    },
-    "placeholder": {
-      "comingSoon": "Coming soon"
     }
   },
   "registration": {

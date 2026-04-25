@@ -158,8 +158,7 @@
       "registrationsClosed": "Anmälan är inte öppen"
     },
     "empty": {
-      "teams": "Lag visas här när anmälan är öppen.",
-      "schedule": "Spelschemat visas när det publicerats."
+      "teams": "Lag visas här när anmälan är öppen."
     },
     "teamsList": {
       "groupA": "Grupp A",
@@ -168,13 +167,21 @@
       "reservedBadge": "Reserverad",
       "paidBadge": "Betald"
     },
+    "schedule": {
+      "filterAll": "Alla",
+      "filterGroupA": "Grupp A",
+      "filterGroupB": "Grupp B",
+      "pitchLabel": "Plan {{n}}",
+      "groupBadge": "Grupp {{label}}",
+      "vs": "mot",
+      "empty": "Spelschemat är inte publicerat ännu.",
+      "emptyForFilter": "Inga matcher i denna grupp.",
+      "backToCup": "Tillbaka till cupen"
+    },
     "notFound": {
       "title": "Cupen hittades inte",
       "body": "Länken kanske är gammal eller felstavad.",
       "backHome": "Till startsidan"
-    },
-    "placeholder": {
-      "comingSoon": "Kommer snart"
     }
   },
   "registration": {

@@ -1,0 +1,23 @@
+CREATE TABLE cup (
+  id UUID PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL,
+  organizing_club_name TEXT NOT NULL,
+  primary_color_hsl TEXT NOT NULL,
+  accent_color_hsl TEXT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  venue_name TEXT NOT NULL,
+  pitch_count INTEGER NOT NULL CHECK (pitch_count >= 1),
+  max_teams INTEGER NOT NULL CHECK (max_teams >= 2),
+  registration_fee_sek INTEGER NOT NULL CHECK (registration_fee_sek >= 0),
+  payment_instructions TEXT NOT NULL DEFAULT '',
+  payment_lagkassan_link TEXT NOT NULL DEFAULT '',
+  payment_lagkassan_qr_url TEXT NOT NULL DEFAULT '',
+  organizer_contact_name TEXT NOT NULL,
+  organizer_contact_email TEXT NOT NULL,
+  organizer_contact_phone TEXT NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('DRAFT', 'OPEN', 'FULL', 'SCHEDULED', 'FINISHED')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  version BIGINT NOT NULL DEFAULT 0
+);

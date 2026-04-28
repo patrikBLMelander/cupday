@@ -22,6 +22,9 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/cup
       DB_USER: cup
       DB_PASSWORD: cup
+      CUP_ADMIN_EMAIL: ${CUP_ADMIN_EMAIL:-}
+      CUP_ADMIN_PASSWORD_HASH: ${CUP_ADMIN_PASSWORD_HASH:-}
+      JWT_SECRET: ${JWT_SECRET:-please-rotate-me-256-bits-is-32-bytes-yes}
     ports:
       - "8080:8080"
     depends_on:

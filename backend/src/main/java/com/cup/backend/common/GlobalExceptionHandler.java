@@ -2,6 +2,10 @@ package com.cup.backend.common;
 
 import com.cup.backend.cups.CupNotFoundException;
 import com.cup.backend.cups.SlugConflictException;
+import com.cup.backend.teams.CupFullException;
+import com.cup.backend.teams.CupNotOpenException;
+import com.cup.backend.teams.RegistrationNotFoundException;
+import com.cup.backend.teams.TeamNameConflictException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +31,31 @@ public class GlobalExceptionHandler {
         "Slug already exists",
         ex.getMessage(),
         Map.of("slug", ex.getSlug()));
+  }
+
+  @ExceptionHandler(CupNotOpenException.class)
+  public ResponseEntity<Map<String, Object>> handleCupNotOpen(CupNotOpenException ex) {
+    return ProblemDetails.response(422, "Registration not open", ex.getMessage());
+  }
+
+  @ExceptionHandler(CupFullException.class)
+  public ResponseEntity<Map<String, Object>> handleCupFull(CupFullException ex) {
+    return ProblemDetails.response(422, "Cup is full", ex.getMessage());
+  }
+
+  @ExceptionHandler(TeamNameConflictException.class)
+  public ResponseEntity<Map<String, Object>> handleTeamNameConflict(TeamNameConflictException ex) {
+    return ProblemDetails.response(
+        409,
+        "Team name already taken",
+        ex.getMessage(),
+        Map.of("teamName", ex.getTeamName()));
+  }
+
+  @ExceptionHandler(RegistrationNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleRegistrationNotFound(
+      RegistrationNotFoundException ex) {
+    return ProblemDetails.response(404, "Not found", ex.getMessage());
   }
 
   @ExceptionHandler(IllegalArgumentException.class)

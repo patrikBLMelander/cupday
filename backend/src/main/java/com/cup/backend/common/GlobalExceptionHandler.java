@@ -4,8 +4,10 @@ import com.cup.backend.cups.CupNotFoundException;
 import com.cup.backend.cups.SlugConflictException;
 import com.cup.backend.teams.CupFullException;
 import com.cup.backend.teams.CupNotOpenException;
+import com.cup.backend.teams.InvalidTeamTransitionException;
 import com.cup.backend.teams.RegistrationNotFoundException;
 import com.cup.backend.teams.TeamNameConflictException;
+import com.cup.backend.teams.TeamNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +58,17 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleRegistrationNotFound(
       RegistrationNotFoundException ex) {
     return ProblemDetails.response(404, "Not found", ex.getMessage());
+  }
+
+  @ExceptionHandler(TeamNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleTeamNotFound(TeamNotFoundException ex) {
+    return ProblemDetails.response(404, "Not found", ex.getMessage());
+  }
+
+  @ExceptionHandler(InvalidTeamTransitionException.class)
+  public ResponseEntity<Map<String, Object>> handleInvalidTransition(
+      InvalidTeamTransitionException ex) {
+    return ProblemDetails.response(422, "Invalid team transition", ex.getMessage());
   }
 
   @ExceptionHandler(IllegalArgumentException.class)

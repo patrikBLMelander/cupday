@@ -51,4 +51,43 @@ public final class TeamDtos {
   }
 
   public record RegistrationDetail(RegistrationSummary registration, List<PublicTeam> teams) {}
+
+  /** Full team payload returned by admin endpoints (includes contact + timestamps). */
+  public record AdminTeamResponse(
+      UUID id,
+      UUID cupId,
+      UUID registrationId,
+      String name,
+      String clubName,
+      String contactName,
+      String contactEmail,
+      String contactPhone,
+      GroupLabel groupLabel,
+      TeamStatus status,
+      Instant createdAt,
+      Instant paidAt,
+      Instant cancelledAt) {
+
+    public static AdminTeamResponse from(Team team) {
+      return new AdminTeamResponse(
+          team.getId(),
+          team.getCupId(),
+          team.getRegistrationId(),
+          team.getName(),
+          team.getClubName(),
+          team.getContactName(),
+          team.getContactEmail(),
+          team.getContactPhone(),
+          team.getGroupLabel(),
+          team.getStatus(),
+          team.getCreatedAt(),
+          team.getPaidAt(),
+          team.getCancelledAt());
+    }
+  }
+
+  // TeamUpdateRequest is consumed as a raw JsonNode in AdminTeamController so
+  // the service can distinguish "field absent" (leave unchanged) from "field
+  // null" (clear). Jackson collapses absent-vs-null when binding to records,
+  // so a wrapper record won't carry the distinction we need.
 }

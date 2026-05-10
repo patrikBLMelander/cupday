@@ -16,4 +16,7 @@ public interface TeamRepository extends JpaRepository<Team, UUID> {
   long countActiveByCupId(@Param("cupId") UUID cupId);
 
   List<Team> findByRegistrationIdOrderByCreatedAtAsc(UUID registrationId);
+
+  /** All teams for a cup, including cancelled ones. Used by the admin teams endpoint. */
+  List<Team> findByCupIdOrderByCreatedAtAsc(UUID cupId);
 }

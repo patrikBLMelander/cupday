@@ -19,4 +19,8 @@ public interface TeamRepository extends JpaRepository<Team, UUID> {
 
   /** All teams for a cup, including cancelled ones. Used by the admin teams endpoint. */
   List<Team> findByCupIdOrderByCreatedAtAsc(UUID cupId);
+
+  /** Eligible roster for schedule generation: paid teams in a specific group. */
+  List<Team> findByCupIdAndStatusAndGroupLabelOrderByCreatedAtAsc(
+      UUID cupId, TeamStatus status, com.cup.backend.teams.GroupLabel groupLabel);
 }

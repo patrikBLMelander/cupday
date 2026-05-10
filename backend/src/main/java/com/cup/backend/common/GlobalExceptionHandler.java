@@ -2,6 +2,9 @@ package com.cup.backend.common;
 
 import com.cup.backend.cups.CupNotFoundException;
 import com.cup.backend.cups.SlugConflictException;
+import com.cup.backend.schedule.CupNotReadyException;
+import com.cup.backend.schedule.InsufficientPaidTeamsException;
+import com.cup.backend.schedule.MatchNotFoundException;
 import com.cup.backend.teams.CupFullException;
 import com.cup.backend.teams.CupNotOpenException;
 import com.cup.backend.teams.InvalidTeamTransitionException;
@@ -69,6 +72,22 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleInvalidTransition(
       InvalidTeamTransitionException ex) {
     return ProblemDetails.response(422, "Invalid team transition", ex.getMessage());
+  }
+
+  @ExceptionHandler(MatchNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleMatchNotFound(MatchNotFoundException ex) {
+    return ProblemDetails.response(404, "Not found", ex.getMessage());
+  }
+
+  @ExceptionHandler(InsufficientPaidTeamsException.class)
+  public ResponseEntity<Map<String, Object>> handleInsufficientPaidTeams(
+      InsufficientPaidTeamsException ex) {
+    return ProblemDetails.response(422, "Schedule requirements not met", ex.getMessage());
+  }
+
+  @ExceptionHandler(CupNotReadyException.class)
+  public ResponseEntity<Map<String, Object>> handleCupNotReady(CupNotReadyException ex) {
+    return ProblemDetails.response(422, "Cup not ready", ex.getMessage());
   }
 
   @ExceptionHandler(IllegalArgumentException.class)

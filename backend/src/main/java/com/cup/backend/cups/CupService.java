@@ -2,9 +2,14 @@ package com.cup.backend.cups;
 
 import com.cup.backend.cups.CupDtos.CupCreateRequest;
 import com.cup.backend.cups.CupDtos.CupUpdateRequest;
+import com.cup.backend.teams.TeamRepository;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,15 +18,32 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CupService {
 
-  private final CupRepository repository;
+  private static final Set<Integer> ALLOWED_PLAYERS_PER_TEAM = Set.of(5, 7, 9);
+  private static final int DEFAULT_PLAYERS_PER_TEAM = 7;
 
-  public CupService(CupRepository repository) {
+  private final CupRepository repository;
+  private final TeamRepository teamRepository;
+
+  public CupService(CupRepository repository, TeamRepository teamRepository) {
     this.repository = repository;
+    this.teamRepository = teamRepository;
   }
 
   @Transactional(readOnly = true)
   public List<Cup> listAll() {
     return repository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+  }
+
+  /** Public landing list: published cups (anything except DRAFT), sorted by date then name. */
+  @Transactional(readOnly = true)
+  public List<Cup> listPublic() {
+    return repository.findByStatusNotOrderByStartDateAscNameAsc(CupStatus.DRAFT);
+  }
+
+  /** Count of non-cancelled teams; surfaced as {@code activeTeamCount} in the response. */
+  @Transactional(readOnly = true)
+  public int countActiveTeams(UUID cupId) {
+    return Math.toIntExact(teamRepository.countActiveByCupId(cupId));
   }
 
   @Transactional(readOnly = true)
@@ -42,6 +64,9 @@ public class CupService {
     if (repository.existsBySlug(req.slug())) {
       throw new SlugConflictException(req.slug());
     }
+    var playersPerTeam = requirePlayersPerTeam(req.playersPerTeam());
+    var useLevels = req.useLevels() != null && req.useLevels();
+    var levelsCsv = normalizeLevels(req.levels(), useLevels);
     var cup = new Cup(
         UUID.randomUUID(),
         req.slug(),
@@ -62,7 +87,15 @@ public class CupService {
         req.organizerContactEmail(),
         req.organizerContactPhone(),
         CupStatus.DRAFT,
-        Instant.now());
+        Instant.now(),
+        playersPerTeam,
+        nullToEmpty(req.clubLogoUrl()),
+        useLevels,
+        levelsCsv,
+        Boolean.TRUE.equals(req.hasToilets()),
+        Boolean.TRUE.equals(req.hasFood()),
+        Boolean.TRUE.equals(req.hasParking()),
+        nullToEmpty(req.mapUrl()));
     return repository.save(cup);
   }
 
@@ -114,6 +147,23 @@ public class CupService {
     if (req.organizerContactEmail() != null) cup.setOrganizerContactEmail(req.organizerContactEmail());
     if (req.organizerContactPhone() != null) cup.setOrganizerContactPhone(req.organizerContactPhone());
     if (req.status() != null) cup.setStatus(req.status());
+    if (req.playersPerTeam() != null) {
+      cup.setPlayersPerTeam(requirePlayersPerTeam(req.playersPerTeam()));
+    }
+    if (req.clubLogoUrl() != null) cup.setClubLogoUrl(req.clubLogoUrl());
+    var nextUseLevels = req.useLevels() != null ? req.useLevels() : cup.isUseLevels();
+    var nextLevels = req.levels();
+    if (req.useLevels() != null || nextLevels != null) {
+      var resolvedLevels = nextLevels != null
+          ? nextLevels
+          : splitLevels(cup.getLevels());
+      cup.setUseLevels(nextUseLevels);
+      cup.setLevels(normalizeLevels(resolvedLevels, nextUseLevels));
+    }
+    if (req.hasToilets() != null) cup.setHasToilets(req.hasToilets());
+    if (req.hasFood() != null) cup.setHasFood(req.hasFood());
+    if (req.hasParking() != null) cup.setHasParking(req.hasParking());
+    if (req.mapUrl() != null) cup.setMapUrl(req.mapUrl());
 
     return cup;
   }
@@ -134,5 +184,50 @@ public class CupService {
 
   private static String nullToEmpty(String value) {
     return value == null ? "" : value;
+  }
+
+  private static int requirePlayersPerTeam(Integer value) {
+    var resolved = value == null ? DEFAULT_PLAYERS_PER_TEAM : value;
+    if (!ALLOWED_PLAYERS_PER_TEAM.contains(resolved)) {
+      throw new IllegalArgumentException("playersPerTeam must be 5, 7, or 9");
+    }
+    return resolved;
+  }
+
+  /**
+   * Trims, drops blanks, dedupes case-insensitively, and serializes as CSV.
+   * Returns "" when {@code useLevels=false}; requires at least 2 levels otherwise.
+   */
+  private static String normalizeLevels(List<String> levels, boolean useLevels) {
+    if (!useLevels) {
+      return "";
+    }
+    if (levels == null) {
+      throw new IllegalArgumentException("levels must contain at least 2 entries when useLevels=true");
+    }
+    var seen = new LinkedHashSet<String>();
+    for (var raw : levels) {
+      if (raw == null) continue;
+      var trimmed = raw.trim();
+      if (trimmed.isEmpty()) continue;
+      if (trimmed.contains(",")) {
+        throw new IllegalArgumentException("level names cannot contain commas");
+      }
+      seen.add(trimmed);
+    }
+    if (seen.size() < 2) {
+      throw new IllegalArgumentException("levels must contain at least 2 distinct entries when useLevels=true");
+    }
+    return seen.stream().collect(Collectors.joining(","));
+  }
+
+  private static List<String> splitLevels(String csv) {
+    if (csv == null || csv.isBlank()) {
+      return List.of();
+    }
+    return Arrays.stream(csv.split(","))
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .toList();
   }
 }

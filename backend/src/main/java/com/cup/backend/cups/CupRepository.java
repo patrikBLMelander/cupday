@@ -1,6 +1,7 @@
 package com.cup.backend.cups;
 
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,7 @@ public interface CupRepository extends JpaRepository<Cup, UUID> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("SELECT c FROM Cup c WHERE c.id = :id")
   Optional<Cup> findByIdForUpdate(@Param("id") UUID id);
+
+  /** Public landing-page list: excludes drafts; soonest cups first. */
+  List<Cup> findByStatusNotOrderByStartDateAscNameAsc(CupStatus status);
 }

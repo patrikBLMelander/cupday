@@ -34,6 +34,9 @@ const DEFAULT_ACCENT_HEX = '#f1f5f9';
 type FormShape = CupCreateRequest;
 type Errors = Partial<Record<keyof FormShape | '_form', string>>;
 
+const ALLOWED_PLAYERS_PER_TEAM = [5, 7, 9] as const;
+const DEFAULT_LEVELS = ['Lätt', 'Medel', 'Svår'];
+
 function emptyForm(): FormShape {
   return {
     slug: '',
@@ -55,6 +58,14 @@ function emptyForm(): FormShape {
     organizerContactName: '',
     organizerContactEmail: '',
     organizerContactPhone: '',
+    playersPerTeam: 7,
+    clubLogoUrl: '',
+    useLevels: false,
+    levels: [],
+    hasToilets: false,
+    hasFood: false,
+    hasParking: false,
+    mapUrl: '',
   };
 }
 
@@ -82,6 +93,24 @@ function validate(form: FormShape, t: (key: string) => string): Errors {
   }
   if (form.organizerContactEmail && !EMAIL_RE.test(form.organizerContactEmail)) {
     errors.organizerContactEmail = t('admin.cupForm.validation.emailInvalid');
+  }
+  if (form.useLevels) {
+    const seen = new Set<string>();
+    let hasComma = false;
+    for (const level of form.levels) {
+      const trimmed = level.trim();
+      if (!trimmed) continue;
+      if (trimmed.includes(',')) {
+        hasComma = true;
+        break;
+      }
+      seen.add(trimmed.toLowerCase());
+    }
+    if (hasComma) {
+      errors.levels = t('admin.cupForm.validation.levelComma');
+    } else if (seen.size < 2) {
+      errors.levels = t('admin.cupForm.validation.minLevels');
+    }
   }
   return errors;
 }
@@ -132,6 +161,14 @@ export function AdminCupSettingsPage(): JSX.Element {
       organizerContactName: existing.organizerContactName,
       organizerContactEmail: existing.organizerContactEmail,
       organizerContactPhone: existing.organizerContactPhone,
+      playersPerTeam: existing.playersPerTeam,
+      clubLogoUrl: existing.clubLogoUrl,
+      useLevels: existing.useLevels,
+      levels: existing.levels,
+      hasToilets: existing.hasToilets,
+      hasFood: existing.hasFood,
+      hasParking: existing.hasParking,
+      mapUrl: existing.mapUrl,
     });
     setStatus(existing.status);
     slugDirtyRef.current = true;
@@ -166,6 +203,54 @@ export function AdminCupSettingsPage(): JSX.Element {
     }));
   }
 
+  function handleUseLevelsChange(checked: boolean): void {
+    setForm((prev) => ({
+      ...prev,
+      useLevels: checked,
+      levels: checked && prev.levels.length === 0 ? [...DEFAULT_LEVELS] : prev.levels,
+    }));
+    setErrors((prev) => ({ ...prev, levels: undefined }));
+  }
+
+  function handleLevelChange(index: number, value: string): void {
+    setForm((prev) => {
+      const next = prev.levels.slice();
+      next[index] = value;
+      return { ...prev, levels: next };
+    });
+    setErrors((prev) => ({ ...prev, levels: undefined }));
+  }
+
+  function handleAddLevel(): void {
+    setForm((prev) => ({ ...prev, levels: [...prev.levels, ''] }));
+    setErrors((prev) => ({ ...prev, levels: undefined }));
+  }
+
+  function handleRemoveLevel(index: number): void {
+    setForm((prev) => ({
+      ...prev,
+      levels: prev.levels.filter((_, i) => i !== index),
+    }));
+    setErrors((prev) => ({ ...prev, levels: undefined }));
+  }
+
+  function normalizedForm(): FormShape {
+    if (!form.useLevels) {
+      return { ...form, levels: [] };
+    }
+    const seen = new Set<string>();
+    const cleaned: string[] = [];
+    for (const level of form.levels) {
+      const trimmed = level.trim();
+      if (!trimmed) continue;
+      const lower = trimmed.toLowerCase();
+      if (seen.has(lower)) continue;
+      seen.add(lower);
+      cleaned.push(trimmed);
+    }
+    return { ...form, levels: cleaned };
+  }
+
   async function save(thenOpen: boolean): Promise<void> {
     const validationErrors = validate(form, t);
     if (Object.keys(validationErrors).length > 0) {
@@ -173,9 +258,10 @@ export function AdminCupSettingsPage(): JSX.Element {
       return;
     }
     setErrors({});
+    const payload = normalizedForm();
     try {
       if (isEdit && id) {
-        await updateCup({ id, ...form }).unwrap();
+        await updateCup({ id, ...payload }).unwrap();
         if (thenOpen && status === 'draft') {
           await updateCup({ id, status: 'open' }).unwrap();
           setStatus('open');
@@ -183,7 +269,7 @@ export function AdminCupSettingsPage(): JSX.Element {
         setSavedFlash(true);
         window.setTimeout(() => setSavedFlash(false), 2000);
       } else {
-        const created = await createCup(form).unwrap();
+        const created = await createCup(payload).unwrap();
         navigate(`/admin/cups/${created.id}`);
       }
     } catch (err) {
@@ -350,6 +436,162 @@ export function AdminCupSettingsPage(): JSX.Element {
               onChange={(e) => update('maxTeams', Number(e.target.value))}
             />
           </Field>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('admin.cupForm.venueAmenities')}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <Field id="mapUrl" label={t('admin.cupForm.mapUrl')}>
+            <Input
+              id="mapUrl"
+              type="url"
+              value={form.mapUrl}
+              onChange={(e) => update('mapUrl', e.target.value)}
+              placeholder="https://maps.app.goo.gl/..."
+            />
+            <span className="text-xs text-muted-foreground">
+              {t('admin.cupForm.mapUrlHint')}
+            </span>
+          </Field>
+
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.hasToilets}
+                onChange={(e) => update('hasToilets', e.target.checked)}
+                className="h-4 w-4"
+              />
+              {t('admin.cupForm.hasToilets')}
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.hasFood}
+                onChange={(e) => update('hasFood', e.target.checked)}
+                className="h-4 w-4"
+              />
+              {t('admin.cupForm.hasFood')}
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={form.hasParking}
+                onChange={(e) => update('hasParking', e.target.checked)}
+                className="h-4 w-4"
+              />
+              {t('admin.cupForm.hasParking')}
+            </label>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('admin.cupForm.format')}</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          <Field
+            id="playersPerTeam"
+            label={t('admin.cupForm.playersPerTeam')}
+          >
+            <select
+              id="playersPerTeam"
+              value={form.playersPerTeam}
+              onChange={(e) =>
+                update(
+                  'playersPerTeam',
+                  Number(e.target.value) as FormShape['playersPerTeam'],
+                )
+              }
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              {ALLOWED_PLAYERS_PER_TEAM.map((n) => (
+                <option key={n} value={n}>
+                  {t(`admin.cupForm.players${n}`)}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field
+            id="clubLogoUrl"
+            label={t('admin.cupForm.clubLogoUrl')}
+          >
+            <Input
+              id="clubLogoUrl"
+              type="url"
+              value={form.clubLogoUrl}
+              onChange={(e) => update('clubLogoUrl', e.target.value)}
+              placeholder="https://"
+            />
+            <span className="text-xs text-muted-foreground">
+              {t('admin.cupForm.clubLogoUrlHint')}
+            </span>
+          </Field>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('admin.cupForm.levels')}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              checked={form.useLevels}
+              onChange={(e) => handleUseLevelsChange(e.target.checked)}
+              className="mt-1 h-4 w-4"
+            />
+            <span className="flex flex-col gap-0.5">
+              <span className="text-sm font-medium">
+                {t('admin.cupForm.useLevels')}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {t('admin.cupForm.useLevelsHint')}
+              </span>
+            </span>
+          </label>
+
+          {form.useLevels && (
+            <div className="flex flex-col gap-2">
+              {form.levels.map((level, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <Input
+                    aria-label={`${t('admin.cupForm.levelName')} ${index + 1}`}
+                    value={level}
+                    onChange={(e) => handleLevelChange(index, e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveLevel(index)}
+                  >
+                    {t('admin.cupForm.removeLevel')}
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="self-start"
+                onClick={handleAddLevel}
+              >
+                {t('admin.cupForm.addLevel')}
+              </Button>
+              {errors.levels && (
+                <span role="alert" className="text-xs text-destructive">
+                  {errors.levels}
+                </span>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

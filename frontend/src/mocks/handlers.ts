@@ -4,6 +4,7 @@ import type {
   Cup,
   CupCreateRequest,
   CupUpdateRequest,
+  PlayersPerTeam,
 } from '@/features/cups/cupTypes';
 import { generateSchedule } from '@/features/schedule/scheduleGenerator';
 import type {
@@ -25,6 +26,45 @@ import { db, type MockUser } from '@/mocks/db';
 const EMAIL_RE = /^.+@.+\..+$/;
 const SLUG_RE = /^[a-z0-9-]+$/;
 const MIN_PASSWORD_LEN = 6;
+const ALLOWED_PLAYERS_PER_TEAM: ReadonlySet<number> = new Set([5, 7, 9]);
+
+function countActiveTeams(cupId: string): number {
+  return db
+    .read()
+    .teams.filter((t) => t.cupId === cupId && t.status !== 'cancelled').length;
+}
+
+function withActiveTeamCount(cup: Cup): Cup {
+  return { ...cup, activeTeamCount: countActiveTeams(cup.id) };
+}
+
+function normalizeLevels(
+  raw: readonly string[] | undefined,
+  useLevels: boolean,
+): { ok: true; levels: string[] } | { ok: false; error: string } {
+  if (!useLevels) return { ok: true, levels: [] };
+  if (!Array.isArray(raw)) {
+    return { ok: false, error: 'levels must contain at least 2 entries when useLevels=true' };
+  }
+  const seen: string[] = [];
+  const seenLower = new Set<string>();
+  for (const entry of raw) {
+    if (typeof entry !== 'string') continue;
+    const trimmed = entry.trim();
+    if (!trimmed) continue;
+    if (trimmed.includes(',')) {
+      return { ok: false, error: 'level names cannot contain commas' };
+    }
+    const lower = trimmed.toLowerCase();
+    if (seenLower.has(lower)) continue;
+    seenLower.add(lower);
+    seen.push(trimmed);
+  }
+  if (seen.length < 2) {
+    return { ok: false, error: 'levels must contain at least 2 distinct entries when useLevels=true' };
+  }
+  return { ok: true, levels: seen };
+}
 
 type ProblemDetail = {
   type: string;
@@ -98,6 +138,12 @@ function validateCupBody(
   ) {
     return problem(400, 'Validation', 'organizerContactEmail is invalid');
   }
+  if (
+    body.playersPerTeam !== undefined &&
+    !ALLOWED_PLAYERS_PER_TEAM.has(body.playersPerTeam)
+  ) {
+    return problem(400, 'Validation', 'playersPerTeam must be 5, 7, or 9');
+  }
   return null;
 }
 
@@ -156,7 +202,8 @@ export const handlers = [
     const cups = db
       .read()
       .cups.slice()
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map(withActiveTeamCount);
     return HttpResponse.json(cups);
   }),
 
@@ -173,8 +220,22 @@ export const handlers = [
         `A cup with slug "${body.slug}" already exists`,
       );
     }
+    const useLevels = body.useLevels === true;
+    const levelsResult = normalizeLevels(body.levels, useLevels);
+    if (!levelsResult.ok) {
+      return problem(400, 'Validation', levelsResult.error);
+    }
     const cup: Cup = {
       ...body,
+      playersPerTeam: (body.playersPerTeam ?? 7) as PlayersPerTeam,
+      clubLogoUrl: body.clubLogoUrl ?? '',
+      useLevels,
+      levels: levelsResult.levels,
+      activeTeamCount: 0,
+      hasToilets: body.hasToilets ?? false,
+      hasFood: body.hasFood ?? false,
+      hasParking: body.hasParking ?? false,
+      mapUrl: body.mapUrl ?? '',
       id: crypto.randomUUID(),
       status: 'draft',
       createdAt: new Date().toISOString(),
@@ -190,7 +251,7 @@ export const handlers = [
     if (isAuthErr(auth)) return auth.error;
     const cup = db.read().cups.find((c) => c.id === params.id);
     if (!cup) return problem(404, 'Not found', `Cup ${String(params.id)} not found`);
-    return HttpResponse.json(cup);
+    return HttpResponse.json(withActiveTeamCount(cup));
   }),
 
   http.patch('/api/admin/cups/:id', async ({ request, params }) => {
@@ -212,17 +273,43 @@ export const handlers = [
         );
       }
     }
+    if (
+      body.playersPerTeam !== undefined &&
+      !ALLOWED_PLAYERS_PER_TEAM.has(body.playersPerTeam)
+    ) {
+      return problem(400, 'Validation', 'playersPerTeam must be 5, 7, or 9');
+    }
     let updated: Cup | undefined;
+    let levelsValidation: HttpResponse<ProblemDetail> | null = null;
     db.write((draft) => {
       const idx = draft.cups.findIndex((c) => c.id === params.id);
       if (idx === -1) return;
-      draft.cups[idx] = { ...draft.cups[idx], ...body };
+      const current = draft.cups[idx];
+      const nextUseLevels =
+        body.useLevels !== undefined ? body.useLevels : current.useLevels;
+      let nextLevels = current.levels;
+      if (body.useLevels !== undefined || body.levels !== undefined) {
+        const source = body.levels !== undefined ? body.levels : current.levels;
+        const result = normalizeLevels(source, nextUseLevels);
+        if (!result.ok) {
+          levelsValidation = problem(400, 'Validation', result.error);
+          return;
+        }
+        nextLevels = result.levels;
+      }
+      draft.cups[idx] = {
+        ...current,
+        ...body,
+        useLevels: nextUseLevels,
+        levels: nextLevels,
+      };
       updated = draft.cups[idx];
     });
+    if (levelsValidation) return levelsValidation;
     if (!updated) {
       return problem(404, 'Not found', `Cup ${String(params.id)} not found`);
     }
-    return HttpResponse.json(updated);
+    return HttpResponse.json(withActiveTeamCount(updated));
   }),
 
   http.delete('/api/admin/cups/:id', ({ request, params }) => {
@@ -243,6 +330,19 @@ export const handlers = [
   }),
 
   // --- Cups (public) ---
+  http.get('/api/cups/public', () => {
+    const cups = db
+      .read()
+      .cups.filter((c) => c.status !== 'draft')
+      .slice()
+      .sort((a, b) => {
+        const byDate = a.startDate.localeCompare(b.startDate);
+        return byDate !== 0 ? byDate : a.name.localeCompare(b.name);
+      })
+      .map(withActiveTeamCount);
+    return HttpResponse.json(cups);
+  }),
+
   http.get('/api/cups/by-slug/:slug', ({ params }) => {
     const cup = db.read().cups.find((c) => c.slug === params.slug);
     if (!cup) {
@@ -252,7 +352,7 @@ export const handlers = [
         `Cup with slug "${String(params.slug)}" not found`,
       );
     }
-    return HttpResponse.json(cup);
+    return HttpResponse.json(withActiveTeamCount(cup));
   }),
 
   // --- Teams (public) ---
@@ -269,6 +369,7 @@ export const handlers = [
         name: t.name,
         groupLabel: t.groupLabel,
         status: t.status,
+        level: t.level,
       }));
     return HttpResponse.json(teams);
   }),
@@ -335,9 +436,37 @@ export const handlers = [
       return problem(422, 'Cup is full', 'No remaining capacity for this cup');
     }
 
+    let resolvedLevels: (string | null)[] = trimmedNames.map(() => null);
+    if (cup.useLevels) {
+      const raw = Array.isArray(body.teamLevels) ? body.teamLevels : [];
+      if (raw.length !== trimmedNames.length) {
+        return problem(400, 'Validation', 'teamLevels must contain one entry per team');
+      }
+      const allowed = cup.levels;
+      const matched: string[] = [];
+      for (const entry of raw) {
+        const trimmed = (entry ?? '').trim();
+        if (!trimmed) {
+          return problem(400, 'Validation', 'teamLevels entries cannot be empty');
+        }
+        const match = allowed.find(
+          (level) => level.toLowerCase() === trimmed.toLowerCase(),
+        );
+        if (!match) {
+          return problem(
+            400,
+            'Validation',
+            `Unknown level "${trimmed}" — allowed: ${allowed.join(', ')}`,
+          );
+        }
+        matched.push(match);
+      }
+      resolvedLevels = matched;
+    }
+
     const registrationId = crypto.randomUUID();
     const createdAt = new Date().toISOString();
-    const newTeams: Team[] = trimmedNames.map((name) => ({
+    const newTeams: Team[] = trimmedNames.map((name, i) => ({
       id: crypto.randomUUID(),
       cupId: cup.id,
       registrationId,
@@ -351,6 +480,7 @@ export const handlers = [
       createdAt,
       paidAt: null,
       cancelledAt: null,
+      level: resolvedLevels[i],
     }));
 
     db.write((draft) => {
@@ -586,6 +716,7 @@ export const handlers = [
         name: t.name,
         groupLabel: t.groupLabel,
         status: t.status,
+        level: t.level,
       }));
     const payload: RegistrationDetail = { registration, teams };
     return HttpResponse.json(payload);

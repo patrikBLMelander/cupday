@@ -50,7 +50,25 @@ class RegistrationServiceTest {
         "Patrik",
         "patrik@example.com",
         "0700",
-        List.of(names));
+        List.of(names),
+        null);
+  }
+
+  private static RegistrationCreateRequest reqWithLevels(List<String> names, List<String> levels) {
+    return new RegistrationCreateRequest(
+        "Club",
+        "Patrik",
+        "patrik@example.com",
+        "0700",
+        names,
+        levels);
+  }
+
+  private static Cup leveledCup(int maxTeams, String levelsCsv) {
+    var cup = openCup(maxTeams);
+    cup.setUseLevels(true);
+    cup.setLevels(levelsCsv);
+    return cup;
   }
 
   @Test
@@ -100,5 +118,46 @@ class RegistrationServiceTest {
     service.register(cup.getId(), req("A", "B"));
 
     assertThat(cup.getStatus()).isEqualTo(CupStatus.FULL);
+  }
+
+  @Test
+  void rejectsTeamLevelOutsideCupConfiguration() {
+    var cupRepo = mock(CupRepository.class);
+    var teamRepo = mock(TeamRepository.class);
+    var regRepo = mock(RegistrationRepository.class);
+    var cup = leveledCup(8, "Lätt,Medel,Svår");
+    when(cupRepo.findByIdForUpdate(cup.getId())).thenReturn(Optional.of(cup));
+    when(teamRepo.findActiveByCupId(cup.getId())).thenReturn(List.of());
+
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo);
+
+    assertThatThrownBy(() ->
+        service.register(cup.getId(), reqWithLevels(List.of("IFK Lag 1"), List.of("Pro"))))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Pro");
+  }
+
+  @Test
+  void persistsLevelOnTeamWhenCupUsesLevels() {
+    var cupRepo = mock(CupRepository.class);
+    var teamRepo = mock(TeamRepository.class);
+    var regRepo = mock(RegistrationRepository.class);
+    var cup = leveledCup(8, "Lätt,Medel,Svår");
+    when(cupRepo.findByIdForUpdate(cup.getId())).thenReturn(Optional.of(cup));
+    when(teamRepo.findActiveByCupId(cup.getId())).thenReturn(List.of());
+    var saved = new java.util.ArrayList<Team>();
+    when(teamRepo.save(any(Team.class))).thenAnswer(inv -> {
+      Team t = inv.getArgument(0);
+      saved.add(t);
+      return t;
+    });
+
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo);
+    service.register(cup.getId(),
+        reqWithLevels(List.of("IFK Lag 1", "IFK Lag 2"), List.of("medel", "Svår")));
+
+    assertThat(saved).hasSize(2);
+    assertThat(saved.get(0).getLevel()).isEqualTo("Medel");
+    assertThat(saved.get(1).getLevel()).isEqualTo("Svår");
   }
 }

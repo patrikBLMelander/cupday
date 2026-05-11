@@ -89,15 +89,20 @@ export function PaymentPage(): JSX.Element {
             />
           )}
           {cup.paymentLagkassanLink && (
-            <Button asChild className="self-start">
-              <a
-                href={cup.paymentLagkassanLink}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t('payment.paymentCard.openLagkassan')}
-              </a>
-            </Button>
+            <div className="flex flex-col gap-2">
+              <Button asChild className="self-start">
+                <a
+                  href={cup.paymentLagkassanLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t('payment.paymentCard.openLagkassan')}
+                </a>
+              </Button>
+              <p className="text-sm font-medium text-muted-foreground">
+                {t('payment.paymentCard.markWithTeamHint')}
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>

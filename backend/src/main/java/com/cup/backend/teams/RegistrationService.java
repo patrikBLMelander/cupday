@@ -11,8 +11,11 @@ import com.cup.backend.teams.TeamDtos.RegistrationDetail;
 import com.cup.backend.teams.TeamDtos.RegistrationSummary;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,17 +58,19 @@ public class RegistrationService {
       throw new CupFullException("No remaining capacity for this cup");
     }
 
+    var resolvedLevels = resolveTeamLevels(cup, trimmedNames.size(), request.teamLevels());
+
     var now = Instant.now();
     var registration = new Registration(UUID.randomUUID(), cup.getId(), now);
     registrationRepository.save(registration);
 
     var newTeams = new ArrayList<Team>(trimmedNames.size());
-    for (var name : trimmedNames) {
+    for (var i = 0; i < trimmedNames.size(); i++) {
       var team = new Team(
           UUID.randomUUID(),
           cup.getId(),
           registration.getId(),
-          name,
+          trimmedNames.get(i),
           request.clubName().trim(),
           request.contactName().trim(),
           request.contactEmail().trim(),
@@ -73,6 +78,7 @@ public class RegistrationService {
           null,
           TeamStatus.RESERVED,
           now);
+      team.setLevel(resolvedLevels.get(i));
       newTeams.add(teamRepository.save(team));
     }
 
@@ -135,5 +141,40 @@ public class RegistrationService {
         throw new TeamNameConflictException(name);
       }
     }
+  }
+
+  /**
+   * Resolves per-team level. When the cup uses levels, requires one entry per team
+   * matching one of the cup's configured levels. When levels are off, returns nulls.
+   */
+  private static List<String> resolveTeamLevels(Cup cup, int teamCount, List<String> raw) {
+    if (!cup.isUseLevels()) {
+      var nulls = new ArrayList<String>(teamCount);
+      for (var i = 0; i < teamCount; i++) {
+        nulls.add(null);
+      }
+      return nulls;
+    }
+    if (raw == null || raw.size() != teamCount) {
+      throw new IllegalArgumentException("teamLevels must contain one entry per team");
+    }
+    var allowed = Arrays.stream(cup.getLevels().split(","))
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .collect(Collectors.toCollection(LinkedHashSet::new));
+    var resolved = new ArrayList<String>(teamCount);
+    for (var entry : raw) {
+      var trimmed = entry == null ? "" : entry.trim();
+      if (trimmed.isEmpty()) {
+        throw new IllegalArgumentException("teamLevels entries cannot be empty");
+      }
+      var match = allowed.stream()
+          .filter(level -> level.equalsIgnoreCase(trimmed))
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException(
+              "Unknown level \"" + trimmed + "\" — allowed: " + allowed));
+      resolved.add(match);
+    }
+    return resolved;
   }
 }

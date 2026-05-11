@@ -16,6 +16,7 @@ export type Team = {
   createdAt: string;
   paidAt: string | null;
   cancelledAt: string | null;
+  level: string | null;
 };
 
 /** Public projection of a team (no contact info). */
@@ -24,6 +25,8 @@ export type PublicTeam = {
   name: string;
   groupLabel: GroupLabel | null;
   status: TeamStatus;
+  /** Populated only when the cup uses levels. */
+  level: string | null;
 };
 
 export type Registration = {
@@ -40,6 +43,8 @@ export type RegistrationCreateRequest = {
   contactPhone: string;
   /** Length 1 or 2. */
   teamNames: string[];
+  /** Required when the cup uses levels — one entry per team in {@link teamNames}. */
+  teamLevels?: string[];
 };
 
 export type RegistrationCreateResponse = {

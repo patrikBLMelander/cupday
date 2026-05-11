@@ -1,0 +1,9 @@
+ALTER TABLE cup
+  ADD COLUMN players_per_team INTEGER NOT NULL DEFAULT 7
+    CHECK (players_per_team IN (5, 7, 9)),
+  ADD COLUMN club_logo_url TEXT NOT NULL DEFAULT '',
+  ADD COLUMN use_levels BOOLEAN NOT NULL DEFAULT FALSE,
+  ADD COLUMN levels TEXT NOT NULL DEFAULT '';
+
+ALTER TABLE team
+  ADD COLUMN level TEXT;

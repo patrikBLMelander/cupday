@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { forwardRef, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
@@ -23,6 +23,8 @@ type FormShape = {
   contactPhone: string;
   teamName1: string;
   teamName2?: string;
+  teamLevel1?: string;
+  teamLevel2?: string;
 };
 
 type ServerErrorBody = {
@@ -89,6 +91,7 @@ export function RegistrationFormPage(): JSX.Element {
 
   function hideSecondTeam(): void {
     unregister('teamName2');
+    unregister('teamLevel2');
     setSecondTeamShown(false);
   }
 
@@ -105,6 +108,13 @@ export function RegistrationFormPage(): JSX.Element {
       contactPhone: values.contactPhone.trim(),
       teamNames,
     };
+    if (cup.useLevels) {
+      const levels = [values.teamLevel1 ?? ''];
+      if (teamNames.length === 2) {
+        levels.push(values.teamLevel2 ?? '');
+      }
+      body.teamLevels = levels;
+    }
     try {
       const result = await createRegistration({ cupId: cup.id, body }).unwrap();
       navigate(`/c/${cup.slug}/payment/${result.registrationId}`, {
@@ -128,17 +138,27 @@ export function RegistrationFormPage(): JSX.Element {
     }
   }
 
+  const primary = `hsl(${cup.organizingClubColors.primary})`;
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
       className="mx-auto flex max-w-2xl flex-col gap-4"
     >
-      <header className="flex flex-col gap-1">
+      <header
+        className="-mx-4 flex flex-col gap-1 overflow-hidden rounded-lg px-5 py-5 text-white shadow-md sm:-mx-0"
+        style={{
+          backgroundImage: `linear-gradient(135deg, ${primary} 0%, color-mix(in oklab, ${primary} 70%, black) 100%)`,
+        }}
+      >
+        <span className="text-xs font-medium uppercase tracking-wider text-white/70">
+          {cup.name}
+        </span>
         <h1 className="text-2xl font-semibold tracking-tight">
           {t('registration.title')}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-white/85">
           {t('registration.description')}
         </p>
       </header>
@@ -224,37 +244,77 @@ export function RegistrationFormPage(): JSX.Element {
             />
           </Field>
 
-          {secondTeamShown ? (
+          {cup.useLevels && (
             <Field
-              id="teamName2"
-              label={`${t('registration.fields.teamName2')} (${t('registration.fields.teamName2Hint')})`}
-              error={errors.teamName2?.message}
+              id="teamLevel1"
+              label={t('registration.fields.level1')}
+              error={errors.teamLevel1?.message}
             >
-              <div className="flex items-center gap-2">
-                <Input
-                  id="teamName2"
-                  className="flex-1"
-                  {...register('teamName2', {
-                    validate: (value) => {
-                      if (!value || !value.trim()) return true;
-                      const first = getValues('teamName1');
-                      if (first && namesMatch(value, first)) {
-                        return t('registration.validation.sameNames');
-                      }
-                      return true;
-                    },
-                  })}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={hideSecondTeam}
-                >
-                  {t('registration.fields.removeSecondTeam')}
-                </Button>
-              </div>
+              <LevelSelect
+                id="teamLevel1"
+                levels={cup.levels}
+                placeholder={t('registration.fields.levelPlaceholder')}
+                {...register('teamLevel1', {
+                  required: t('registration.validation.levelRequired'),
+                })}
+              />
             </Field>
+          )}
+
+          {secondTeamShown ? (
+            <>
+              <Field
+                id="teamName2"
+                label={`${t('registration.fields.teamName2')} (${t('registration.fields.teamName2Hint')})`}
+                error={errors.teamName2?.message}
+              >
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="teamName2"
+                    className="flex-1"
+                    {...register('teamName2', {
+                      validate: (value) => {
+                        if (!value || !value.trim()) return true;
+                        const first = getValues('teamName1');
+                        if (first && namesMatch(value, first)) {
+                          return t('registration.validation.sameNames');
+                        }
+                        return true;
+                      },
+                    })}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={hideSecondTeam}
+                  >
+                    {t('registration.fields.removeSecondTeam')}
+                  </Button>
+                </div>
+              </Field>
+              {cup.useLevels && (
+                <Field
+                  id="teamLevel2"
+                  label={t('registration.fields.level2')}
+                  error={errors.teamLevel2?.message}
+                >
+                  <LevelSelect
+                    id="teamLevel2"
+                    levels={cup.levels}
+                    placeholder={t('registration.fields.levelPlaceholder')}
+                    {...register('teamLevel2', {
+                      validate: (value) => {
+                        if (!value || !value.trim()) {
+                          return t('registration.validation.levelRequired');
+                        }
+                        return true;
+                      },
+                    })}
+                  />
+                </Field>
+              )}
+            </>
           ) : (
             <Button
               type="button"
@@ -286,6 +346,37 @@ export function RegistrationFormPage(): JSX.Element {
     </form>
   );
 }
+
+type LevelSelectProps = {
+  id: string;
+  levels: string[];
+  placeholder: string;
+  name?: string;
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>;
+  onBlur?: React.FocusEventHandler<HTMLSelectElement>;
+};
+
+const LevelSelect = forwardRef<HTMLSelectElement, LevelSelectProps>(
+  ({ id, levels, placeholder, ...rest }, ref) => (
+    <select
+      id={id}
+      ref={ref}
+      defaultValue=""
+      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      {...rest}
+    >
+      <option value="" disabled>
+        {placeholder}
+      </option>
+      {levels.map((level) => (
+        <option key={level} value={level}>
+          {level}
+        </option>
+      ))}
+    </select>
+  ),
+);
+LevelSelect.displayName = 'LevelSelect';
 
 function NotOpenPanel({
   message,

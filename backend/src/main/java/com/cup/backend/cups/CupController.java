@@ -30,23 +30,28 @@ public class CupController {
 
   @GetMapping
   public List<CupResponse> list() {
-    return service.listAll().stream().map(CupResponse::from).toList();
+    return service.listAll().stream()
+        .map(cup -> CupResponse.from(cup, service.countActiveTeams(cup.getId())))
+        .toList();
   }
 
   @PostMapping
   public ResponseEntity<CupResponse> create(@Valid @RequestBody CupCreateRequest request) {
     var cup = service.create(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(CupResponse.from(cup));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(CupResponse.from(cup, service.countActiveTeams(cup.getId())));
   }
 
   @GetMapping("/{id}")
   public CupResponse get(@PathVariable UUID id) {
-    return CupResponse.from(service.getById(id));
+    var cup = service.getById(id);
+    return CupResponse.from(cup, service.countActiveTeams(cup.getId()));
   }
 
   @PatchMapping("/{id}")
   public CupResponse update(@PathVariable UUID id, @RequestBody CupUpdateRequest request) {
-    return CupResponse.from(service.update(id, request));
+    var cup = service.update(id, request);
+    return CupResponse.from(cup, service.countActiveTeams(cup.getId()));
   }
 
   @DeleteMapping("/{id}")

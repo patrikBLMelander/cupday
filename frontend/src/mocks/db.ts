@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'cup.mock.db.v1';
+const STORAGE_KEY = 'cup.mock.db.v2';
 
 import type { Cup } from '@/features/cups/cupTypes';
 import type { Match } from '@/features/schedule/scheduleTypes';

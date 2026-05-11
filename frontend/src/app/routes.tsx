@@ -1,6 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import HomePlaceholder from '@/HomePlaceholder';
 import { AdminLayout } from '@/app/layouts/AdminLayout';
 import { PublicLayout } from '@/app/layouts/PublicLayout';
 import { LoginPage } from '@/features/auth/LoginPage';
@@ -8,6 +7,7 @@ import { RequireAuth } from '@/features/auth/RequireAuth';
 import { AdminCupListPage } from '@/features/cups/AdminCupListPage';
 import { AdminCupSettingsPage } from '@/features/cups/AdminCupSettingsPage';
 import { PublicCupLandingPage } from '@/features/cups/PublicCupLandingPage';
+import { PublicLandingPage } from '@/features/cups/PublicLandingPage';
 import { AdminSchedulePage } from '@/features/schedule/AdminSchedulePage';
 import { PublicSchedulePage } from '@/features/schedule/PublicSchedulePage';
 import { AdminTeamsPage } from '@/features/teams/AdminTeamsPage';
@@ -17,7 +17,7 @@ import { RegistrationFormPage } from '@/features/teams/RegistrationFormPage';
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <HomePlaceholder />,
+    element: <PublicLandingPage />,
   },
   {
     path: '/admin/login',

@@ -56,6 +56,10 @@ public class Team {
   @Column(name = "cancelled_at")
   private Instant cancelledAt;
 
+  /** Optional skill level; populated only when the cup uses levels. */
+  @Column(name = "level")
+  private String level;
+
   protected Team() {
     // Required by JPA.
   }
@@ -98,9 +102,11 @@ public class Team {
   public Instant getCreatedAt() { return createdAt; }
   public Instant getPaidAt() { return paidAt; }
   public Instant getCancelledAt() { return cancelledAt; }
+  public String getLevel() { return level; }
 
   public void setGroupLabel(GroupLabel groupLabel) { this.groupLabel = groupLabel; }
   public void setStatus(TeamStatus status) { this.status = status; }
   public void setPaidAt(Instant paidAt) { this.paidAt = paidAt; }
   public void setCancelledAt(Instant cancelledAt) { this.cancelledAt = cancelledAt; }
+  public void setLevel(String level) { this.level = level; }
 }

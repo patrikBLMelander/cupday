@@ -5,6 +5,8 @@ export type CupColors = {
   accent: string;
 };
 
+export type PlayersPerTeam = 5 | 7 | 9;
+
 export type Cup = {
   id: string;
   slug: string;
@@ -25,9 +27,23 @@ export type Cup = {
   organizerContactPhone: string;
   status: CupStatus;
   createdAt: string;
+  playersPerTeam: PlayersPerTeam;
+  clubLogoUrl: string;
+  useLevels: boolean;
+  /** Empty when {@link useLevels} is false. */
+  levels: string[];
+  activeTeamCount: number;
+  hasToilets: boolean;
+  hasFood: boolean;
+  hasParking: boolean;
+  /** Optional Google Maps (or any) directions URL. Empty string when unset. */
+  mapUrl: string;
 };
 
-export type CupCreateRequest = Omit<Cup, 'id' | 'status' | 'createdAt'>;
+export type CupCreateRequest = Omit<
+  Cup,
+  'id' | 'status' | 'createdAt' | 'activeTeamCount'
+>;
 
 export type CupUpdateRequest = Partial<CupCreateRequest> & {
   status?: CupStatus;

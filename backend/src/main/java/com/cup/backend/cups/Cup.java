@@ -78,6 +78,31 @@ public class Cup {
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
+  @Column(name = "players_per_team", nullable = false)
+  private int playersPerTeam;
+
+  @Column(name = "club_logo_url", nullable = false)
+  private String clubLogoUrl;
+
+  @Column(name = "use_levels", nullable = false)
+  private boolean useLevels;
+
+  /** Comma-separated level names; empty when {@link #useLevels} is false. */
+  @Column(nullable = false)
+  private String levels;
+
+  @Column(name = "has_toilets", nullable = false)
+  private boolean hasToilets;
+
+  @Column(name = "has_food", nullable = false)
+  private boolean hasFood;
+
+  @Column(name = "has_parking", nullable = false)
+  private boolean hasParking;
+
+  @Column(name = "map_url", nullable = false)
+  private String mapUrl;
+
   @Version
   private Long version;
 
@@ -106,6 +131,79 @@ public class Cup {
       String organizerContactPhone,
       CupStatus status,
       Instant createdAt) {
+    // Delegate with sensible defaults for the BE-07 fields. Tests and other
+    // callers that don't yet pass the new fields stay valid; the 24-arg
+    // constructor (below) is the canonical one going forward.
+    this(id, slug, name, organizingClubName, primaryColorHsl, accentColorHsl,
+        startDate, endDate, venueName, pitchCount, maxTeams, registrationFeeSek,
+        paymentInstructions, paymentLagkassanLink, paymentLagkassanQrUrl,
+        organizerContactName, organizerContactEmail, organizerContactPhone,
+        status, createdAt,
+        7, "", false, "");
+  }
+
+  public Cup(
+      UUID id,
+      String slug,
+      String name,
+      String organizingClubName,
+      String primaryColorHsl,
+      String accentColorHsl,
+      LocalDate startDate,
+      LocalDate endDate,
+      String venueName,
+      int pitchCount,
+      int maxTeams,
+      int registrationFeeSek,
+      String paymentInstructions,
+      String paymentLagkassanLink,
+      String paymentLagkassanQrUrl,
+      String organizerContactName,
+      String organizerContactEmail,
+      String organizerContactPhone,
+      CupStatus status,
+      Instant createdAt,
+      int playersPerTeam,
+      String clubLogoUrl,
+      boolean useLevels,
+      String levels) {
+    this(id, slug, name, organizingClubName, primaryColorHsl, accentColorHsl,
+        startDate, endDate, venueName, pitchCount, maxTeams, registrationFeeSek,
+        paymentInstructions, paymentLagkassanLink, paymentLagkassanQrUrl,
+        organizerContactName, organizerContactEmail, organizerContactPhone,
+        status, createdAt, playersPerTeam, clubLogoUrl, useLevels, levels,
+        false, false, false, "");
+  }
+
+  public Cup(
+      UUID id,
+      String slug,
+      String name,
+      String organizingClubName,
+      String primaryColorHsl,
+      String accentColorHsl,
+      LocalDate startDate,
+      LocalDate endDate,
+      String venueName,
+      int pitchCount,
+      int maxTeams,
+      int registrationFeeSek,
+      String paymentInstructions,
+      String paymentLagkassanLink,
+      String paymentLagkassanQrUrl,
+      String organizerContactName,
+      String organizerContactEmail,
+      String organizerContactPhone,
+      CupStatus status,
+      Instant createdAt,
+      int playersPerTeam,
+      String clubLogoUrl,
+      boolean useLevels,
+      String levels,
+      boolean hasToilets,
+      boolean hasFood,
+      boolean hasParking,
+      String mapUrl) {
     this.id = id;
     this.slug = slug;
     this.name = name;
@@ -126,6 +224,14 @@ public class Cup {
     this.organizerContactPhone = organizerContactPhone;
     this.status = status;
     this.createdAt = createdAt;
+    this.playersPerTeam = playersPerTeam;
+    this.clubLogoUrl = clubLogoUrl;
+    this.useLevels = useLevels;
+    this.levels = levels;
+    this.hasToilets = hasToilets;
+    this.hasFood = hasFood;
+    this.hasParking = hasParking;
+    this.mapUrl = mapUrl;
   }
 
   public UUID getId() { return id; }
@@ -149,6 +255,14 @@ public class Cup {
   public CupStatus getStatus() { return status; }
   public Instant getCreatedAt() { return createdAt; }
   public Long getVersion() { return version; }
+  public int getPlayersPerTeam() { return playersPerTeam; }
+  public String getClubLogoUrl() { return clubLogoUrl; }
+  public boolean isUseLevels() { return useLevels; }
+  public String getLevels() { return levels; }
+  public boolean isHasToilets() { return hasToilets; }
+  public boolean isHasFood() { return hasFood; }
+  public boolean isHasParking() { return hasParking; }
+  public String getMapUrl() { return mapUrl; }
 
   public void setSlug(String slug) { this.slug = slug; }
   public void setName(String name) { this.name = name; }
@@ -168,4 +282,12 @@ public class Cup {
   public void setOrganizerContactEmail(String organizerContactEmail) { this.organizerContactEmail = organizerContactEmail; }
   public void setOrganizerContactPhone(String organizerContactPhone) { this.organizerContactPhone = organizerContactPhone; }
   public void setStatus(CupStatus status) { this.status = status; }
+  public void setPlayersPerTeam(int playersPerTeam) { this.playersPerTeam = playersPerTeam; }
+  public void setClubLogoUrl(String clubLogoUrl) { this.clubLogoUrl = clubLogoUrl; }
+  public void setUseLevels(boolean useLevels) { this.useLevels = useLevels; }
+  public void setLevels(String levels) { this.levels = levels; }
+  public void setHasToilets(boolean hasToilets) { this.hasToilets = hasToilets; }
+  public void setHasFood(boolean hasFood) { this.hasFood = hasFood; }
+  public void setHasParking(boolean hasParking) { this.hasParking = hasParking; }
+  public void setMapUrl(String mapUrl) { this.mapUrl = mapUrl; }
 }

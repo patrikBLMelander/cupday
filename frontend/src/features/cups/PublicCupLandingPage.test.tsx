@@ -35,6 +35,15 @@ function buildCup(overrides: Partial<Cup> = {}): Cup {
     organizerContactPhone: '0700000000',
     status: 'open',
     createdAt: '2026-01-01T00:00:00Z',
+    playersPerTeam: 7,
+    clubLogoUrl: '',
+    useLevels: false,
+    levels: [],
+    activeTeamCount: 0,
+    hasToilets: false,
+    hasFood: false,
+    hasParking: false,
+    mapUrl: '',
     ...overrides,
   };
 }

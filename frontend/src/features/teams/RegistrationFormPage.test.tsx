@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
@@ -34,6 +35,15 @@ function buildCup(overrides: Partial<Cup> = {}): Cup {
     organizerContactPhone: '0700000000',
     status: 'open',
     createdAt: '2026-01-01T00:00:00Z',
+    playersPerTeam: 7,
+    clubLogoUrl: '',
+    useLevels: false,
+    levels: [],
+    activeTeamCount: 0,
+    hasToilets: false,
+    hasFood: false,
+    hasParking: false,
+    mapUrl: '',
     ...overrides,
   };
 }
@@ -83,5 +93,52 @@ describe('RegistrationFormPage', () => {
         /registration is not open|anmälan är inte öppen/i,
       ),
     ).toBeInTheDocument();
+  });
+
+  it('persists the picked level when the cup uses levels', async () => {
+    db.write((d) => {
+      d.cups.push(
+        buildCup({
+          useLevels: true,
+          levels: ['Lätt', 'Medel', 'Svår'],
+        }),
+      );
+    });
+    renderRegistration();
+    const user = userEvent.setup();
+
+    await screen.findByRole('heading', { name: /register team|anmäl lag/i });
+    await user.type(
+      screen.getByLabelText(/^club$|^klubb$/i),
+      'IFK',
+    );
+    await user.type(
+      screen.getByLabelText(/^contact name$|^kontaktperson$/i),
+      'Patrik',
+    );
+    await user.type(
+      screen.getByLabelText(/^email$|^e-post$/i),
+      'p@example.com',
+    );
+    await user.type(
+      screen.getByLabelText(/^phone$|^telefon$/i),
+      '0700000000',
+    );
+    await user.type(
+      screen.getByLabelText(/^team name$|^lagets namn$/i),
+      'IFK Lag 1',
+    );
+    await user.selectOptions(
+      screen.getByLabelText(/team level|nivå för laget/i),
+      'Medel',
+    );
+    await user.click(
+      screen.getByRole('button', { name: /^submit$|^anmäl$/i }),
+    );
+
+    await waitFor(() => {
+      const team = db.read().teams.find((t) => t.cupId === 'cup-1');
+      expect(team?.level).toBe('Medel');
+    });
   });
 });

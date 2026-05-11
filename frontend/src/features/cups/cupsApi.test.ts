@@ -28,6 +28,14 @@ function buildCupBody(overrides: Partial<CupCreateRequest> = {}): CupCreateReque
     organizerContactName: 'Patrik',
     organizerContactEmail: 'patrik@example.com',
     organizerContactPhone: '0700000000',
+    playersPerTeam: 7,
+    clubLogoUrl: '',
+    useLevels: false,
+    levels: [],
+    hasToilets: false,
+    hasFood: false,
+    hasParking: false,
+    mapUrl: '',
     ...overrides,
   };
 }

@@ -1,7 +1,28 @@
 {
   "app": {
-    "title": "Cup",
+    "title": "Matchdag",
     "tagline": "Run football cups with ease"
+  },
+  "landing": {
+    "heroTitle": "Matchdag",
+    "heroSubtitle": "Find and register for upcoming football cups.",
+    "upcomingTitle": "Upcoming cups",
+    "empty": "No cups are open right now — check back soon.",
+    "loadFailed": "Failed to load cups",
+    "card": {
+      "playersLabel": "{{n}}-a-side",
+      "spotsLeft": "{{count}} spots left",
+      "spotsLeft_one": "1 spot left",
+      "full": "Full",
+      "viewCta": "View cup"
+    },
+    "countdown": {
+      "title": "Next cup starts in",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds"
+    }
   },
   "auth": {
     "signIn": "Sign in",
@@ -57,6 +78,25 @@
       "contactName": "Name",
       "contactEmail": "Email",
       "contactPhone": "Phone",
+      "venueAmenities": "Venue",
+      "mapUrl": "Map (Google Maps URL)",
+      "mapUrlHint": "Shown as \"Get directions\" on the public page",
+      "hasToilets": "Toilets",
+      "hasFood": "Food / café",
+      "hasParking": "Parking",
+      "format": "Format",
+      "playersPerTeam": "Players per team",
+      "players5": "5-a-side",
+      "players7": "7-a-side",
+      "players9": "9-a-side",
+      "clubLogoUrl": "Club logo (URL)",
+      "clubLogoUrlHint": "Shown on the Matchdag landing page",
+      "levels": "Levels",
+      "useLevels": "Use levels",
+      "useLevelsHint": "Let clubs pick a level per team (e.g. Easy, Medium, Hard). Informational only — does not drive group placement.",
+      "levelName": "Level name",
+      "addLevel": "+ Add level",
+      "removeLevel": "Remove",
       "validation": {
         "required": "Required",
         "slugInvalid": "Only lowercase letters, numbers, and hyphens",
@@ -64,7 +104,9 @@
         "emailInvalid": "Invalid email",
         "minPitchCount": "At least 1 pitch",
         "minMaxTeams": "At least 2 teams",
-        "nonNegative": "Must be 0 or more"
+        "nonNegative": "Must be 0 or more",
+        "minLevels": "At least 2 levels required",
+        "levelComma": "Level names cannot contain commas"
       }
     },
     "cupStatus": {
@@ -155,7 +197,14 @@
       "contactPhone": "Phone",
       "paymentInstructions": "Payment instructions",
       "registerCta": "Register team",
-      "registrationsClosed": "Registrations are not open"
+      "registrationsClosed": "Registrations are not open",
+      "spotsLeft": "{{remaining}} of {{max}} spots left",
+      "getDirections": "Get directions",
+      "amenitiesTitle": "Amenities",
+      "amenityToilets": "Toilets",
+      "amenityFood": "Food / café",
+      "amenityParking": "Parking",
+      "amenityNotAvailable": "Not available"
     },
     "empty": {
       "teams": "Teams will appear here once registration opens."
@@ -165,7 +214,8 @@
       "groupB": "Group B",
       "unassigned": "Unassigned",
       "reservedBadge": "Reserved",
-      "paidBadge": "Paid"
+      "paidBadge": "Paid",
+      "levelLabel": "Level"
     },
     "schedule": {
       "filterAll": "All",
@@ -196,7 +246,10 @@
       "teamName2": "Second team name",
       "teamName2Hint": "Optional",
       "addAnotherTeam": "+ Register another team",
-      "removeSecondTeam": "Remove"
+      "removeSecondTeam": "Remove",
+      "level1": "Team level",
+      "level2": "Second team level",
+      "levelPlaceholder": "Pick a level"
     },
     "submit": "Submit",
     "cupNotOpen": "Registration is not open for this cup.",
@@ -206,7 +259,8 @@
       "required": "Required",
       "emailInvalid": "Invalid email",
       "sameNames": "Teams must have different names",
-      "nameTaken": "The name is already taken — add a number or color to keep teams apart"
+      "nameTaken": "The name is already taken — add a number or color to keep teams apart",
+      "levelRequired": "Pick a level"
     },
     "generalFailure": "Registration failed — please try again"
   },
@@ -222,7 +276,8 @@
       "fee": "Fee",
       "instructions": "Instructions",
       "qrAlt": "Lagkassan QR code",
-      "openLagkassan": "Open Lagkassan"
+      "openLagkassan": "Open Lagkassan",
+      "markWithTeamHint": "Don't forget to mark the payment with your team name."
     },
     "cancelCard": {
       "title": "Cancel registration",

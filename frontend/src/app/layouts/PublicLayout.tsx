@@ -51,10 +51,10 @@ export function PublicLayout(): JSX.Element {
     >
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 sm:px-6">
         <Link
-          to={`/c/${cup.slug}`}
-          className="text-lg font-semibold tracking-tight"
+          to="/"
+          className="text-lg font-semibold tracking-tight hover:underline"
         >
-          {cup.name}
+          ← {t('app.title')}
         </Link>
         <LanguageSwitcher />
       </header>

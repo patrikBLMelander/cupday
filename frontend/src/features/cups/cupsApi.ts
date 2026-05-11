@@ -8,6 +8,8 @@ import type {
 } from '@/features/cups/cupTypes';
 
 function resolveBaseUrl(): string {
+  const configured = import.meta.env.VITE_API_BASE_URL;
+  if (configured) return configured;
   if (typeof window !== 'undefined' && window.location?.origin) {
     return `${window.location.origin}/api`;
   }
@@ -26,7 +28,7 @@ export const cupsApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Cups', 'Cup'],
+  tagTypes: ['Cups', 'Cup', 'PublicCups'],
   endpoints: (builder) => ({
     listCups: builder.query<Cup[], void>({
       query: () => '/admin/cups',
@@ -37,6 +39,10 @@ export const cupsApi = createApi({
               { type: 'Cups' as const, id: 'LIST' },
             ]
           : [{ type: 'Cups' as const, id: 'LIST' }],
+    }),
+    listPublicCups: builder.query<Cup[], void>({
+      query: () => '/cups/public',
+      providesTags: [{ type: 'PublicCups', id: 'LIST' }],
     }),
     getCup: builder.query<Cup, string>({
       query: (id) => `/admin/cups/${id}`,
@@ -50,7 +56,10 @@ export const cupsApi = createApi({
     }),
     createCup: builder.mutation<Cup, CupCreateRequest>({
       query: (body) => ({ url: '/admin/cups', method: 'POST', body }),
-      invalidatesTags: [{ type: 'Cups', id: 'LIST' }],
+      invalidatesTags: [
+        { type: 'Cups', id: 'LIST' },
+        { type: 'PublicCups', id: 'LIST' },
+      ],
     }),
     updateCup: builder.mutation<Cup, { id: string } & CupUpdateRequest>({
       query: ({ id, ...patch }) => ({
@@ -61,17 +70,22 @@ export const cupsApi = createApi({
       invalidatesTags: (_result, _err, { id }) => [
         { type: 'Cup', id },
         { type: 'Cups', id: 'LIST' },
+        { type: 'PublicCups', id: 'LIST' },
       ],
     }),
     deleteCup: builder.mutation<void, string>({
       query: (id) => ({ url: `/admin/cups/${id}`, method: 'DELETE' }),
-      invalidatesTags: [{ type: 'Cups', id: 'LIST' }],
+      invalidatesTags: [
+        { type: 'Cups', id: 'LIST' },
+        { type: 'PublicCups', id: 'LIST' },
+      ],
     }),
   }),
 });
 
 export const {
   useListCupsQuery,
+  useListPublicCupsQuery,
   useGetCupQuery,
   useGetCupBySlugQuery,
   useCreateCupMutation,

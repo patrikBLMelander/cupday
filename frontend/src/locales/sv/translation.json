@@ -1,7 +1,28 @@
 {
   "app": {
-    "title": "Cup",
+    "title": "Matchdag",
     "tagline": "Arrangera fotbollscuper enkelt"
+  },
+  "landing": {
+    "heroTitle": "Matchdag",
+    "heroSubtitle": "Hitta och anmäl er till kommande fotbollscuper.",
+    "upcomingTitle": "Kommande cuper",
+    "empty": "Inga cuper är öppna just nu — kom tillbaka snart.",
+    "loadFailed": "Kunde inte ladda cuper",
+    "card": {
+      "playersLabel": "{{n}}-mannafotboll",
+      "spotsLeft": "{{count}} platser kvar",
+      "spotsLeft_one": "1 plats kvar",
+      "full": "Fullsatt",
+      "viewCta": "Visa cup"
+    },
+    "countdown": {
+      "title": "Nästa cup börjar om",
+      "days": "Dagar",
+      "hours": "Timmar",
+      "minutes": "Minuter",
+      "seconds": "Sekunder"
+    }
   },
   "auth": {
     "signIn": "Logga in",
@@ -57,6 +78,25 @@
       "contactName": "Namn",
       "contactEmail": "E-post",
       "contactPhone": "Telefon",
+      "venueAmenities": "Anläggning",
+      "mapUrl": "Karta (Google Maps-länk)",
+      "mapUrlHint": "Visas som \"Hitta hit\" på den publika sidan",
+      "hasToilets": "Toaletter",
+      "hasFood": "Mat/fika",
+      "hasParking": "Parkering",
+      "format": "Format",
+      "playersPerTeam": "Spelare per lag",
+      "players5": "5-mannafotboll",
+      "players7": "7-mannafotboll",
+      "players9": "9-mannafotboll",
+      "clubLogoUrl": "Klubblogga (URL)",
+      "clubLogoUrlHint": "Visas på Matchdag-startsidan",
+      "levels": "Nivåer",
+      "useLevels": "Använd nivåer",
+      "useLevelsHint": "Låt klubbar välja en nivå per lag (t.ex. Lätt, Medel, Svår). Endast informativt — påverkar inte gruppindelningen.",
+      "levelName": "Nivånamn",
+      "addLevel": "+ Lägg till nivå",
+      "removeLevel": "Ta bort",
       "validation": {
         "required": "Obligatoriskt fält",
         "slugInvalid": "Endast små bokstäver, siffror och bindestreck",
@@ -64,7 +104,9 @@
         "emailInvalid": "Ogiltig e-post",
         "minPitchCount": "Minst 1 plan",
         "minMaxTeams": "Minst 2 lag",
-        "nonNegative": "Måste vara 0 eller mer"
+        "nonNegative": "Måste vara 0 eller mer",
+        "minLevels": "Minst 2 nivåer krävs",
+        "levelComma": "Nivånamn får inte innehålla komma"
       }
     },
     "cupStatus": {
@@ -155,7 +197,14 @@
       "contactPhone": "Telefon",
       "paymentInstructions": "Betalningsinstruktioner",
       "registerCta": "Anmäl lag",
-      "registrationsClosed": "Anmälan är inte öppen"
+      "registrationsClosed": "Anmälan är inte öppen",
+      "spotsLeft": "{{remaining}} av {{max}} platser kvar",
+      "getDirections": "Hitta hit",
+      "amenitiesTitle": "Faciliteter",
+      "amenityToilets": "Toaletter",
+      "amenityFood": "Mat/fika",
+      "amenityParking": "Parkering",
+      "amenityNotAvailable": "Saknas"
     },
     "empty": {
       "teams": "Lag visas här när anmälan är öppen."
@@ -165,7 +214,8 @@
       "groupB": "Grupp B",
       "unassigned": "Ej grupperade",
       "reservedBadge": "Reserverad",
-      "paidBadge": "Betald"
+      "paidBadge": "Betald",
+      "levelLabel": "Nivå"
     },
     "schedule": {
       "filterAll": "Alla",
@@ -196,7 +246,10 @@
       "teamName2": "Andra lagets namn",
       "teamName2Hint": "Valfritt",
       "addAnotherTeam": "+ Anmäl ett lag till",
-      "removeSecondTeam": "Ta bort"
+      "removeSecondTeam": "Ta bort",
+      "level1": "Nivå för laget",
+      "level2": "Nivå för andra laget",
+      "levelPlaceholder": "Välj nivå"
     },
     "submit": "Anmäl",
     "cupNotOpen": "Anmälan är inte öppen för den här cupen.",
@@ -206,7 +259,8 @@
       "required": "Obligatoriskt fält",
       "emailInvalid": "Ogiltig e-post",
       "sameNames": "Lagen måste ha olika namn",
-      "nameTaken": "Namnet är upptaget — lägg till en siffra eller färg för att skilja lagen åt"
+      "nameTaken": "Namnet är upptaget — lägg till en siffra eller färg för att skilja lagen åt",
+      "levelRequired": "Välj en nivå"
     },
     "generalFailure": "Anmälan misslyckades — försök igen"
   },
@@ -222,7 +276,8 @@
       "fee": "Avgift",
       "instructions": "Instruktioner",
       "qrAlt": "QR-kod till Lagkassan",
-      "openLagkassan": "Öppna Lagkassan"
+      "openLagkassan": "Öppna Lagkassan",
+      "markWithTeamHint": "Glöm inte att märka betalningen med lagets namn."
     },
     "cancelCard": {
       "title": "Avbryt anmälan",

@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /** Cup REST request and response payloads. */
@@ -40,9 +42,18 @@ public final class CupDtos {
       String organizerContactEmail,
       String organizerContactPhone,
       CupStatus status,
-      Instant createdAt) {
+      Instant createdAt,
+      int playersPerTeam,
+      String clubLogoUrl,
+      boolean useLevels,
+      List<String> levels,
+      int activeTeamCount,
+      boolean hasToilets,
+      boolean hasFood,
+      boolean hasParking,
+      String mapUrl) {
 
-    public static CupResponse from(Cup cup) {
+    public static CupResponse from(Cup cup, int activeTeamCount) {
       return new CupResponse(
           cup.getId(),
           cup.getSlug(),
@@ -62,7 +73,31 @@ public final class CupDtos {
           cup.getOrganizerContactEmail(),
           cup.getOrganizerContactPhone(),
           cup.getStatus(),
-          cup.getCreatedAt());
+          cup.getCreatedAt(),
+          cup.getPlayersPerTeam(),
+          cup.getClubLogoUrl(),
+          cup.isUseLevels(),
+          splitLevels(cup.getLevels()),
+          activeTeamCount,
+          cup.isHasToilets(),
+          cup.isHasFood(),
+          cup.isHasParking(),
+          cup.getMapUrl());
+    }
+
+    /** Delegates with {@code activeTeamCount = 0} — kept for callers that don't need the count. */
+    public static CupResponse from(Cup cup) {
+      return from(cup, 0);
+    }
+
+    private static List<String> splitLevels(String levels) {
+      if (levels == null || levels.isBlank()) {
+        return List.of();
+      }
+      return Arrays.stream(levels.split(","))
+          .map(String::trim)
+          .filter(s -> !s.isEmpty())
+          .toList();
     }
   }
 
@@ -82,7 +117,15 @@ public final class CupDtos {
       String paymentLagkassanQrUrl,
       @NotBlank String organizerContactName,
       @NotBlank @Email String organizerContactEmail,
-      @NotBlank String organizerContactPhone) {}
+      @NotBlank String organizerContactPhone,
+      Integer playersPerTeam,
+      String clubLogoUrl,
+      Boolean useLevels,
+      List<String> levels,
+      Boolean hasToilets,
+      Boolean hasFood,
+      Boolean hasParking,
+      String mapUrl) {}
 
   /** Partial update — null means "leave unchanged". */
   public record CupUpdateRequest(
@@ -102,5 +145,13 @@ public final class CupDtos {
       String organizerContactName,
       String organizerContactEmail,
       String organizerContactPhone,
-      CupStatus status) {}
+      CupStatus status,
+      Integer playersPerTeam,
+      String clubLogoUrl,
+      Boolean useLevels,
+      List<String> levels,
+      Boolean hasToilets,
+      Boolean hasFood,
+      Boolean hasParking,
+      String mapUrl) {}
 }

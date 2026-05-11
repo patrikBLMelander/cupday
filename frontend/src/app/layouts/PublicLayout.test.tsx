@@ -33,6 +33,15 @@ function buildCup(overrides: Partial<Cup> = {}): Cup {
     organizerContactPhone: '0700000000',
     status: 'open',
     createdAt: '2026-01-01T00:00:00Z',
+    playersPerTeam: 7,
+    clubLogoUrl: '',
+    useLevels: false,
+    levels: [],
+    activeTeamCount: 0,
+    hasToilets: false,
+    hasFood: false,
+    hasParking: false,
+    mapUrl: '',
     ...overrides,
   };
 }
@@ -53,14 +62,13 @@ function renderAt(path: string): void {
 }
 
 describe('PublicLayout', () => {
-  it('renders the cup name and child route when the slug resolves', async () => {
+  it('renders a back-to-landing link and the child route when the slug resolves', async () => {
     db.write((d) => {
       d.cups.push(buildCup());
     });
     renderAt('/c/test-cup');
-    expect(
-      await screen.findByRole('link', { name: /test cup 2026/i }),
-    ).toBeInTheDocument();
+    const backLink = await screen.findByRole('link', { name: /matchdag/i });
+    expect(backLink).toHaveAttribute('href', '/');
     expect(await screen.findByText('Inside')).toBeInTheDocument();
   });
 

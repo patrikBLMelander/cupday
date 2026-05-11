@@ -9,6 +9,8 @@ type LoginResponse = { token: string; user: User };
 type MeResponse = { user: User };
 
 function resolveBaseUrl(): string {
+  const configured = import.meta.env.VITE_API_BASE_URL;
+  if (configured) return configured;
   if (typeof window !== 'undefined' && window.location?.origin) {
     return `${window.location.origin}/api`;
   }

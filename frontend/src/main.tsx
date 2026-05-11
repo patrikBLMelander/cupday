@@ -9,6 +9,8 @@ import '@/lib/i18n';
 import '@/index.css';
 
 async function enableMocking(): Promise<void> {
+  // When VITE_API_BASE_URL is set we talk to a real backend, so skip MSW.
+  if (import.meta.env.VITE_API_BASE_URL) return;
   if (!import.meta.env.DEV) return;
   const { worker } = await import('@/mocks/browser');
   await worker.start({ onUnhandledRequest: 'bypass' });

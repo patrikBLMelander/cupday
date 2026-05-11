@@ -25,11 +25,28 @@ services:
       CUP_ADMIN_EMAIL: ${CUP_ADMIN_EMAIL:-}
       CUP_ADMIN_PASSWORD_HASH: ${CUP_ADMIN_PASSWORD_HASH:-}
       JWT_SECRET: ${JWT_SECRET:-please-rotate-me-256-bits-is-32-bytes-yes}
+      CUP_CORS_ALLOWED_ORIGINS: ${CUP_CORS_ALLOWED_ORIGINS:-http://localhost:5173}
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+
+  # Opt-in via: docker compose --profile frontend up
+  # nginx serves the compiled SPA on host port 5173. The bundle has
+  # VITE_API_BASE_URL baked in at build time and the browser talks to the
+  # backend container directly on http://localhost:8080/api (CORS already
+  # allows the http://localhost:5173 origin).
+  frontend:
+    profiles: [frontend]
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080/api}
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
 
 volumes:
   cup-postgres:

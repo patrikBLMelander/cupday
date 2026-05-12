@@ -51,16 +51,16 @@ export function Countdown({
       <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
         {label}
       </span>
-      <ul className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+      <ul className="grid w-full max-w-md grid-cols-4 gap-1.5 sm:gap-4">
         {units.map(({ value, label: unitLabel }) => (
           <li
             key={unitLabel}
-            className="flex w-20 flex-col items-center rounded-lg bg-white/10 px-3 py-3 backdrop-blur-sm sm:w-24"
+            className="flex min-w-0 flex-col items-center rounded-lg bg-white/10 px-1 py-3 backdrop-blur-sm sm:px-3"
           >
-            <span className="text-3xl font-bold tabular-nums sm:text-4xl">
+            <span className="text-2xl font-bold tabular-nums sm:text-4xl">
               {value.toString().padStart(2, '0')}
             </span>
-            <span className="text-[10px] font-medium uppercase tracking-wider text-white/70">
+            <span className="truncate text-[10px] font-medium uppercase tracking-wider text-white/70">
               {unitLabel}
             </span>
           </li>

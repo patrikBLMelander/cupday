@@ -1,14 +1,18 @@
 {
   "app": {
-    "title": "Matchdag",
+    "title": "Cupdag",
     "tagline": "Run football cups with ease"
   },
   "landing": {
-    "heroTitle": "Matchdag",
+    "heroTitle": "Your next cup",
     "heroSubtitle": "Find and register for upcoming football cups.",
     "upcomingTitle": "Upcoming cups",
     "empty": "No cups are open right now — check back soon.",
     "loadFailed": "Failed to load cups",
+    "footer": {
+      "title": "Want to organize a cup?",
+      "body": "Get in touch and I'll help you get started."
+    },
     "card": {
       "playersLabel": "{{n}}-a-side",
       "spotsLeft": "{{count}} spots left",
@@ -90,7 +94,7 @@
       "players7": "7-a-side",
       "players9": "9-a-side",
       "clubLogoUrl": "Club logo (URL)",
-      "clubLogoUrlHint": "Shown on the Matchdag landing page",
+      "clubLogoUrlHint": "Shown on the Cupdag landing page",
       "levels": "Levels",
       "useLevels": "Use levels",
       "useLevelsHint": "Let clubs pick a level per team (e.g. Easy, Medium, Hard). Informational only — does not drive group placement.",

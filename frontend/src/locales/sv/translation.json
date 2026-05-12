@@ -1,14 +1,18 @@
 {
   "app": {
-    "title": "Matchdag",
+    "title": "Cupdag",
     "tagline": "Arrangera fotbollscuper enkelt"
   },
   "landing": {
-    "heroTitle": "Matchdag",
+    "heroTitle": "Din nästa cup",
     "heroSubtitle": "Hitta och anmäl er till kommande fotbollscuper.",
     "upcomingTitle": "Kommande cuper",
     "empty": "Inga cuper är öppna just nu — kom tillbaka snart.",
     "loadFailed": "Kunde inte ladda cuper",
+    "footer": {
+      "title": "Vill du arrangera en cup?",
+      "body": "Hör av dig så hjälper jag dig komma igång."
+    },
     "card": {
       "playersLabel": "{{n}}-mannafotboll",
       "spotsLeft": "{{count}} platser kvar",
@@ -90,7 +94,7 @@
       "players7": "7-mannafotboll",
       "players9": "9-mannafotboll",
       "clubLogoUrl": "Klubblogga (URL)",
-      "clubLogoUrlHint": "Visas på Matchdag-startsidan",
+      "clubLogoUrlHint": "Visas på Cupdag-startsidan",
       "levels": "Nivåer",
       "useLevels": "Använd nivåer",
       "useLevelsHint": "Låt klubbar välja en nivå per lag (t.ex. Lätt, Medel, Svår). Endast informativt — påverkar inte gruppindelningen.",

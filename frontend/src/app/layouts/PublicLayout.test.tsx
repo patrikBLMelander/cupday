@@ -67,7 +67,7 @@ describe('PublicLayout', () => {
       d.cups.push(buildCup());
     });
     renderAt('/c/test-cup');
-    const backLink = await screen.findByRole('link', { name: /matchdag/i });
+    const backLink = await screen.findByRole('link', { name: /cupdag/i });
     expect(backLink).toHaveAttribute('href', '/');
     expect(await screen.findByText('Inside')).toBeInTheDocument();
   });

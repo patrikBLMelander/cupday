@@ -94,6 +94,29 @@ export function PublicLandingPage(): JSX.Element {
           </ul>
         )}
       </main>
+
+      <footer className="mt-8 border-t border-border bg-card px-4 py-10 sm:px-6">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-lg font-semibold tracking-tight">
+            {t('landing.footer.title')}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {t('landing.footer.body')}
+          </p>
+          <div className="mt-4 flex flex-col items-center gap-1 text-sm">
+            <p className="font-medium">Patrik Melander</p>
+            <a
+              href="mailto:patrik.blmelander@gmail.com"
+              className="underline"
+            >
+              patrik.blmelander@gmail.com
+            </a>
+            <a href="tel:+46704011119" className="underline">
+              0704011119
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

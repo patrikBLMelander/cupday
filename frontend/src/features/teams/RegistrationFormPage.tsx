@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState, type ReactNode } from 'react';
+import { forwardRef, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useOutletContext } from 'react-router-dom';
@@ -13,10 +13,6 @@ import {
   useListPublicTeamsByCupQuery,
 } from '@/features/teams/teamsApi';
 import type { RegistrationCreateRequest } from '@/features/teams/teamTypes';
-import {
-  suggestClubLogo,
-  type ClubLogoSuggestion,
-} from '@/lib/wikidata';
 
 const EMAIL_RE = /^.+@.+\..+$/;
 
@@ -58,8 +54,6 @@ export function RegistrationFormPage(): JSX.Element {
     setError,
     unregister,
     getValues,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm<FormShape>({
     defaultValues: {
@@ -71,49 +65,6 @@ export function RegistrationFormPage(): JSX.Element {
     },
   });
 
-  const clubNameValue = watch('clubName');
-  const [logoSuggestion, setLogoSuggestion] = useState<ClubLogoSuggestion | null>(
-    null,
-  );
-  const [dismissedSuggestionFor, setDismissedSuggestionFor] = useState<string | null>(
-    null,
-  );
-
-  useEffect(() => {
-    const trimmed = clubNameValue?.trim() ?? '';
-    if (trimmed.length < 3) {
-      setLogoSuggestion(null);
-      return;
-    }
-    if (dismissedSuggestionFor === trimmed) return;
-    const controller = new AbortController();
-    const handle = window.setTimeout(() => {
-      void suggestClubLogo(trimmed, controller.signal).then((s) => {
-        if (!controller.signal.aborted) setLogoSuggestion(s);
-      });
-    }, 500);
-    return () => {
-      controller.abort();
-      window.clearTimeout(handle);
-    };
-  }, [clubNameValue, dismissedSuggestionFor]);
-
-  function applySuggestion(): void {
-    if (!logoSuggestion) return;
-    if (!getValues('teamLogo1')) {
-      setValue('teamLogo1', logoSuggestion.logoUrl, { shouldDirty: true });
-    }
-    if (secondTeamShown && !getValues('teamLogo2')) {
-      setValue('teamLogo2', logoSuggestion.logoUrl, { shouldDirty: true });
-    }
-    setDismissedSuggestionFor(clubNameValue?.trim() ?? null);
-    setLogoSuggestion(null);
-  }
-
-  function dismissSuggestion(): void {
-    setDismissedSuggestionFor(clubNameValue?.trim() ?? null);
-    setLogoSuggestion(null);
-  }
 
   if (cup.status !== 'open') {
     return (
@@ -286,15 +237,6 @@ export function RegistrationFormPage(): JSX.Element {
         </CardContent>
       </Card>
 
-      {logoSuggestion && (
-        <LogoSuggestionCard
-          suggestion={logoSuggestion}
-          onApply={applySuggestion}
-          onDismiss={dismissSuggestion}
-          t={t}
-        />
-      )}
-
       <Card>
         <CardHeader>
           <CardTitle className="text-base">{t('public.tabs.teams')}</CardTitle>
@@ -436,50 +378,6 @@ export function RegistrationFormPage(): JSX.Element {
         </Button>
       </div>
     </form>
-  );
-}
-
-function LogoSuggestionCard({
-  suggestion,
-  onApply,
-  onDismiss,
-  t,
-}: {
-  suggestion: ClubLogoSuggestion;
-  onApply: () => void;
-  onDismiss: () => void;
-  t: (key: string, opts?: Record<string, unknown>) => string;
-}): JSX.Element {
-  return (
-    <Card>
-      <CardContent className="flex flex-wrap items-center gap-3 p-3">
-        <img
-          src={suggestion.logoUrl}
-          alt=""
-          className="h-10 w-10 shrink-0 rounded object-contain"
-        />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">
-            {t('registration.fields.logoSuggestionHint', {
-              label: suggestion.label,
-            })}
-          </p>
-          {suggestion.description && (
-            <p className="truncate text-xs text-muted-foreground">
-              {suggestion.description}
-            </p>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Button type="button" size="sm" onClick={onApply}>
-            {t('registration.fields.logoSuggestionApply')}
-          </Button>
-          <Button type="button" size="sm" variant="ghost" onClick={onDismiss}>
-            ×
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 

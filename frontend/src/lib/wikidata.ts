@@ -9,13 +9,16 @@
 const SEARCH_ENDPOINT = 'https://www.wikidata.org/w/api.php';
 const COMMONS_FILEPATH = 'https://commons.wikimedia.org/wiki/Special:FilePath';
 
-/** Wikidata QIDs we treat as "this entity is a football club / team". */
-const FOOTBALL_CLUB_QIDS: ReadonlySet<string> = new Set([
+/** Wikidata QIDs we treat as "this entity is a football / sports club or team". */
+const SPORTS_CLUB_QIDS: ReadonlySet<string> = new Set([
   'Q476028', // association football club
   'Q12973014', // football club
   'Q6979593', // football team
   'Q15944511', // sports team
   'Q4498974', // women's association football club
+  'Q15634554', // sports club (covers multi-section clubs like AIK, IFK Göteborg)
+  'Q4438121', // sports association
+  'Q56678644', // sport organisation
 ]);
 
 export type ClubLogoSuggestion = {
@@ -53,20 +56,20 @@ export async function suggestClubLogo(
     const ids = candidates.map((c) => c.id).join('|');
     const entities = await getEntities(ids, signal);
 
+    let fallback: { candidate: SearchHit; filename: string } | null = null;
     for (const candidate of candidates) {
       const entity = entities[candidate.id];
       if (!entity) continue;
-      if (!isFootballClub(entity)) continue;
       const filename = getLogoFilename(entity);
       if (!filename) continue;
-      return {
-        entityId: candidate.id,
-        label: candidate.label ?? trimmed,
-        description: candidate.description ?? '',
-        logoUrl: `${COMMONS_FILEPATH}/${encodeURIComponent(filename)}?width=200`,
-      };
+      if (isSportsClub(entity)) {
+        return toSuggestion(candidate, filename, trimmed);
+      }
+      if (!fallback) {
+        fallback = { candidate, filename };
+      }
     }
-    return null;
+    return fallback ? toSuggestion(fallback.candidate, fallback.filename, trimmed) : null;
   } catch {
     return null;
   }
@@ -104,15 +107,28 @@ async function getEntities(
   return data.entities ?? {};
 }
 
-function isFootballClub(entity: Entity): boolean {
+function isSportsClub(entity: Entity): boolean {
   const p31 = entity.claims?.P31 ?? [];
   for (const claim of p31) {
     const value = claim.mainsnak?.datavalue?.value;
     if (value && typeof value === 'object' && typeof value.id === 'string') {
-      if (FOOTBALL_CLUB_QIDS.has(value.id)) return true;
+      if (SPORTS_CLUB_QIDS.has(value.id)) return true;
     }
   }
   return false;
+}
+
+function toSuggestion(
+  candidate: SearchHit,
+  filename: string,
+  fallbackLabel: string,
+): ClubLogoSuggestion {
+  return {
+    entityId: candidate.id,
+    label: candidate.label ?? fallbackLabel,
+    description: candidate.description ?? '',
+    logoUrl: `${COMMONS_FILEPATH}/${encodeURIComponent(filename)}?width=200`,
+  };
 }
 
 function getLogoFilename(entity: Entity): string | null {

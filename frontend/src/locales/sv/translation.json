@@ -229,8 +229,12 @@
       "groupBadge": "Grupp {{label}}",
       "vs": "mot",
       "empty": "Spelschemat är inte publicerat ännu.",
-      "emptyForFilter": "Inga matcher i denna grupp.",
-      "backToCup": "Tillbaka till cupen"
+      "emptyForFilter": "Inga matcher matchar filtret.",
+      "backToCup": "Tillbaka till cupen",
+      "viewByGroup": "Per grupp",
+      "viewByPitch": "Per plan",
+      "teamFilterLabel": "Visa lag",
+      "allTeams": "Alla lag"
     },
     "notFound": {
       "title": "Cupen hittades inte",

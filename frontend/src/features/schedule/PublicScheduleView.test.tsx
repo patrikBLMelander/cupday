@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { Cup } from '@/features/cups/cupTypes';
 import { PublicScheduleView } from '@/features/schedule/PublicScheduleView';
@@ -80,49 +80,92 @@ function buildMatch(overrides: Partial<Match>): Match {
   };
 }
 
-describe('PublicScheduleView', () => {
-  it('renders matches grouped by slot and the Group A filter narrows the list', async () => {
-    db.write((d) => {
-      d.cups.push(buildCup());
-      d.teams.push(
-        buildTeam({ id: 'a1', name: 'IFK A1', groupLabel: 'A' }),
-        buildTeam({ id: 'a2', name: 'IFK A2', groupLabel: 'A' }),
-        buildTeam({ id: 'b1', name: 'IFK B1', groupLabel: 'B' }),
-        buildTeam({ id: 'b2', name: 'IFK B2', groupLabel: 'B' }),
-      );
-      d.matches.push(
-        buildMatch({
-          id: 'm1',
-          groupLabel: 'A',
-          startTime: '2026-06-01T10:00:00.000Z',
-          homeTeamId: 'a1',
-          awayTeamId: 'a2',
-        }),
-        buildMatch({
-          id: 'm2',
-          groupLabel: 'B',
-          startTime: '2026-06-01T10:20:00.000Z',
-          homeTeamId: 'b1',
-          awayTeamId: 'b2',
-        }),
-      );
-    });
-
-    render(
-      <Provider store={makeTestStore()}>
-        <PublicScheduleView cupId="cup-1" />
-      </Provider>,
+function seed(): void {
+  db.write((d) => {
+    d.cups.push(buildCup());
+    d.teams.push(
+      buildTeam({ id: 'a1', name: 'IFK A1', groupLabel: 'A' }),
+      buildTeam({ id: 'a2', name: 'IFK A2', groupLabel: 'A' }),
+      buildTeam({ id: 'b1', name: 'IFK B1', groupLabel: 'B' }),
+      buildTeam({ id: 'b2', name: 'IFK B2', groupLabel: 'B' }),
     );
+    d.matches.push(
+      buildMatch({
+        id: 'm1',
+        groupLabel: 'A',
+        pitch: 1,
+        startTime: '2026-06-01T10:00:00.000Z',
+        homeTeamId: 'a1',
+        awayTeamId: 'a2',
+      }),
+      buildMatch({
+        id: 'm2',
+        groupLabel: 'B',
+        pitch: 2,
+        startTime: '2026-06-01T10:00:00.000Z',
+        homeTeamId: 'b1',
+        awayTeamId: 'b2',
+      }),
+    );
+  });
+}
 
-    expect(await screen.findByText('IFK A1')).toBeInTheDocument();
-    expect(screen.getByText('IFK B1')).toBeInTheDocument();
+function renderView(): void {
+  render(
+    <Provider store={makeTestStore()}>
+      <PublicScheduleView cupId="cup-1" />
+    </Provider>,
+  );
+}
+
+describe('PublicScheduleView', () => {
+  beforeEach(() => {
+    db.reset();
+  });
+
+  it('renders matches grouped by slot and the Group A filter narrows the list', async () => {
+    seed();
+    renderView();
+
+    expect(await screen.findByText('IFK A1', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.getByText('IFK B1', { selector: 'span' })).toBeInTheDocument();
 
     const user = userEvent.setup();
     await user.click(
       screen.getByRole('button', { name: /group a|grupp a/i, pressed: false }),
     );
 
-    expect(screen.getByText('IFK A1')).toBeInTheDocument();
-    expect(screen.queryByText('IFK B1')).not.toBeInTheDocument();
+    expect(screen.getByText('IFK A1', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.queryByText('IFK B1', { selector: 'span' })).not.toBeInTheDocument();
+  });
+
+  it('switches to pitch view and filters to a single pitch', async () => {
+    seed();
+    renderView();
+    await screen.findByText('IFK A1', { selector: 'span' });
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: /by pitch|per plan/i }));
+    await user.click(
+      screen.getByRole('button', { name: /^pitch 2$|^plan 2$/i }),
+    );
+
+    expect(screen.queryByText('IFK A1', { selector: 'span' })).not.toBeInTheDocument();
+    expect(screen.getByText('IFK B1', { selector: 'span' })).toBeInTheDocument();
+  });
+
+  it('filters by a specific team via the dropdown', async () => {
+    seed();
+    renderView();
+    await screen.findByText('IFK A1', { selector: 'span' });
+
+    const user = userEvent.setup();
+    await user.selectOptions(
+      screen.getByLabelText(/show team|visa lag/i),
+      'a1',
+    );
+
+    expect(screen.getByText('IFK A1', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.queryByText('IFK B1', { selector: 'span' })).not.toBeInTheDocument();
   });
 });

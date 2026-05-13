@@ -229,8 +229,12 @@
       "groupBadge": "Group {{label}}",
       "vs": "vs",
       "empty": "The schedule has not been published yet.",
-      "emptyForFilter": "No matches in this group.",
-      "backToCup": "Back to the cup"
+      "emptyForFilter": "No matches match this filter.",
+      "backToCup": "Back to the cup",
+      "viewByGroup": "By group",
+      "viewByPitch": "By pitch",
+      "teamFilterLabel": "Show team",
+      "allTeams": "All teams"
     },
     "notFound": {
       "title": "Cup not found",

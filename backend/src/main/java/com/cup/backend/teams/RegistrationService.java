@@ -59,6 +59,7 @@ public class RegistrationService {
     }
 
     var resolvedLevels = resolveTeamLevels(cup, trimmedNames.size(), request.teamLevels());
+    var resolvedLogos = resolveTeamLogoUrls(trimmedNames.size(), request.teamLogoUrls());
 
     var now = Instant.now();
     var registration = new Registration(UUID.randomUUID(), cup.getId(), now);
@@ -79,6 +80,7 @@ public class RegistrationService {
           TeamStatus.RESERVED,
           now);
       team.setLevel(resolvedLevels.get(i));
+      team.setLogoUrl(resolvedLogos.get(i));
       newTeams.add(teamRepository.save(team));
     }
 
@@ -141,6 +143,20 @@ public class RegistrationService {
         throw new TeamNameConflictException(name);
       }
     }
+  }
+
+  /**
+   * Resolves per-team logo URL. Accepts a parallel list to teamNames; missing
+   * or short lists fall back to an empty string per team. Trims and treats null
+   * as empty.
+   */
+  private static List<String> resolveTeamLogoUrls(int teamCount, List<String> raw) {
+    var resolved = new ArrayList<String>(teamCount);
+    for (var i = 0; i < teamCount; i++) {
+      String entry = raw != null && i < raw.size() ? raw.get(i) : null;
+      resolved.add(entry == null ? "" : entry.trim());
+    }
+    return resolved;
   }
 
   /**

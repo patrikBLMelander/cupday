@@ -60,6 +60,10 @@ public class Team {
   @Column(name = "level")
   private String level;
 
+  /** Optional team-logo URL pasted by the organizer when registering the team. Empty when unset. */
+  @Column(name = "logo_url", nullable = false)
+  private String logoUrl = "";
+
   protected Team() {
     // Required by JPA.
   }
@@ -103,10 +107,12 @@ public class Team {
   public Instant getPaidAt() { return paidAt; }
   public Instant getCancelledAt() { return cancelledAt; }
   public String getLevel() { return level; }
+  public String getLogoUrl() { return logoUrl; }
 
   public void setGroupLabel(GroupLabel groupLabel) { this.groupLabel = groupLabel; }
   public void setStatus(TeamStatus status) { this.status = status; }
   public void setPaidAt(Instant paidAt) { this.paidAt = paidAt; }
   public void setCancelledAt(Instant cancelledAt) { this.cancelledAt = cancelledAt; }
   public void setLevel(String level) { this.level = level; }
+  public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl == null ? "" : logoUrl; }
 }

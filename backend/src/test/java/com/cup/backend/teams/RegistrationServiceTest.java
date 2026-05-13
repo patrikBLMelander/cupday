@@ -51,6 +51,7 @@ class RegistrationServiceTest {
         "patrik@example.com",
         "0700",
         List.of(names),
+        null,
         null);
   }
 
@@ -61,7 +62,8 @@ class RegistrationServiceTest {
         "patrik@example.com",
         "0700",
         names,
-        levels);
+        levels,
+        null);
   }
 
   private static Cup leveledCup(int maxTeams, String levelsCsv) {
@@ -159,5 +161,37 @@ class RegistrationServiceTest {
     assertThat(saved).hasSize(2);
     assertThat(saved.get(0).getLevel()).isEqualTo("Medel");
     assertThat(saved.get(1).getLevel()).isEqualTo("Svår");
+  }
+
+  @Test
+  void persistsTeamLogoUrlsWhenProvided() {
+    var cupRepo = mock(CupRepository.class);
+    var teamRepo = mock(TeamRepository.class);
+    var regRepo = mock(RegistrationRepository.class);
+    var cup = openCup(8);
+    when(cupRepo.findByIdForUpdate(cup.getId())).thenReturn(Optional.of(cup));
+    when(teamRepo.findActiveByCupId(cup.getId())).thenReturn(List.of());
+    var saved = new java.util.ArrayList<Team>();
+    when(teamRepo.save(any(Team.class))).thenAnswer(inv -> {
+      Team t = inv.getArgument(0);
+      saved.add(t);
+      return t;
+    });
+
+    var request = new RegistrationCreateRequest(
+        "Club",
+        "Patrik",
+        "patrik@example.com",
+        "0700",
+        List.of("IFK Lag 1", "IFK Lag 2"),
+        null,
+        List.of("https://example.com/a.png", "https://example.com/b.png"));
+
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo);
+    service.register(cup.getId(), request);
+
+    assertThat(saved).hasSize(2);
+    assertThat(saved.get(0).getLogoUrl()).isEqualTo("https://example.com/a.png");
+    assertThat(saved.get(1).getLogoUrl()).isEqualTo("https://example.com/b.png");
   }
 }

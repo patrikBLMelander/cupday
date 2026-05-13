@@ -1,0 +1,2 @@
+ALTER TABLE team
+  ADD COLUMN logo_url TEXT NOT NULL DEFAULT '';

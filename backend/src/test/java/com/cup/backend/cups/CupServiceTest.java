@@ -40,6 +40,7 @@ class CupServiceTest {
         null,
         null,
         null,
+        null,
         null);
   }
 
@@ -58,7 +59,7 @@ class CupServiceTest {
         "", "", "",
         "Patrik", "patrik@example.com", "0700000000",
         7, "", false, null,
-        null, null, null, null);
+        null, null, null, null, null);
 
     assertThatThrownBy(() -> service.create(bad))
         .isInstanceOf(IllegalArgumentException.class)
@@ -112,7 +113,7 @@ class CupServiceTest {
         "", "", "",
         "Patrik", "patrik@example.com", "0700000000",
         7, "", true, List.of("Lätt"),
-        null, null, null, null);
+        null, null, null, null, null);
 
     assertThatThrownBy(() -> service.create(bad))
         .isInstanceOf(IllegalArgumentException.class)
@@ -137,7 +138,7 @@ class CupServiceTest {
         "Patrik", "patrik@example.com", "0700000000",
         9, "https://example.com/logo.png", true,
         List.of("Lätt", "Medel", "Svår"),
-        null, null, null, null);
+        null, null, null, null, null);
 
     var saved = service.create(req);
 
@@ -163,7 +164,7 @@ class CupServiceTest {
         "", "", "",
         "Patrik", "patrik@example.com", "0700000000",
         11, "", false, null,
-        null, null, null, null);
+        null, null, null, null, null);
 
     assertThatThrownBy(() -> service.create(bad))
         .isInstanceOf(IllegalArgumentException.class)

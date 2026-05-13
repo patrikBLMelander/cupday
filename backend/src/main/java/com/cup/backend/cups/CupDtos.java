@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -51,7 +52,8 @@ public final class CupDtos {
       boolean hasToilets,
       boolean hasFood,
       boolean hasParking,
-      String mapUrl) {
+      String mapUrl,
+      LocalTime startTime) {
 
     public static CupResponse from(Cup cup, int activeTeamCount) {
       return new CupResponse(
@@ -82,7 +84,8 @@ public final class CupDtos {
           cup.isHasToilets(),
           cup.isHasFood(),
           cup.isHasParking(),
-          cup.getMapUrl());
+          cup.getMapUrl(),
+          cup.getStartTime());
     }
 
     /** Delegates with {@code activeTeamCount = 0} — kept for callers that don't need the count. */
@@ -125,7 +128,8 @@ public final class CupDtos {
       Boolean hasToilets,
       Boolean hasFood,
       Boolean hasParking,
-      String mapUrl) {}
+      String mapUrl,
+      LocalTime startTime) {}
 
   /** Partial update — null means "leave unchanged". */
   public record CupUpdateRequest(
@@ -153,5 +157,6 @@ public final class CupDtos {
       Boolean hasToilets,
       Boolean hasFood,
       Boolean hasParking,
-      String mapUrl) {}
+      String mapUrl,
+      LocalTime startTime) {}
 }

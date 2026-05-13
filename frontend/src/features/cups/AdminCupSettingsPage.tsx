@@ -66,6 +66,7 @@ function emptyForm(): FormShape {
     hasFood: false,
     hasParking: false,
     mapUrl: '',
+    startTime: null,
   };
 }
 
@@ -169,6 +170,7 @@ export function AdminCupSettingsPage(): JSX.Element {
       hasFood: existing.hasFood,
       hasParking: existing.hasParking,
       mapUrl: existing.mapUrl,
+      startTime: existing.startTime,
     });
     setStatus(existing.status);
     slugDirtyRef.current = true;
@@ -401,6 +403,19 @@ export function AdminCupSettingsPage(): JSX.Element {
               value={form.endDate}
               onChange={(e) => update('endDate', e.target.value)}
             />
+          </Field>
+          <Field id="startTime" label={t('admin.cupForm.startTime')}>
+            <Input
+              id="startTime"
+              type="time"
+              value={form.startTime ?? ''}
+              onChange={(e) =>
+                update('startTime', e.target.value === '' ? null : e.target.value)
+              }
+            />
+            <span className="text-xs text-muted-foreground">
+              {t('admin.cupForm.startTimeHint')}
+            </span>
           </Field>
         </CardContent>
       </Card>

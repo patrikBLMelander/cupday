@@ -1,4 +1,10 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 
@@ -52,6 +58,15 @@ export function AdminSchedulePage(): JSX.Element {
   const [duration, setDuration] = useState<number>(15);
   const [breakMin, setBreakMin] = useState<number>(5);
   const [genError, setGenError] = useState<string | null>(null);
+  const startTimeInitRef = useRef(false);
+
+  useEffect(() => {
+    if (startTimeInitRef.current) return;
+    if (!cup?.startDate) return;
+    const time = cup.startTime ? cup.startTime.slice(0, 5) : '10:00';
+    setStartTime(`${cup.startDate}T${time}`);
+    startTimeInitRef.current = true;
+  }, [cup?.startDate, cup?.startTime]);
 
   const paidA = teams.filter(
     (t) => t.status === 'paid' && t.groupLabel === 'A',

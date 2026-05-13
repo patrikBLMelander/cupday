@@ -44,6 +44,7 @@ function buildCup(): Cup {
     hasFood: false,
     hasParking: false,
     mapUrl: '',
+    startTime: null,
   };
 }
 

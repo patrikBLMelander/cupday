@@ -65,6 +65,8 @@
       "organizingClub": "Organizing club",
       "startDate": "Start date",
       "endDate": "End date",
+      "startTime": "Start time (optional)",
+      "startTimeHint": "Used as the default when generating the schedule",
       "venue": "Venue",
       "capacity": "Capacity",
       "pitchCount": "Pitch count",

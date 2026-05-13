@@ -96,6 +96,7 @@ public class CupService {
         Boolean.TRUE.equals(req.hasFood()),
         Boolean.TRUE.equals(req.hasParking()),
         nullToEmpty(req.mapUrl()));
+    cup.setStartTime(req.startTime());
     return repository.save(cup);
   }
 
@@ -164,6 +165,7 @@ public class CupService {
     if (req.hasFood() != null) cup.setHasFood(req.hasFood());
     if (req.hasParking() != null) cup.setHasParking(req.hasParking());
     if (req.mapUrl() != null) cup.setMapUrl(req.mapUrl());
+    if (req.startTime() != null) cup.setStartTime(req.startTime());
 
     return cup;
   }

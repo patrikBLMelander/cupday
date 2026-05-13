@@ -180,7 +180,8 @@ function CupHero({
     100,
     Math.round((cup.activeTeamCount / Math.max(1, cup.maxTeams)) * 100),
   );
-  const dateRange = `${dateFormatter.format(new Date(cup.startDate))} – ${dateFormatter.format(new Date(cup.endDate))}`;
+  const timeSuffix = cup.startTime ? ` · ${cup.startTime.slice(0, 5)}` : '';
+  const dateRange = `${dateFormatter.format(new Date(cup.startDate))}${timeSuffix} – ${dateFormatter.format(new Date(cup.endDate))}`;
   const cupStart = new Date(`${cup.startDate}T00:00:00`);
   const today = new Date();
   today.setHours(0, 0, 0, 0);

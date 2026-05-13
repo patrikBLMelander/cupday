@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.UUID;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -102,6 +103,10 @@ public class Cup {
 
   @Column(name = "map_url", nullable = false)
   private String mapUrl;
+
+  /** Optional kickoff time on {@link #startDate}. Null when not set. */
+  @Column(name = "start_time")
+  private LocalTime startTime;
 
   @Version
   private Long version;
@@ -263,6 +268,7 @@ public class Cup {
   public boolean isHasFood() { return hasFood; }
   public boolean isHasParking() { return hasParking; }
   public String getMapUrl() { return mapUrl; }
+  public LocalTime getStartTime() { return startTime; }
 
   public void setSlug(String slug) { this.slug = slug; }
   public void setName(String name) { this.name = name; }
@@ -290,4 +296,5 @@ public class Cup {
   public void setHasFood(boolean hasFood) { this.hasFood = hasFood; }
   public void setHasParking(boolean hasParking) { this.hasParking = hasParking; }
   public void setMapUrl(String mapUrl) { this.mapUrl = mapUrl; }
+  public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
 }

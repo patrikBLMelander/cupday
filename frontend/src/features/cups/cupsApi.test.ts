@@ -36,6 +36,7 @@ function buildCupBody(overrides: Partial<CupCreateRequest> = {}): CupCreateReque
     hasFood: false,
     hasParking: false,
     mapUrl: '',
+    startTime: null,
     ...overrides,
   };
 }

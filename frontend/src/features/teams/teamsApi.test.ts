@@ -41,6 +41,7 @@ function seedOpenCup(overrides: Partial<Cup> = {}): Cup {
     hasFood: false,
     hasParking: false,
     mapUrl: '',
+    startTime: null,
     ...overrides,
   };
   db.write((d) => {

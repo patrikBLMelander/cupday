@@ -1,0 +1,2 @@
+ALTER TABLE cup
+  ADD COLUMN start_time TIME NULL;

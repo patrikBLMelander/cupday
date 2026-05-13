@@ -38,6 +38,8 @@ export type Cup = {
   hasParking: boolean;
   /** Optional Google Maps (or any) directions URL. Empty string when unset. */
   mapUrl: string;
+  /** Optional kickoff time on {@link startDate} as {@code HH:mm:ss}. Null when unset. */
+  startTime: string | null;
 };
 
 export type CupCreateRequest = Omit<

@@ -65,6 +65,8 @@
       "organizingClub": "Arrangerande klubb",
       "startDate": "Startdatum",
       "endDate": "Slutdatum",
+      "startTime": "Starttid (valfritt)",
+      "startTimeHint": "Används som standard när schemat skapas",
       "venue": "Anläggning",
       "capacity": "Kapacitet",
       "pitchCount": "Antal planer",

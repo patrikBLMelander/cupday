@@ -236,6 +236,7 @@ export const handlers = [
       hasFood: body.hasFood ?? false,
       hasParking: body.hasParking ?? false,
       mapUrl: body.mapUrl ?? '',
+      startTime: body.startTime ?? null,
       id: crypto.randomUUID(),
       status: 'draft',
       createdAt: new Date().toISOString(),

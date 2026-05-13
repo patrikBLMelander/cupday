@@ -264,7 +264,9 @@
       "level2": "Second team level",
       "levelPlaceholder": "Pick a level",
       "logo1": "Team logo (optional)",
-      "logo2": "Second team logo (optional)"
+      "logo2": "Second team logo (optional)",
+      "logoSuggestionHint": "Wikidata found a logo for {{label}}",
+      "logoSuggestionApply": "Use it"
     },
     "submit": "Submit",
     "cupNotOpen": "Registration is not open for this cup.",

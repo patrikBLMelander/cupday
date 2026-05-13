@@ -264,7 +264,9 @@
       "level2": "Nivå för andra laget",
       "levelPlaceholder": "Välj nivå",
       "logo1": "Lagets logga (valfritt)",
-      "logo2": "Andra lagets logga (valfritt)"
+      "logo2": "Andra lagets logga (valfritt)",
+      "logoSuggestionHint": "Wikidata hittade en logga för {{label}}",
+      "logoSuggestionApply": "Använd"
     },
     "submit": "Anmäl",
     "cupNotOpen": "Anmälan är inte öppen för den här cupen.",

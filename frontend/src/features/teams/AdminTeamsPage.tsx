@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 
+import { TeamAvatar } from '@/components/TeamAvatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -115,11 +116,14 @@ export function AdminTeamsPage(): JSX.Element {
             <Card>
               <CardContent className="flex flex-col gap-3 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-col">
-                    <span className="text-base font-medium">{team.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {team.clubName}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <TeamAvatar team={team} size="sm" />
+                    <div className="flex flex-col">
+                      <span className="text-base font-medium">{team.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {team.clubName}
+                      </span>
+                    </div>
                   </div>
                   <Badge variant={STATUS_VARIANT[team.status]}>
                     {t(STATUS_LABEL_KEY[team.status])}

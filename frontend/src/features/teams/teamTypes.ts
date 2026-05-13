@@ -17,6 +17,8 @@ export type Team = {
   paidAt: string | null;
   cancelledAt: string | null;
   level: string | null;
+  /** Empty string when unset. */
+  logoUrl: string;
 };
 
 /** Public projection of a team (no contact info). */
@@ -27,6 +29,8 @@ export type PublicTeam = {
   status: TeamStatus;
   /** Populated only when the cup uses levels. */
   level: string | null;
+  /** Empty string when unset. */
+  logoUrl: string;
 };
 
 export type Registration = {
@@ -45,6 +49,8 @@ export type RegistrationCreateRequest = {
   teamNames: string[];
   /** Required when the cup uses levels — one entry per team in {@link teamNames}. */
   teamLevels?: string[];
+  /** Optional logo URLs, one per team in {@link teamNames}; missing → empty. */
+  teamLogoUrls?: string[];
 };
 
 export type RegistrationCreateResponse = {

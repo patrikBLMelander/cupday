@@ -5,9 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { TeamAvatar } from '@/components/TeamAvatar';
 import { useListMatchesByCupQuery } from '@/features/schedule/scheduleApi';
 import type { Match } from '@/features/schedule/scheduleTypes';
 import { useListPublicTeamsByCupQuery } from '@/features/teams/teamsApi';
+import type { PublicTeam } from '@/features/teams/teamTypes';
 
 type View = 'group' | 'pitch';
 type Filter = 'all' | string;
@@ -22,8 +24,8 @@ export function PublicScheduleView({ cupId }: { cupId: string }): JSX.Element {
   const [filter, setFilter] = useState<Filter>('all');
   const [teamId, setTeamId] = useState<string>('all');
 
-  const teamNameMap = useMemo(
-    () => new Map(teams.map((team) => [team.id, team.name])),
+  const teamMap = useMemo(
+    () => new Map(teams.map((team) => [team.id, team])),
     [teams],
   );
 
@@ -133,7 +135,7 @@ export function PublicScheduleView({ cupId }: { cupId: string }): JSX.Element {
           key={slotKey}
           time={timeFormatter.format(new Date(slotKey))}
           matches={slotMatches}
-          teamNameMap={teamNameMap}
+          teamMap={teamMap}
           t={t}
         />
       ))}
@@ -220,12 +222,12 @@ function FilterBar({
 function SlotRow({
   time,
   matches,
-  teamNameMap,
+  teamMap,
   t,
 }: {
   time: string;
   matches: Match[];
-  teamNameMap: Map<string, string>;
+  teamMap: Map<string, PublicTeam>;
   t: Translator;
 }): JSX.Element {
   const sorted = [...matches].sort((a, b) => a.pitch - b.pitch);
@@ -239,8 +241,8 @@ function SlotRow({
           <MatchCard
             key={match.id}
             match={match}
-            home={teamNameMap.get(match.homeTeamId) ?? '?'}
-            away={teamNameMap.get(match.awayTeamId) ?? '?'}
+            home={teamMap.get(match.homeTeamId)}
+            away={teamMap.get(match.awayTeamId)}
             t={t}
           />
         ))}
@@ -256,8 +258,8 @@ function MatchCard({
   t,
 }: {
   match: Match;
-  home: string;
-  away: string;
+  home: PublicTeam | undefined;
+  away: PublicTeam | undefined;
   t: Translator;
 }): JSX.Element {
   return (
@@ -269,12 +271,18 @@ function MatchCard({
             {t('public.schedule.groupBadge', { label: match.groupLabel })}
           </Badge>
         </div>
-        <div className="text-sm">
-          <span className="font-medium">{home}</span>{' '}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+          <span className="flex items-center gap-1.5 font-medium">
+            {home && <TeamAvatar team={home} size="xs" />}
+            {home?.name ?? '?'}
+          </span>
           <span className="text-muted-foreground">
             {t('public.schedule.vs')}
-          </span>{' '}
-          <span className="font-medium">{away}</span>
+          </span>
+          <span className="flex items-center gap-1.5 font-medium">
+            {away && <TeamAvatar team={away} size="xs" />}
+            {away?.name ?? '?'}
+          </span>
         </div>
       </CardContent>
     </Card>

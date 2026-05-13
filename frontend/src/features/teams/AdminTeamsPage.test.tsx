@@ -65,6 +65,7 @@ function buildTeam(overrides: Partial<Team>): Team {
     paidAt: null,
     cancelledAt: null,
     level: null,
+    logoUrl: '',
     ...overrides,
   };
 }

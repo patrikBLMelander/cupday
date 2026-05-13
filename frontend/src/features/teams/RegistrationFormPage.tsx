@@ -25,6 +25,8 @@ type FormShape = {
   teamName2?: string;
   teamLevel1?: string;
   teamLevel2?: string;
+  teamLogo1?: string;
+  teamLogo2?: string;
 };
 
 type ServerErrorBody = {
@@ -92,6 +94,7 @@ export function RegistrationFormPage(): JSX.Element {
   function hideSecondTeam(): void {
     unregister('teamName2');
     unregister('teamLevel2');
+    unregister('teamLogo2');
     setSecondTeamShown(false);
   }
 
@@ -114,6 +117,13 @@ export function RegistrationFormPage(): JSX.Element {
         levels.push(values.teamLevel2 ?? '');
       }
       body.teamLevels = levels;
+    }
+    const logos = [values.teamLogo1?.trim() ?? ''];
+    if (teamNames.length === 2) {
+      logos.push(values.teamLogo2?.trim() ?? '');
+    }
+    if (logos.some((url) => url.length > 0)) {
+      body.teamLogoUrls = logos;
     }
     try {
       const result = await createRegistration({ cupId: cup.id, body }).unwrap();
@@ -261,6 +271,18 @@ export function RegistrationFormPage(): JSX.Element {
             </Field>
           )}
 
+          <Field
+            id="teamLogo1"
+            label={t('registration.fields.logo1')}
+          >
+            <Input
+              id="teamLogo1"
+              type="url"
+              placeholder="https://"
+              {...register('teamLogo1')}
+            />
+          </Field>
+
           {secondTeamShown ? (
             <>
               <Field
@@ -314,6 +336,17 @@ export function RegistrationFormPage(): JSX.Element {
                   />
                 </Field>
               )}
+              <Field
+                id="teamLogo2"
+                label={t('registration.fields.logo2')}
+              >
+                <Input
+                  id="teamLogo2"
+                  type="url"
+                  placeholder="https://"
+                  {...register('teamLogo2')}
+                />
+              </Field>
             </>
           ) : (
             <Button

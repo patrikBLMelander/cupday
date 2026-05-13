@@ -132,6 +132,7 @@ function buildTeam(cupId: string, id: string, name: string): Team {
     createdAt: '2026-01-01T00:00:00Z',
     paidAt: null,
     cancelledAt: null,
+    logoUrl: '',
     level: null,
   };
 }

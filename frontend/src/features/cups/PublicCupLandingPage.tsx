@@ -12,6 +12,7 @@ import { Link, useOutletContext } from 'react-router-dom';
 import type { PublicCupOutletContext } from '@/app/layouts/PublicLayout';
 import { Countdown } from '@/components/Countdown';
 import { PitchLines } from '@/components/PitchLines';
+import { TeamAvatar } from '@/components/TeamAvatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,8 +35,8 @@ export function PublicCupLandingPage(): JSX.Element {
   const { data: matches = [] } = useListMatchesByCupQuery(cup.id);
   const now = useTickingNow(60_000);
 
-  const teamNameMap = useMemo(
-    () => new Map(publicTeams.map((team) => [team.id, team.name])),
+  const teamMap = useMemo(
+    () => new Map(publicTeams.map((team) => [team.id, team])),
     [publicTeams],
   );
 
@@ -68,7 +69,7 @@ export function PublicCupLandingPage(): JSX.Element {
           <LiveStrip
             nowPlaying={nowPlaying}
             nextUp={nextUp}
-            teamNameMap={teamNameMap}
+            teamMap={teamMap}
             timeFormatter={timeFormatter}
             t={t}
           />
@@ -329,13 +330,13 @@ function deriveLiveStats(
 function LiveStrip({
   nowPlaying,
   nextUp,
-  teamNameMap,
+  teamMap,
   timeFormatter,
   t,
 }: {
   nowPlaying: Match[];
   nextUp: Match | null;
-  teamNameMap: Map<string, string>;
+  teamMap: Map<string, PublicTeam>;
   timeFormatter: Intl.DateTimeFormat;
   t: (key: string, opts?: Record<string, unknown>) => string;
 }): JSX.Element {
@@ -356,30 +357,36 @@ function LiveStrip({
           </span>
         </div>
         <ul className="flex flex-col gap-1.5">
-          {matchesToShow.map((match) => (
-            <li
-              key={match.id}
-              className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
-            >
-              <Badge variant="secondary">
-                {t('public.schedule.pitchLabel', { n: match.pitch })}
-              </Badge>
-              <span className="font-medium">
-                {teamNameMap.get(match.homeTeamId) ?? '?'}
-              </span>
-              <span className="text-muted-foreground">
-                {t('public.schedule.vs')}
-              </span>
-              <span className="font-medium">
-                {teamNameMap.get(match.awayTeamId) ?? '?'}
-              </span>
-              {!isLive && (
-                <span className="text-xs text-muted-foreground">
-                  · {timeFormatter.format(new Date(match.startTime))}
+          {matchesToShow.map((match) => {
+            const home = teamMap.get(match.homeTeamId);
+            const away = teamMap.get(match.awayTeamId);
+            return (
+              <li
+                key={match.id}
+                className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm"
+              >
+                <Badge variant="secondary">
+                  {t('public.schedule.pitchLabel', { n: match.pitch })}
+                </Badge>
+                <span className="flex items-center gap-1.5 font-medium">
+                  {home && <TeamAvatar team={home} size="xs" />}
+                  {home?.name ?? '?'}
                 </span>
-              )}
-            </li>
-          ))}
+                <span className="text-muted-foreground">
+                  {t('public.schedule.vs')}
+                </span>
+                <span className="flex items-center gap-1.5 font-medium">
+                  {away && <TeamAvatar team={away} size="xs" />}
+                  {away?.name ?? '?'}
+                </span>
+                {!isLive && (
+                  <span className="text-xs text-muted-foreground">
+                    · {timeFormatter.format(new Date(match.startTime))}
+                  </span>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </CardContent>
     </Card>
@@ -540,6 +547,7 @@ function TeamsGroup({
               className="flex items-center justify-between gap-3"
             >
               <span className="flex items-center gap-2 text-sm">
+                <TeamAvatar team={team} size="sm" />
                 {team.name}
                 {team.level && (
                   <Badge variant="outline" className="text-xs">

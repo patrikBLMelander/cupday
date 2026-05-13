@@ -262,7 +262,9 @@
       "removeSecondTeam": "Ta bort",
       "level1": "Nivå för laget",
       "level2": "Nivå för andra laget",
-      "levelPlaceholder": "Välj nivå"
+      "levelPlaceholder": "Välj nivå",
+      "logo1": "Lagets logga (valfritt)",
+      "logo2": "Andra lagets logga (valfritt)"
     },
     "submit": "Anmäl",
     "cupNotOpen": "Anmälan är inte öppen för den här cupen.",

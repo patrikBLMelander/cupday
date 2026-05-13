@@ -262,7 +262,9 @@
       "removeSecondTeam": "Remove",
       "level1": "Team level",
       "level2": "Second team level",
-      "levelPlaceholder": "Pick a level"
+      "levelPlaceholder": "Pick a level",
+      "logo1": "Team logo (optional)",
+      "logo2": "Second team logo (optional)"
     },
     "submit": "Submit",
     "cupNotOpen": "Registration is not open for this cup.",

@@ -370,6 +370,7 @@ export const handlers = [
         groupLabel: t.groupLabel,
         status: t.status,
         level: t.level,
+        logoUrl: t.logoUrl,
       }));
     return HttpResponse.json(teams);
   }),
@@ -436,6 +437,12 @@ export const handlers = [
       return problem(422, 'Cup is full', 'No remaining capacity for this cup');
     }
 
+    const rawLogos = Array.isArray(body.teamLogoUrls) ? body.teamLogoUrls : [];
+    const resolvedLogos: string[] = trimmedNames.map((_, i) => {
+      const raw = rawLogos[i];
+      return typeof raw === 'string' ? raw.trim() : '';
+    });
+
     let resolvedLevels: (string | null)[] = trimmedNames.map(() => null);
     if (cup.useLevels) {
       const raw = Array.isArray(body.teamLevels) ? body.teamLevels : [];
@@ -481,6 +488,7 @@ export const handlers = [
       paidAt: null,
       cancelledAt: null,
       level: resolvedLevels[i],
+      logoUrl: resolvedLogos[i],
     }));
 
     db.write((draft) => {
@@ -717,6 +725,7 @@ export const handlers = [
         groupLabel: t.groupLabel,
         status: t.status,
         level: t.level,
+        logoUrl: t.logoUrl,
       }));
     const payload: RegistrationDetail = { registration, teams };
     return HttpResponse.json(payload);

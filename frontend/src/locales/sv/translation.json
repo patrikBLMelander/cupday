@@ -221,6 +221,11 @@
       "paidBadge": "Betald",
       "levelLabel": "Nivå"
     },
+    "live": {
+      "nowPlaying": "Spelas just nu",
+      "nextUp": "Nästa match",
+      "matchesPlayed": "{{played}} av {{total}} matcher spelade"
+    },
     "schedule": {
       "filterAll": "Alla",
       "filterGroupA": "Grupp A",

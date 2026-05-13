@@ -5,7 +5,7 @@ import {
   Utensils,
   type LucideIcon,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useOutletContext } from 'react-router-dom';
 
@@ -18,23 +18,62 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Cup } from '@/features/cups/cupTypes';
 import { PublicScheduleView } from '@/features/schedule/PublicScheduleView';
+import { useListMatchesByCupQuery } from '@/features/schedule/scheduleApi';
+import type { Match } from '@/features/schedule/scheduleTypes';
 import { useListPublicTeamsByCupQuery } from '@/features/teams/teamsApi';
 import type { PublicTeam } from '@/features/teams/teamTypes';
+
+/** How long after kickoff we consider a match "still playing" without a duration column. */
+const MATCH_LIVE_WINDOW_MS = 30 * 60_000;
 
 export function PublicCupLandingPage(): JSX.Element {
   const { t, i18n } = useTranslation();
   const { cup } = useOutletContext<PublicCupOutletContext>();
   const { data: publicTeams = [], isLoading: isLoadingTeams } =
     useListPublicTeamsByCupQuery(cup.id);
+  const { data: matches = [] } = useListMatchesByCupQuery(cup.id);
+  const now = useTickingNow(60_000);
+
+  const teamNameMap = useMemo(
+    () => new Map(publicTeams.map((team) => [team.id, team.name])),
+    [publicTeams],
+  );
+
+  const { playedCount, nowPlaying, nextUp } = useMemo(
+    () => deriveLiveStats(matches, now),
+    [matches, now],
+  );
 
   const dateFormatter = new Intl.DateTimeFormat(
     i18n.resolvedLanguage ?? 'sv',
     { day: 'numeric', month: 'short', year: 'numeric' },
   );
+  const timeFormatter = new Intl.DateTimeFormat(
+    i18n.resolvedLanguage ?? 'sv',
+    { hour: '2-digit', minute: '2-digit' },
+  );
 
   return (
     <div className="-mx-4 -mt-6 flex flex-col gap-6 sm:-mx-6">
-      <CupHero cup={cup} dateFormatter={dateFormatter} t={t} />
+      <CupHero
+        cup={cup}
+        dateFormatter={dateFormatter}
+        playedCount={playedCount}
+        totalMatches={matches.length}
+        t={t}
+      />
+
+      {matches.length > 0 && (nowPlaying.length > 0 || nextUp) && (
+        <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
+          <LiveStrip
+            nowPlaying={nowPlaying}
+            nextUp={nextUp}
+            teamNameMap={teamNameMap}
+            timeFormatter={timeFormatter}
+            t={t}
+          />
+        </div>
+      )}
 
       <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
         <Tabs defaultValue="info">
@@ -120,10 +159,14 @@ export function PublicCupLandingPage(): JSX.Element {
 function CupHero({
   cup,
   dateFormatter,
+  playedCount,
+  totalMatches,
   t,
 }: {
   cup: Cup;
   dateFormatter: Intl.DateTimeFormat;
+  playedCount: number;
+  totalMatches: number;
   t: (key: string, opts?: Record<string, unknown>) => string;
 }): JSX.Element {
   const primary = `hsl(${cup.organizingClubColors.primary})`;
@@ -214,6 +257,14 @@ function CupHero({
               style={{ width: `${filledPct}%` }}
             />
           </div>
+          {totalMatches > 0 && (
+            <p className="mt-1 text-xs font-medium text-white/80">
+              {t('public.live.matchesPlayed', {
+                played: playedCount,
+                total: totalMatches,
+              })}
+            </p>
+          )}
         </div>
 
         {isUpcoming && (
@@ -241,6 +292,97 @@ function CupHero({
         )}
       </div>
     </section>
+  );
+}
+
+function useTickingNow(intervalMs: number): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), intervalMs);
+    return () => window.clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
+
+function deriveLiveStats(
+  matches: Match[],
+  now: number,
+): { playedCount: number; nowPlaying: Match[]; nextUp: Match | null } {
+  let playedCount = 0;
+  const nowPlaying: Match[] = [];
+  let nextUp: Match | null = null;
+  for (const m of matches) {
+    const start = Date.parse(m.startTime);
+    if (Number.isNaN(start)) continue;
+    if (start + MATCH_LIVE_WINDOW_MS <= now) {
+      playedCount++;
+    } else if (start <= now) {
+      nowPlaying.push(m);
+    } else if (!nextUp || start < Date.parse(nextUp.startTime)) {
+      nextUp = m;
+    }
+  }
+  nowPlaying.sort((a, b) => a.pitch - b.pitch);
+  return { playedCount, nowPlaying, nextUp };
+}
+
+function LiveStrip({
+  nowPlaying,
+  nextUp,
+  teamNameMap,
+  timeFormatter,
+  t,
+}: {
+  nowPlaying: Match[];
+  nextUp: Match | null;
+  teamNameMap: Map<string, string>;
+  timeFormatter: Intl.DateTimeFormat;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}): JSX.Element {
+  const isLive = nowPlaying.length > 0;
+  const matchesToShow = isLive ? nowPlaying : nextUp ? [nextUp] : [];
+  return (
+    <Card>
+      <CardContent className="flex flex-col gap-2 p-4">
+        <div className="flex items-center gap-2">
+          {isLive && (
+            <span
+              aria-hidden
+              className="inline-block h-2 w-2 animate-pulse rounded-full bg-red-500"
+            />
+          )}
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {isLive ? t('public.live.nowPlaying') : t('public.live.nextUp')}
+          </span>
+        </div>
+        <ul className="flex flex-col gap-1.5">
+          {matchesToShow.map((match) => (
+            <li
+              key={match.id}
+              className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm"
+            >
+              <Badge variant="secondary">
+                {t('public.schedule.pitchLabel', { n: match.pitch })}
+              </Badge>
+              <span className="font-medium">
+                {teamNameMap.get(match.homeTeamId) ?? '?'}
+              </span>
+              <span className="text-muted-foreground">
+                {t('public.schedule.vs')}
+              </span>
+              <span className="font-medium">
+                {teamNameMap.get(match.awayTeamId) ?? '?'}
+              </span>
+              {!isLive && (
+                <span className="text-xs text-muted-foreground">
+                  · {timeFormatter.format(new Date(match.startTime))}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
   );
 }
 

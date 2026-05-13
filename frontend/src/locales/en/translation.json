@@ -221,6 +221,11 @@
       "paidBadge": "Paid",
       "levelLabel": "Level"
     },
+    "live": {
+      "nowPlaying": "Now playing",
+      "nextUp": "Next up",
+      "matchesPlayed": "{{played}} of {{total}} matches played"
+    },
     "schedule": {
       "filterAll": "All",
       "filterGroupA": "Group A",

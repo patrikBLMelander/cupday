@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Cupdag",
+    "title": "Din Cup",
     "tagline": "Arrangera fotbollscuper enkelt"
   },
   "landing": {
@@ -94,7 +94,7 @@
       "players7": "7-mannafotboll",
       "players9": "9-mannafotboll",
       "clubLogoUrl": "Klubblogga (URL)",
-      "clubLogoUrlHint": "Visas på Cupdag-startsidan",
+      "clubLogoUrlHint": "Visas på Din Cup-startsidan",
       "levels": "Nivåer",
       "useLevels": "Använd nivåer",
       "useLevelsHint": "Låt klubbar välja en nivå per lag (t.ex. Lätt, Medel, Svår). Endast informativt — påverkar inte gruppindelningen.",
@@ -170,7 +170,9 @@
       "actions": {
         "markPaid": "Markera betalt",
         "cancel": "Avbryt",
-        "confirmCancel": "Är du säker på att du vill avbryta laget?"
+        "confirmCancel": "Är du säker på att du vill avbryta laget?",
+        "editLogo": "Ändra logga",
+        "editLogoPrompt": "Klistra in URL till lagets logga (lämna tomt för att ta bort)"
       },
       "groupNone": "Ingen grupp",
       "groupA": "Grupp A",

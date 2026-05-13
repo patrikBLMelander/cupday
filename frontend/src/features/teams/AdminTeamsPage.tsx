@@ -76,6 +76,19 @@ export function AdminTeamsPage(): JSX.Element {
     });
   }
 
+  function handleEditLogo(team: Team): void {
+    const next = window.prompt(
+      t('admin.teams.actions.editLogoPrompt'),
+      team.logoUrl ?? '',
+    );
+    if (next === null) return; // user pressed Cancel
+    void updateTeam({
+      id: team.id,
+      cupId: team.cupId,
+      patch: { logoUrl: next.trim() },
+    });
+  }
+
   return (
     <div className="flex max-w-3xl flex-col gap-4">
       <div className="flex flex-col gap-2">
@@ -168,6 +181,17 @@ export function AdminTeamsPage(): JSX.Element {
                   )}
 
                   <div className="ml-auto flex items-center gap-2">
+                    {team.status !== 'cancelled' && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        disabled={isMutating}
+                        onClick={() => handleEditLogo(team)}
+                      >
+                        {t('admin.teams.actions.editLogo')}
+                      </Button>
+                    )}
                     {team.status === 'reserved' && (
                       <Button
                         type="button"

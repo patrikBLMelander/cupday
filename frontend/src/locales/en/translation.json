@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Cupdag",
+    "title": "Din Cup",
     "tagline": "Run football cups with ease"
   },
   "landing": {
@@ -94,7 +94,7 @@
       "players7": "7-a-side",
       "players9": "9-a-side",
       "clubLogoUrl": "Club logo (URL)",
-      "clubLogoUrlHint": "Shown on the Cupdag landing page",
+      "clubLogoUrlHint": "Shown on the Din Cup landing page",
       "levels": "Levels",
       "useLevels": "Use levels",
       "useLevelsHint": "Let clubs pick a level per team (e.g. Easy, Medium, Hard). Informational only — does not drive group placement.",
@@ -170,7 +170,9 @@
       "actions": {
         "markPaid": "Mark paid",
         "cancel": "Cancel",
-        "confirmCancel": "Cancel this team?"
+        "confirmCancel": "Cancel this team?",
+        "editLogo": "Change logo",
+        "editLogoPrompt": "Paste a URL for the team logo (leave empty to remove)"
       },
       "groupNone": "No group",
       "groupA": "Group A",

@@ -53,6 +53,7 @@ public class AdminTeamService {
 
     applyStatusChange(team, newStatus);
     applyGroupChange(team, body);
+    applyLogoChange(team, body);
 
     if (willCancel && lockedCup != null && lockedCup.getStatus() == CupStatus.FULL) {
       var activeCount = teamRepository.countActiveByCupId(team.getCupId());
@@ -92,5 +93,13 @@ public class AdminTeamService {
     var node = body.get("groupLabel");
     GroupLabel newLabel = node.isNull() ? null : GroupLabel.valueOf(node.asText());
     team.setGroupLabel(newLabel);
+  }
+
+  private static void applyLogoChange(Team team, JsonNode body) {
+    if (body == null || !body.has("logoUrl")) {
+      return; // field absent in JSON; leave unchanged
+    }
+    var node = body.get("logoUrl");
+    team.setLogoUrl(node.isNull() ? "" : node.asText());
   }
 }

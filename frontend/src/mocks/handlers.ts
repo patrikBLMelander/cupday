@@ -539,6 +539,7 @@ export const handlers = [
     const body = (await request.json()) as {
       status?: TeamStatus;
       groupLabel?: GroupLabel | null;
+      logoUrl?: string;
     };
     let updated: Team | undefined;
     db.write((draft) => {
@@ -558,6 +559,9 @@ export const handlers = [
       }
       if (body.groupLabel !== undefined) {
         next.groupLabel = body.groupLabel;
+      }
+      if (body.logoUrl !== undefined) {
+        next.logoUrl = body.logoUrl ?? '';
       }
       draft.teams[idx] = next;
       updated = next;

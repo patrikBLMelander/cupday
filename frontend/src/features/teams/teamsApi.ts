@@ -72,7 +72,11 @@ export const teamsApi = createApi({
       {
         id: string;
         cupId: string;
-        patch: { status?: TeamStatus; groupLabel?: GroupLabel | null };
+        patch: {
+          status?: TeamStatus;
+          groupLabel?: GroupLabel | null;
+          logoUrl?: string;
+        };
       }
     >({
       query: ({ id, patch }) => ({

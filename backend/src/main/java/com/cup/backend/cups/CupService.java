@@ -20,6 +20,9 @@ public class CupService {
 
   private static final Set<Integer> ALLOWED_PLAYERS_PER_TEAM = Set.of(5, 7, 9);
   private static final int DEFAULT_PLAYERS_PER_TEAM = 7;
+  private static final int MIN_GROUPS = 1;
+  private static final int MAX_GROUPS = 8;
+  private static final int MIN_TEAMS_PER_GROUP = 2;
 
   private final CupRepository repository;
   private final TeamRepository teamRepository;
@@ -97,6 +100,8 @@ public class CupService {
         Boolean.TRUE.equals(req.hasParking()),
         nullToEmpty(req.mapUrl()));
     cup.setStartTime(req.startTime());
+    cup.setNumberOfGroups(requireNumberOfGroups(req.numberOfGroups()));
+    cup.setTeamsPerGroup(requireTeamsPerGroup(req.teamsPerGroup()));
     return repository.save(cup);
   }
 
@@ -166,6 +171,12 @@ public class CupService {
     if (req.hasParking() != null) cup.setHasParking(req.hasParking());
     if (req.mapUrl() != null) cup.setMapUrl(req.mapUrl());
     if (req.startTime() != null) cup.setStartTime(req.startTime());
+    if (req.numberOfGroups() != null) {
+      cup.setNumberOfGroups(requireNumberOfGroups(req.numberOfGroups()));
+    }
+    if (req.teamsPerGroup() != null) {
+      cup.setTeamsPerGroup(requireTeamsPerGroup(req.teamsPerGroup()));
+    }
 
     return cup;
   }
@@ -192,6 +203,24 @@ public class CupService {
     var resolved = value == null ? DEFAULT_PLAYERS_PER_TEAM : value;
     if (!ALLOWED_PLAYERS_PER_TEAM.contains(resolved)) {
       throw new IllegalArgumentException("playersPerTeam must be 5, 7, or 9");
+    }
+    return resolved;
+  }
+
+  private static int requireNumberOfGroups(Integer value) {
+    var resolved = value == null ? 2 : value;
+    if (resolved < MIN_GROUPS || resolved > MAX_GROUPS) {
+      throw new IllegalArgumentException(
+          "numberOfGroups must be between " + MIN_GROUPS + " and " + MAX_GROUPS);
+    }
+    return resolved;
+  }
+
+  private static int requireTeamsPerGroup(Integer value) {
+    var resolved = value == null ? 4 : value;
+    if (resolved < MIN_TEAMS_PER_GROUP) {
+      throw new IllegalArgumentException(
+          "teamsPerGroup must be at least " + MIN_TEAMS_PER_GROUP);
     }
     return resolved;
   }

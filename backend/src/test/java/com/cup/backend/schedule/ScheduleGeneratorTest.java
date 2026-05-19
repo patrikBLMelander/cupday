@@ -10,7 +10,9 @@ import com.cup.backend.teams.Team;
 import com.cup.backend.teams.TeamStatus;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -26,113 +28,203 @@ class ScheduleGeneratorTest {
         null, TeamStatus.PAID, START);
   }
 
-  private static GenerationInput input() {
-    return new GenerationInput(
-        CUP_ID,
-        List.of(team("A1"), team("A2"), team("A3"), team("A4")),
-        List.of(team("B1"), team("B2"), team("B3"), team("B4")),
-        START,
-        15,
-        5);
+  private static List<Team> teams(String prefix, int count) {
+    var list = new java.util.ArrayList<Team>(count);
+    for (int i = 0; i < count; i++) {
+      list.add(team(prefix + (i + 1)));
+    }
+    return list;
+  }
+
+  private static GenerationInput inputFor(Map<GroupLabel, List<Team>> groups) {
+    return new GenerationInput(CUP_ID, groups, START, 15, 5);
   }
 
   @Test
-  void produces12MatchesWithExpectedRoundRobinPairings() {
-    var input = input();
+  void twoByFourProducesTwelveMatchesAcrossSixSlotsAndTwoPitches() {
+    var groups = new LinkedHashMap<GroupLabel, List<Team>>();
+    groups.put(GroupLabel.A, teams("A", 4));
+    groups.put(GroupLabel.B, teams("B", 4));
+    var input = inputFor(groups);
+
     var matches = ScheduleGenerator.generate(input);
 
     assertThat(matches).hasSize(12);
-
-    // Slot 0 (Group A R1): pitch 1 = (A1, A2), pitch 2 = (A3, A4)
-    var s0p1 = matches.get(0);
-    var s0p2 = matches.get(1);
-    assertThat(s0p1.groupLabel()).isEqualTo(GroupLabel.A);
-    assertThat(s0p1.pitch()).isEqualTo(1);
-    assertThat(s0p1.homeTeamId()).isEqualTo(input.groupATeams().get(0).getId());
-    assertThat(s0p1.awayTeamId()).isEqualTo(input.groupATeams().get(1).getId());
-    assertThat(s0p2.pitch()).isEqualTo(2);
-    assertThat(s0p2.homeTeamId()).isEqualTo(input.groupATeams().get(2).getId());
-    assertThat(s0p2.awayTeamId()).isEqualTo(input.groupATeams().get(3).getId());
-
-    // Slot 1 (Group B R1): pitch 1 = (B1, B2), pitch 2 = (B3, B4)
-    var s1p1 = matches.get(2);
-    assertThat(s1p1.groupLabel()).isEqualTo(GroupLabel.B);
-    assertThat(s1p1.pitch()).isEqualTo(1);
-    assertThat(s1p1.homeTeamId()).isEqualTo(input.groupBTeams().get(0).getId());
-    assertThat(s1p1.awayTeamId()).isEqualTo(input.groupBTeams().get(1).getId());
-
-    // Slot 4 (Group A R3): pitch 1 = (A1, A4), pitch 2 = (A2, A3)
-    var s4p1 = matches.get(8);
-    var s4p2 = matches.get(9);
-    assertThat(s4p1.homeTeamId()).isEqualTo(input.groupATeams().get(0).getId());
-    assertThat(s4p1.awayTeamId()).isEqualTo(input.groupATeams().get(3).getId());
-    assertThat(s4p2.homeTeamId()).isEqualTo(input.groupATeams().get(1).getId());
-    assertThat(s4p2.awayTeamId()).isEqualTo(input.groupATeams().get(2).getId());
+    assertEachTeamPlays(matches, groups, 3);
+    assertEachPairPlaysOnceWithinGroup(matches, groups);
+    assertGroupsAlternateBySlot(matches, List.of(GroupLabel.A, GroupLabel.B));
+    assertPitchesAreContiguousFromOne(matches, 2);
+    assertSlotSpacingMatches(matches, 15, 5);
   }
 
   @Test
-  void everyTeamPlaysExactlyThreeMatches() {
-    var input = input();
-    var matches = ScheduleGenerator.generate(input);
-    var allIds = new HashSet<UUID>();
-    input.groupATeams().forEach(t -> allIds.add(t.getId()));
-    input.groupBTeams().forEach(t -> allIds.add(t.getId()));
+  void threeByFourProducesEighteenMatchesAcrossNineSlots() {
+    var groups = new LinkedHashMap<GroupLabel, List<Team>>();
+    groups.put(GroupLabel.A, teams("A", 4));
+    groups.put(GroupLabel.B, teams("B", 4));
+    groups.put(GroupLabel.C, teams("C", 4));
+    var input = inputFor(groups);
 
+    var matches = ScheduleGenerator.generate(input);
+
+    assertThat(matches).hasSize(18);
+    assertEachTeamPlays(matches, groups, 3);
+    assertEachPairPlaysOnceWithinGroup(matches, groups);
+    assertGroupsAlternateBySlot(matches, List.of(GroupLabel.A, GroupLabel.B, GroupLabel.C));
+    assertPitchesAreContiguousFromOne(matches, 2);
+  }
+
+  @Test
+  void twoByFiveProducesTwentyMatchesAcrossTenSlotsWithByes() {
+    var groups = new LinkedHashMap<GroupLabel, List<Team>>();
+    groups.put(GroupLabel.A, teams("A", 5));
+    groups.put(GroupLabel.B, teams("B", 5));
+    var input = inputFor(groups);
+
+    var matches = ScheduleGenerator.generate(input);
+
+    // 5 teams round-robin = 10 matches per group * 2 groups = 20 matches
+    assertThat(matches).hasSize(20);
+    assertEachTeamPlays(matches, groups, 4);
+    assertEachPairPlaysOnceWithinGroup(matches, groups);
+    assertGroupsAlternateBySlot(matches, List.of(GroupLabel.A, GroupLabel.B));
+    // Odd-team rounds have only (M-1)/2 = 2 matches per slot, on pitches 1 and 2.
+    assertPitchesAreContiguousFromOne(matches, 2);
+  }
+
+  @Test
+  void slotTimestampsAreSpacedByDurationPlusBreak() {
+    var groups = new LinkedHashMap<GroupLabel, List<Team>>();
+    groups.put(GroupLabel.A, teams("A", 4));
+    groups.put(GroupLabel.B, teams("B", 4));
+
+    var matches = ScheduleGenerator.generate(inputFor(groups));
+
+    assertSlotSpacingMatches(matches, 15, 5);
+  }
+
+  @Test
+  void throwsWhenGroupsHaveDifferentSizes() {
+    var groups = new LinkedHashMap<GroupLabel, List<Team>>();
+    groups.put(GroupLabel.A, teams("A", 4));
+    groups.put(GroupLabel.B, teams("B", 3));
+
+    assertThatThrownBy(() -> ScheduleGenerator.generate(inputFor(groups)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("same number of teams");
+  }
+
+  @Test
+  void throwsWhenGroupHasFewerThanTwoTeams() {
+    var groups = new LinkedHashMap<GroupLabel, List<Team>>();
+    groups.put(GroupLabel.A, teams("A", 1));
+    groups.put(GroupLabel.B, teams("B", 1));
+
+    assertThatThrownBy(() -> ScheduleGenerator.generate(inputFor(groups)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("at least");
+  }
+
+  @Test
+  void throwsWhenNoGroupsProvided() {
+    var groups = new LinkedHashMap<GroupLabel, List<Team>>();
+
+    assertThatThrownBy(() -> ScheduleGenerator.generate(inputFor(groups)))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("At least one group");
+  }
+
+  // Helpers -----------------------------------------------------------------
+
+  private static void assertEachTeamPlays(
+      List<MatchSpec> matches,
+      Map<GroupLabel, List<Team>> groups,
+      int expectedMatchesPerTeam) {
+    var allIds = new HashSet<UUID>();
+    groups.values().forEach(list -> list.forEach(t -> allIds.add(t.getId())));
     for (var id : allIds) {
       var count = matches.stream()
           .filter(m -> m.homeTeamId().equals(id) || m.awayTeamId().equals(id))
           .count();
-      assertThat(count).as("team %s plays 3 matches", id).isEqualTo(3);
+      assertThat(count)
+          .as("team %s plays %d matches", id, expectedMatchesPerTeam)
+          .isEqualTo(expectedMatchesPerTeam);
     }
   }
 
-  @Test
-  void evenSlotsAreGroupAOnlyAndOddSlotsAreGroupBOnly() {
-    var matches = ScheduleGenerator.generate(input());
+  private static void assertEachPairPlaysOnceWithinGroup(
+      List<MatchSpec> matches, Map<GroupLabel, List<Team>> groups) {
+    groups.forEach((label, teams) -> {
+      var seen = new HashSet<String>();
+      var groupMatches = matches.stream()
+          .filter(m -> m.groupLabel() == label)
+          .toList();
+      for (var m : groupMatches) {
+        var key = pairKey(m.homeTeamId(), m.awayTeamId());
+        assertThat(seen.add(key))
+            .as("group %s pair %s plays only once", label, key)
+            .isTrue();
+      }
+      var expectedPairs = teams.size() * (teams.size() - 1) / 2;
+      assertThat(groupMatches).hasSize(expectedPairs);
+    });
+  }
+
+  private static void assertGroupsAlternateBySlot(
+      List<MatchSpec> matches, List<GroupLabel> expectedOrder) {
     var slotKeys = matches.stream()
         .map(MatchSpec::startTime)
         .distinct()
         .sorted()
         .toList();
-    assertThat(slotKeys).hasSize(6);
-
     for (int i = 0; i < slotKeys.size(); i++) {
       var slot = slotKeys.get(i);
+      var expected = expectedOrder.get(i % expectedOrder.size());
       var slotMatches = matches.stream()
           .filter(m -> m.startTime().equals(slot))
           .toList();
-      var expected = (i % 2 == 0) ? GroupLabel.A : GroupLabel.B;
       assertThat(slotMatches)
-          .as("slot %d", i)
+          .as("slot %d is group %s", i, expected)
           .allMatch(m -> m.groupLabel() == expected);
     }
   }
 
-  @Test
-  void slotTimestampsAreSpacedByDurationPlusBreak() {
-    var matches = ScheduleGenerator.generate(input());
+  private static void assertPitchesAreContiguousFromOne(
+      List<MatchSpec> matches, int expectedMaxPitch) {
+    var slotKeys = matches.stream()
+        .map(MatchSpec::startTime)
+        .distinct()
+        .toList();
+    for (var slot : slotKeys) {
+      var pitches = matches.stream()
+          .filter(m -> m.startTime().equals(slot))
+          .map(MatchSpec::pitch)
+          .sorted()
+          .toList();
+      for (int i = 0; i < pitches.size(); i++) {
+        assertThat(pitches.get(i))
+            .as("slot %s pitch ordering", slot)
+            .isEqualTo(i + 1);
+      }
+      assertThat(pitches.size()).isLessThanOrEqualTo(expectedMaxPitch);
+    }
+  }
+
+  private static void assertSlotSpacingMatches(
+      List<MatchSpec> matches, int durationMin, int breakMin) {
     var slots = matches.stream()
         .map(MatchSpec::startTime)
         .distinct()
         .sorted()
         .toList();
-    var expectedMs = (15L + 5L) * 60_000L;
+    var expectedMs = (long) (durationMin + breakMin) * 60_000L;
     for (int i = 1; i < slots.size(); i++) {
       var diff = slots.get(i).toEpochMilli() - slots.get(i - 1).toEpochMilli();
       assertThat(diff).isEqualTo(expectedMs);
     }
   }
 
-  @Test
-  void throwsWhenAGroupDoesNotHaveExactlyFourTeams() {
-    var bad = new GenerationInput(
-        CUP_ID,
-        List.of(team("A1"), team("A2"), team("A3")),
-        List.of(team("B1"), team("B2"), team("B3"), team("B4")),
-        START,
-        15,
-        5);
-    assertThatThrownBy(() -> ScheduleGenerator.generate(bad))
-        .isInstanceOf(IllegalArgumentException.class);
+  private static String pairKey(UUID a, UUID b) {
+    return a.compareTo(b) < 0 ? a + "|" + b : b + "|" + a;
   }
 }

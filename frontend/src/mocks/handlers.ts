@@ -12,14 +12,15 @@ import type {
   Pitch,
   ScheduleSettingsRequest,
 } from '@/features/schedule/scheduleTypes';
-import type {
-  GroupLabel,
-  PublicTeam,
-  RegistrationCreateRequest,
-  RegistrationCreateResponse,
-  RegistrationDetail,
-  Team,
-  TeamStatus,
+import {
+  ALL_GROUP_LABELS,
+  type GroupLabel,
+  type PublicTeam,
+  type RegistrationCreateRequest,
+  type RegistrationCreateResponse,
+  type RegistrationDetail,
+  type Team,
+  type TeamStatus,
 } from '@/features/teams/teamTypes';
 import { db, type MockUser } from '@/mocks/db';
 
@@ -27,6 +28,9 @@ const EMAIL_RE = /^.+@.+\..+$/;
 const SLUG_RE = /^[a-z0-9-]+$/;
 const MIN_PASSWORD_LEN = 6;
 const ALLOWED_PLAYERS_PER_TEAM: ReadonlySet<number> = new Set([5, 7, 9]);
+const MIN_GROUPS = 1;
+const MAX_GROUPS = 8;
+const MIN_TEAMS_PER_GROUP = 2;
 
 function countActiveTeams(cupId: string): number {
   return db
@@ -144,6 +148,28 @@ function validateCupBody(
   ) {
     return problem(400, 'Validation', 'playersPerTeam must be 5, 7, or 9');
   }
+  if (
+    body.numberOfGroups !== undefined &&
+    (typeof body.numberOfGroups !== 'number'
+      || body.numberOfGroups < MIN_GROUPS
+      || body.numberOfGroups > MAX_GROUPS)
+  ) {
+    return problem(
+      400,
+      'Validation',
+      `numberOfGroups must be between ${MIN_GROUPS} and ${MAX_GROUPS}`,
+    );
+  }
+  if (
+    body.teamsPerGroup !== undefined &&
+    (typeof body.teamsPerGroup !== 'number' || body.teamsPerGroup < MIN_TEAMS_PER_GROUP)
+  ) {
+    return problem(
+      400,
+      'Validation',
+      `teamsPerGroup must be at least ${MIN_TEAMS_PER_GROUP}`,
+    );
+  }
   return null;
 }
 
@@ -237,6 +263,8 @@ export const handlers = [
       hasParking: body.hasParking ?? false,
       mapUrl: body.mapUrl ?? '',
       startTime: body.startTime ?? null,
+      numberOfGroups: body.numberOfGroups ?? 2,
+      teamsPerGroup: body.teamsPerGroup ?? 4,
       id: crypto.randomUUID(),
       status: 'draft',
       createdAt: new Date().toISOString(),
@@ -279,6 +307,28 @@ export const handlers = [
       !ALLOWED_PLAYERS_PER_TEAM.has(body.playersPerTeam)
     ) {
       return problem(400, 'Validation', 'playersPerTeam must be 5, 7, or 9');
+    }
+    if (
+      body.numberOfGroups !== undefined &&
+      (typeof body.numberOfGroups !== 'number'
+        || body.numberOfGroups < MIN_GROUPS
+        || body.numberOfGroups > MAX_GROUPS)
+    ) {
+      return problem(
+        400,
+        'Validation',
+        `numberOfGroups must be between ${MIN_GROUPS} and ${MAX_GROUPS}`,
+      );
+    }
+    if (
+      body.teamsPerGroup !== undefined &&
+      (typeof body.teamsPerGroup !== 'number' || body.teamsPerGroup < MIN_TEAMS_PER_GROUP)
+    ) {
+      return problem(
+        400,
+        'Validation',
+        `teamsPerGroup must be at least ${MIN_TEAMS_PER_GROUP}`,
+      );
     }
     let updated: Cup | undefined;
     let levelsValidation: HttpResponse<ProblemDetail> | null = null;
@@ -542,6 +592,25 @@ export const handlers = [
       groupLabel?: GroupLabel | null;
       logoUrl?: string;
     };
+
+    if (body.groupLabel !== undefined && body.groupLabel !== null) {
+      const team = db.read().teams.find((t) => t.id === params.id);
+      const cup = team
+        ? db.read().cups.find((c) => c.id === team.cupId)
+        : undefined;
+      if (cup) {
+        const allowed = ALL_GROUP_LABELS.slice(0, cup.numberOfGroups);
+        if (!allowed.includes(body.groupLabel)) {
+          const max = allowed[allowed.length - 1];
+          return problem(
+            400,
+            'Validation',
+            `groupLabel must be between A and ${max} (cup has ${cup.numberOfGroups} groups)`,
+          );
+        }
+      }
+    }
+
     let updated: Team | undefined;
     db.write((draft) => {
       const idx = draft.teams.findIndex((t) => t.id === params.id);
@@ -641,20 +710,31 @@ export const handlers = [
     const paid = db
       .read()
       .teams.filter((t) => t.cupId === cup.id && t.status === 'paid');
-    const groupA = paid.filter((t) => t.groupLabel === 'A');
-    const groupB = paid.filter((t) => t.groupLabel === 'B');
-    if (groupA.length !== 4 || groupB.length !== 4) {
+    const labels = ALL_GROUP_LABELS.slice(0, cup.numberOfGroups);
+    const teamsByGroup = new Map<GroupLabel, Team[]>();
+    const counts: string[] = [];
+    let allOk = true;
+    for (const label of labels) {
+      const teams = paid
+        .filter((t) => t.groupLabel === label)
+        .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+      teamsByGroup.set(label, teams);
+      counts.push(`${label}=${teams.length}`);
+      if (teams.length !== cup.teamsPerGroup) {
+        allOk = false;
+      }
+    }
+    if (!allOk) {
       return problem(
         422,
         'Schedule requirements not met',
-        `Need 4 paid teams in each group (A=${groupA.length}, B=${groupB.length})`,
+        `Need ${cup.teamsPerGroup} paid teams in each group (${counts.join(', ')})`,
       );
     }
 
     const partial = generateSchedule({
       cupId: cup.id,
-      groupATeams: groupA,
-      groupBTeams: groupB,
+      teamsByGroup,
       startTime,
       matchDurationMinutes: body.matchDurationMinutes,
       breakBetweenMatchesMinutes: body.breakBetweenMatchesMinutes,
@@ -700,7 +780,7 @@ export const handlers = [
           next.startTime = parsed.toISOString();
         }
       }
-      if (body.pitch === 1 || body.pitch === 2) {
+      if (typeof body.pitch === 'number' && body.pitch >= 1) {
         next.pitch = body.pitch;
       }
       draft.matches[idx] = next;

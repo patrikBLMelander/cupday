@@ -35,6 +35,12 @@ export function PublicScheduleView({ cupId }: { cupId: string }): JSX.Element {
     return [...seen].sort((a, b) => a - b);
   }, [matches]);
 
+  const groupOptions = useMemo(() => {
+    const seen = new Set<string>();
+    for (const m of matches) seen.add(m.groupLabel);
+    return [...seen].sort();
+  }, [matches]);
+
   const visibleMatches = useMemo(() => {
     return matches.filter((m) => {
       if (teamId !== 'all' && m.homeTeamId !== teamId && m.awayTeamId !== teamId) {
@@ -120,6 +126,7 @@ export function PublicScheduleView({ cupId }: { cupId: string }): JSX.Element {
         filter={filter}
         setFilter={setFilter}
         pitches={pitchOptions}
+        groups={groupOptions}
         t={t}
       />
 
@@ -179,20 +186,24 @@ function FilterBar({
   filter,
   setFilter,
   pitches,
+  groups,
   t,
 }: {
   view: View;
   filter: Filter;
   setFilter: (value: Filter) => void;
   pitches: number[];
+  groups: string[];
   t: Translator;
 }): JSX.Element {
   const options: Array<{ value: Filter; label: string }> =
     view === 'group'
       ? [
           { value: 'all', label: t('public.schedule.filterAll') },
-          { value: 'A', label: t('public.schedule.filterGroupA') },
-          { value: 'B', label: t('public.schedule.filterGroupB') },
+          ...groups.map((label) => ({
+            value: label,
+            label: t('public.schedule.groupBadge', { label }),
+          })),
         ]
       : [
           { value: 'all', label: t('public.schedule.filterAll') },

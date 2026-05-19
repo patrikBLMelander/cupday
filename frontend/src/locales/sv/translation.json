@@ -71,6 +71,10 @@
       "capacity": "Kapacitet",
       "pitchCount": "Antal planer",
       "maxTeams": "Max antal lag",
+      "numberOfGroups": "Antal grupper",
+      "numberOfGroupsHint": "1–8 (A–H)",
+      "teamsPerGroup": "Lag per grupp",
+      "teamsPerGroupHint": "Minst 2 lag per grupp",
       "branding": "Färger",
       "primaryColor": "Primärfärg",
       "accentColor": "Accentfärg",
@@ -110,6 +114,8 @@
         "emailInvalid": "Ogiltig e-post",
         "minPitchCount": "Minst 1 plan",
         "minMaxTeams": "Minst 2 lag",
+        "numberOfGroupsRange": "Antal grupper måste vara mellan 1 och 8",
+        "minTeamsPerGroup": "Minst 2 lag per grupp",
         "nonNegative": "Måste vara 0 eller mer",
         "minLevels": "Minst 2 nivåer krävs",
         "levelComma": "Nivånamn får inte innehålla komma"
@@ -129,7 +135,7 @@
       "requirements": {
         "title": "Krav för att skapa schema",
         "body": "Det krävs exakt 4 betalda lag i varje grupp innan ett schema kan skapas.",
-        "currentCounts": "Just nu: Grupp A {{a}}/4, Grupp B {{b}}/4",
+        "currentCounts": "Just nu: {{counts}} (krävs {{teamsPerGroup}} per grupp)",
         "manageTeamsLink": "Hantera lag"
       },
       "settings": {
@@ -179,6 +185,7 @@
       "groupNone": "Ingen grupp",
       "groupA": "Grupp A",
       "groupB": "Grupp B",
+      "groupLabel": "Grupp {{label}}",
       "statusReserved": "Reserverad",
       "statusPaid": "Betald",
       "statusCancelled": "Avbruten"
@@ -220,6 +227,7 @@
     "teamsList": {
       "groupA": "Grupp A",
       "groupB": "Grupp B",
+      "groupLabel": "Grupp {{label}}",
       "unassigned": "Ej grupperade",
       "reservedBadge": "Reserverad",
       "paidBadge": "Betald",

@@ -46,6 +46,8 @@ function buildCup(): Cup {
     hasParking: false,
     mapUrl: '',
     startTime: null,
+    numberOfGroups: 2,
+    teamsPerGroup: 4,
   };
 }
 

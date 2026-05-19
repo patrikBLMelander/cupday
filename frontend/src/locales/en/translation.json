@@ -71,6 +71,10 @@
       "capacity": "Capacity",
       "pitchCount": "Pitch count",
       "maxTeams": "Max teams",
+      "numberOfGroups": "Number of groups",
+      "numberOfGroupsHint": "1–8 (A–H)",
+      "teamsPerGroup": "Teams per group",
+      "teamsPerGroupHint": "At least 2 teams per group",
       "branding": "Colors",
       "primaryColor": "Primary color",
       "accentColor": "Accent color",
@@ -110,6 +114,8 @@
         "emailInvalid": "Invalid email",
         "minPitchCount": "At least 1 pitch",
         "minMaxTeams": "At least 2 teams",
+        "numberOfGroupsRange": "Number of groups must be between 1 and 8",
+        "minTeamsPerGroup": "At least 2 teams per group",
         "nonNegative": "Must be 0 or more",
         "minLevels": "At least 2 levels required",
         "levelComma": "Level names cannot contain commas"
@@ -129,7 +135,7 @@
       "requirements": {
         "title": "Requirements to generate a schedule",
         "body": "Each group must have exactly 4 paid teams before a schedule can be generated.",
-        "currentCounts": "Currently: Group A {{a}}/4, Group B {{b}}/4",
+        "currentCounts": "Currently: {{counts}} ({{teamsPerGroup}} required per group)",
         "manageTeamsLink": "Manage teams"
       },
       "settings": {
@@ -179,6 +185,7 @@
       "groupNone": "No group",
       "groupA": "Group A",
       "groupB": "Group B",
+      "groupLabel": "Group {{label}}",
       "statusReserved": "Reserved",
       "statusPaid": "Paid",
       "statusCancelled": "Cancelled"
@@ -220,6 +227,7 @@
     "teamsList": {
       "groupA": "Group A",
       "groupB": "Group B",
+      "groupLabel": "Group {{label}}",
       "unassigned": "Unassigned",
       "reservedBadge": "Reserved",
       "paidBadge": "Paid",

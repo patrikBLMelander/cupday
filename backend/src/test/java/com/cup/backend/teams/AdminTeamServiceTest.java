@@ -86,8 +86,10 @@ class AdminTeamServiceTest {
   void groupAssignmentSetsLabelExplicitNullClearsAndAbsentLeavesUnchanged() {
     var cupRepo = mock(CupRepository.class);
     var teamRepo = mock(TeamRepository.class);
-    var team = reservedTeam(UUID.randomUUID());
+    var cup = cup(CupStatus.OPEN, 8);
+    var team = reservedTeam(cup.getId());
     when(teamRepo.findById(team.getId())).thenReturn(Optional.of(team));
+    when(cupRepo.findById(cup.getId())).thenReturn(Optional.of(cup));
 
     var service = new AdminTeamService(cupRepo, teamRepo);
 
@@ -101,6 +103,25 @@ class AdminTeamServiceTest {
     // Absent groupLabel: status-only update should not clear the group.
     service.updateTeam(team.getId(), body("{\"status\":\"paid\"}"));
     assertThat(team.getGroupLabel()).isEqualTo(GroupLabel.B);
+  }
+
+  @Test
+  void groupAssignmentRejectsLabelBeyondCupNumberOfGroups() {
+    var cupRepo = mock(CupRepository.class);
+    var teamRepo = mock(TeamRepository.class);
+    var cup = cup(CupStatus.OPEN, 8);
+    // Default cup() builder uses the 20-arg constructor → numberOfGroups defaults to 2.
+    var team = reservedTeam(cup.getId());
+    when(teamRepo.findById(team.getId())).thenReturn(Optional.of(team));
+    when(cupRepo.findById(cup.getId())).thenReturn(Optional.of(cup));
+
+    var service = new AdminTeamService(cupRepo, teamRepo);
+
+    assertThatThrownBy(() -> service.updateTeam(
+        team.getId(),
+        body("{\"groupLabel\":\"C\"}")))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("groupLabel");
   }
 
   @Test

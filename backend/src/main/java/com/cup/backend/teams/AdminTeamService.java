@@ -55,6 +55,21 @@ public class AdminTeamService {
     applyGroupChange(team, body);
     applyLogoChange(team, body);
 
+    if (team.getGroupLabel() != null) {
+      var cup = lockedCup != null
+          ? lockedCup
+          : cupRepository.findById(team.getCupId())
+              .orElseThrow(() -> new CupNotFoundException(
+                  "Cup " + team.getCupId() + " not found"));
+      var allowedGroups = cup.getNumberOfGroups();
+      if (team.getGroupLabel().ordinal() >= allowedGroups) {
+        var maxLabel = GroupLabel.values()[allowedGroups - 1];
+        throw new IllegalArgumentException(
+            "groupLabel must be between A and " + maxLabel.name()
+                + " (cup has " + allowedGroups + " groups)");
+      }
+    }
+
     if (willCancel && lockedCup != null && lockedCup.getStatus() == CupStatus.FULL) {
       var activeCount = teamRepository.countActiveByCupId(team.getCupId());
       if (activeCount < lockedCup.getMaxTeams()) {

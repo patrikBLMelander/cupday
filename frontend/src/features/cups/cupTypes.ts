@@ -40,6 +40,10 @@ export type Cup = {
   mapUrl: string;
   /** Optional kickoff time on {@link startDate} as {@code HH:mm:ss}. Null when unset. */
   startTime: string | null;
+  /** Number of groups (1-8); selects A..N from {@link GroupLabel}. */
+  numberOfGroups: number;
+  /** Teams per group (≥2). */
+  teamsPerGroup: number;
 };
 
 export type CupCreateRequest = Omit<

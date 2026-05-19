@@ -11,10 +11,12 @@ import {
   useListAdminTeamsByCupQuery,
   useUpdateTeamMutation,
 } from '@/features/teams/teamsApi';
-import type {
-  GroupLabel,
-  Team,
-  TeamStatus,
+import {
+  ALL_GROUP_LABELS,
+  groupLabelsFor,
+  type GroupLabel,
+  type Team,
+  type TeamStatus,
 } from '@/features/teams/teamTypes';
 
 type Filter = 'all' | TeamStatus;
@@ -68,7 +70,9 @@ export function AdminTeamsPage(): JSX.Element {
   ): void {
     const value = event.target.value;
     const groupLabel: GroupLabel | null =
-      value === 'A' || value === 'B' ? value : null;
+      (ALL_GROUP_LABELS as readonly string[]).includes(value)
+        ? (value as GroupLabel)
+        : null;
     void updateTeam({
       id: team.id,
       cupId: team.cupId,
@@ -174,8 +178,11 @@ export function AdminTeamsPage(): JSX.Element {
                         aria-label={t('admin.teams.columns.group')}
                       >
                         <option value="">{t('admin.teams.groupNone')}</option>
-                        <option value="A">{t('admin.teams.groupA')}</option>
-                        <option value="B">{t('admin.teams.groupB')}</option>
+                        {groupLabelsFor(cup?.numberOfGroups ?? 2).map((label) => (
+                          <option key={label} value={label}>
+                            {t('admin.teams.groupLabel', { label })}
+                          </option>
+                        ))}
                       </select>
                     </label>
                   )}

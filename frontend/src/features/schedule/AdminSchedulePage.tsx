@@ -18,11 +18,9 @@ import {
   useListMatchesByCupQuery,
   useUpdateMatchMutation,
 } from '@/features/schedule/scheduleApi';
-import type { Match, Pitch } from '@/features/schedule/scheduleTypes';
+import type { Match } from '@/features/schedule/scheduleTypes';
 import { useListAdminTeamsByCupQuery } from '@/features/teams/teamsApi';
-import type { Team } from '@/features/teams/teamTypes';
-
-const TEAMS_PER_GROUP = 4;
+import { groupLabelsFor, type Team } from '@/features/teams/teamTypes';
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
@@ -68,19 +66,28 @@ export function AdminSchedulePage(): JSX.Element {
     startTimeInitRef.current = true;
   }, [cup?.startDate, cup?.startTime]);
 
-  const paidA = teams.filter(
-    (t) => t.status === 'paid' && t.groupLabel === 'A',
-  ).length;
-  const paidB = teams.filter(
-    (t) => t.status === 'paid' && t.groupLabel === 'B',
-  ).length;
-  const requirementsMet = paidA === TEAMS_PER_GROUP && paidB === TEAMS_PER_GROUP;
+  const numberOfGroups = cup?.numberOfGroups ?? 2;
+  const teamsPerGroup = cup?.teamsPerGroup ?? 4;
+  const groupLabels = groupLabelsFor(numberOfGroups);
+  const paidByGroup = groupLabels.map((label) => ({
+    label,
+    count: teams.filter((tm) => tm.status === 'paid' && tm.groupLabel === label).length,
+  }));
+  const requirementsMet = paidByGroup.every((g) => g.count === teamsPerGroup);
+  const countsLine = paidByGroup.map((g) => `${g.label}=${g.count}`).join(', ');
 
   const teamMap = useMemo(() => {
     const map = new Map<string, Team>();
     for (const team of teams) map.set(team.id, team);
     return map;
   }, [teams]);
+
+  const pitchOptions = useMemo(() => {
+    const seen = new Set<number>();
+    for (const m of matches) seen.add(m.pitch);
+    const max = Math.max(cup?.pitchCount ?? 0, ...seen, 1);
+    return Array.from({ length: max }, (_, i) => i + 1);
+  }, [matches, cup?.pitchCount]);
 
   const hasCancelledInSchedule = useMemo(() => {
     return matches.some((m) => {
@@ -121,7 +128,8 @@ export function AdminSchedulePage(): JSX.Element {
 
   function handleMatchPitchChange(match: Match, value: string): void {
     if (!cup) return;
-    const pitch: Pitch = value === '2' ? 2 : 1;
+    const pitch = Number(value);
+    if (!Number.isFinite(pitch) || pitch < 1) return;
     void updateMatch({ id: match.id, cupId: cup.id, patch: { pitch } });
   }
 
@@ -154,8 +162,8 @@ export function AdminSchedulePage(): JSX.Element {
             <p>{t('admin.schedule.requirements.body')}</p>
             <p className="text-muted-foreground">
               {t('admin.schedule.requirements.currentCounts', {
-                a: paidA,
-                b: paidB,
+                counts: countsLine,
+                teamsPerGroup,
               })}
             </p>
             <Button asChild variant="outline" size="sm" className="self-start">
@@ -259,6 +267,7 @@ export function AdminSchedulePage(): JSX.Element {
                   match={match}
                   homeName={teamMap.get(match.homeTeamId)?.name ?? '?'}
                   awayName={teamMap.get(match.awayTeamId)?.name ?? '?'}
+                  pitchOptions={pitchOptions}
                   onTimeChange={(v) => handleMatchTimeChange(match, v)}
                   onPitchChange={(v) => handleMatchPitchChange(match, v)}
                   t={t}
@@ -276,6 +285,7 @@ function MatchRow({
   match,
   homeName,
   awayName,
+  pitchOptions,
   onTimeChange,
   onPitchChange,
   t,
@@ -283,6 +293,7 @@ function MatchRow({
   match: Match;
   homeName: string;
   awayName: string;
+  pitchOptions: number[];
   onTimeChange: (value: string) => void;
   onPitchChange: (value: string) => void;
   t: (k: string, opts?: Record<string, string | number>) => string;
@@ -314,8 +325,11 @@ function MatchRow({
             className="h-8 rounded border border-input bg-background px-2 text-xs"
             aria-label={t('admin.schedule.matchList.pitchLabel', { pitch: '' })}
           >
-            <option value="1">{t('admin.schedule.matchList.pitchLabel', { pitch: 1 })}</option>
-            <option value="2">{t('admin.schedule.matchList.pitchLabel', { pitch: 2 })}</option>
+            {pitchOptions.map((p) => (
+              <option key={p} value={p}>
+                {t('admin.schedule.matchList.pitchLabel', { pitch: p })}
+              </option>
+            ))}
           </select>
         </div>
       </div>

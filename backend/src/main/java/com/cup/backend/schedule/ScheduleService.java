@@ -1,6 +1,5 @@
 package com.cup.backend.schedule;
 
-import com.cup.backend.cups.Cup;
 import com.cup.backend.cups.CupNotFoundException;
 import com.cup.backend.cups.CupRepository;
 import com.cup.backend.cups.CupStatus;
@@ -8,8 +7,12 @@ import com.cup.backend.schedule.ScheduleDtos.GenerateScheduleRequest;
 import com.cup.backend.schedule.ScheduleDtos.MatchUpdateRequest;
 import com.cup.backend.schedule.ScheduleGenerator.GenerationInput;
 import com.cup.backend.teams.GroupLabel;
+import com.cup.backend.teams.Team;
 import com.cup.backend.teams.TeamRepository;
 import com.cup.backend.teams.TeamStatus;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -19,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ScheduleService {
 
-  private static final int TEAMS_PER_GROUP = 4;
   private static final int PITCH_1 = 1;
   private static final int PITCH_2 = 2;
 
@@ -53,20 +55,32 @@ public class ScheduleService {
       throw new CupNotReadyException("Open registrations before generating a schedule");
     }
 
-    var paidA = teamRepository.findByCupIdAndStatusAndGroupLabelOrderByCreatedAtAsc(
-        cupId, TeamStatus.PAID, GroupLabel.A);
-    var paidB = teamRepository.findByCupIdAndStatusAndGroupLabelOrderByCreatedAtAsc(
-        cupId, TeamStatus.PAID, GroupLabel.B);
-    if (paidA.size() != TEAMS_PER_GROUP || paidB.size() != TEAMS_PER_GROUP) {
+    var teamsPerGroup = cup.getTeamsPerGroup();
+    var groupLabels = Arrays.stream(GroupLabel.values())
+        .limit(cup.getNumberOfGroups())
+        .toList();
+
+    var teamsByGroup = new LinkedHashMap<GroupLabel, List<Team>>();
+    var counts = new ArrayList<String>(groupLabels.size());
+    var allOk = true;
+    for (var label : groupLabels) {
+      var teams = teamRepository.findByCupIdAndStatusAndGroupLabelOrderByCreatedAtAsc(
+          cupId, TeamStatus.PAID, label);
+      teamsByGroup.put(label, teams);
+      counts.add(label.name() + "=" + teams.size());
+      if (teams.size() != teamsPerGroup) {
+        allOk = false;
+      }
+    }
+    if (!allOk) {
       throw new InsufficientPaidTeamsException(
-          "Need 4 paid teams in each group (A=" + paidA.size()
-              + ", B=" + paidB.size() + ")");
+          "Need " + teamsPerGroup + " paid teams in each group ("
+              + String.join(", ", counts) + ")");
     }
 
     var specs = ScheduleGenerator.generate(new GenerationInput(
         cupId,
-        paidA,
-        paidB,
+        teamsByGroup,
         request.startTime(),
         request.matchDurationMinutes(),
         request.breakBetweenMatchesMinutes()));

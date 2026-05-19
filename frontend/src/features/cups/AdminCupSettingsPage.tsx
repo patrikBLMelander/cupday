@@ -67,6 +67,8 @@ function emptyForm(): FormShape {
     hasParking: false,
     mapUrl: '',
     startTime: null,
+    numberOfGroups: 2,
+    teamsPerGroup: 4,
   };
 }
 
@@ -86,6 +88,12 @@ function validate(form: FormShape, t: (key: string) => string): Errors {
   if (!form.venueName.trim()) errors.venueName = t('admin.cupForm.validation.required');
   if (form.pitchCount < 1) errors.pitchCount = t('admin.cupForm.validation.minPitchCount');
   if (form.maxTeams < 2) errors.maxTeams = t('admin.cupForm.validation.minMaxTeams');
+  if (form.numberOfGroups < 1 || form.numberOfGroups > 8) {
+    errors.numberOfGroups = t('admin.cupForm.validation.numberOfGroupsRange');
+  }
+  if (form.teamsPerGroup < 2) {
+    errors.teamsPerGroup = t('admin.cupForm.validation.minTeamsPerGroup');
+  }
   if (form.registrationFeeSek < 0) {
     errors.registrationFeeSek = t('admin.cupForm.validation.nonNegative');
   }
@@ -171,6 +179,8 @@ export function AdminCupSettingsPage(): JSX.Element {
       hasParking: existing.hasParking,
       mapUrl: existing.mapUrl,
       startTime: existing.startTime,
+      numberOfGroups: existing.numberOfGroups,
+      teamsPerGroup: existing.teamsPerGroup,
     });
     setStatus(existing.status);
     slugDirtyRef.current = true;
@@ -450,6 +460,39 @@ export function AdminCupSettingsPage(): JSX.Element {
               value={form.maxTeams}
               onChange={(e) => update('maxTeams', Number(e.target.value))}
             />
+          </Field>
+          <Field
+            id="numberOfGroups"
+            label={t('admin.cupForm.numberOfGroups')}
+            error={errors.numberOfGroups}
+          >
+            <Input
+              id="numberOfGroups"
+              type="number"
+              min={1}
+              max={8}
+              value={form.numberOfGroups}
+              onChange={(e) => update('numberOfGroups', Number(e.target.value))}
+            />
+            <span className="text-xs text-muted-foreground">
+              {t('admin.cupForm.numberOfGroupsHint')}
+            </span>
+          </Field>
+          <Field
+            id="teamsPerGroup"
+            label={t('admin.cupForm.teamsPerGroup')}
+            error={errors.teamsPerGroup}
+          >
+            <Input
+              id="teamsPerGroup"
+              type="number"
+              min={2}
+              value={form.teamsPerGroup}
+              onChange={(e) => update('teamsPerGroup', Number(e.target.value))}
+            />
+            <span className="text-xs text-muted-foreground">
+              {t('admin.cupForm.teamsPerGroupHint')}
+            </span>
           </Field>
         </CardContent>
       </Card>

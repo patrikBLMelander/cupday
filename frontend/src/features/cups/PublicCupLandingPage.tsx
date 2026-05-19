@@ -22,7 +22,7 @@ import { PublicScheduleView } from '@/features/schedule/PublicScheduleView';
 import { useListMatchesByCupQuery } from '@/features/schedule/scheduleApi';
 import type { Match } from '@/features/schedule/scheduleTypes';
 import { useListPublicTeamsByCupQuery } from '@/features/teams/teamsApi';
-import type { PublicTeam } from '@/features/teams/teamTypes';
+import { groupLabelsFor, type PublicTeam } from '@/features/teams/teamTypes';
 
 /** How long after kickoff we consider a match "still playing" without a duration column. */
 const MATCH_LIVE_WINDOW_MS = 30 * 60_000;
@@ -144,7 +144,7 @@ export function PublicCupLandingPage(): JSX.Element {
                 </CardContent>
               </Card>
             ) : (
-              <PublicTeamsList teams={publicTeams} t={t} />
+              <PublicTeamsList teams={publicTeams} cup={cup} t={t} />
             )}
           </TabsContent>
 
@@ -490,31 +490,30 @@ function HeroFact({
 
 function PublicTeamsList({
   teams,
+  cup,
   t,
 }: {
   teams: PublicTeam[];
-  t: (k: string) => string;
+  cup: Cup;
+  t: (k: string, params?: Record<string, unknown>) => string;
 }): JSX.Element {
-  const groupA = teams.filter((team) => team.groupLabel === 'A');
-  const groupB = teams.filter((team) => team.groupLabel === 'B');
+  const labels = groupLabelsFor(cup.numberOfGroups);
   const unassigned = teams.filter((team) => team.groupLabel === null);
 
   return (
     <div className="flex flex-col gap-3">
-      {groupA.length > 0 && (
-        <TeamsGroup
-          title={t('public.teamsList.groupA')}
-          teams={groupA}
-          t={t}
-        />
-      )}
-      {groupB.length > 0 && (
-        <TeamsGroup
-          title={t('public.teamsList.groupB')}
-          teams={groupB}
-          t={t}
-        />
-      )}
+      {labels.map((label) => {
+        const groupTeams = teams.filter((team) => team.groupLabel === label);
+        if (groupTeams.length === 0) return null;
+        return (
+          <TeamsGroup
+            key={label}
+            title={t('public.teamsList.groupLabel', { label })}
+            teams={groupTeams}
+            t={t}
+          />
+        );
+      })}
       {unassigned.length > 0 && (
         <TeamsGroup
           title={t('public.teamsList.unassigned')}

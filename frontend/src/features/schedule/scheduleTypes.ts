@@ -1,6 +1,7 @@
 import type { GroupLabel } from '@/features/teams/teamTypes';
 
-export type Pitch = 1 | 2;
+/** Pitch number, 1-based. Numeric (not a literal union) so configurations with more than 2 pitches type-check. */
+export type Pitch = number;
 
 export type Match = {
   id: string;
@@ -17,8 +18,8 @@ export type TeamRef = { id: string };
 
 export type ScheduleGeneratorInput = {
   cupId: string;
-  groupATeams: readonly TeamRef[];
-  groupBTeams: readonly TeamRef[];
+  /** Teams per group, keyed by group label. Generator iterates in A..H order. */
+  teamsByGroup: ReadonlyMap<GroupLabel, readonly TeamRef[]>;
   startTime: Date;
   matchDurationMinutes: number;
   breakBetweenMatchesMinutes: number;

@@ -4,30 +4,22 @@ import com.cup.backend.teams.GroupLabel;
 import com.cup.backend.teams.Team;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * Pure round-robin schedule generator. Mirrors
- * {@code frontend/src/features/schedule/scheduleGenerator.ts}.
- *
- * <p>Six time slots, alternating groups: even slots run a Group A round (both
- * matches in parallel on pitches 1 and 2); odd slots run a Group B round.
- * Every team plays exactly three matches with a uniform 1-slot rest.
+ * Parametric round-robin schedule generator for N groups of M teams. Each
+ * group plays a single round-robin (M-1 rounds when M is even, M when odd with
+ * one bye per round). Group rounds are interleaved by slot: slot {@code s}
+ * runs group {@code s % N}'s round {@code s / N}, with matches assigned
+ * sequentially to pitches 1..K within the slot.
  */
 public final class ScheduleGenerator {
 
-  private static final int[][][] ROUND_PAIRINGS = {
-      {{0, 1}, {2, 3}},  // R1: (t0, t1) on pitch 1, (t2, t3) on pitch 2
-      {{0, 2}, {1, 3}},  // R2: (t0, t2),               (t1, t3)
-      {{0, 3}, {1, 2}},  // R3: (t0, t3),               (t1, t2)
-  };
-
-  private static final int TEAMS_PER_GROUP = 4;
-  private static final int ROUNDS = 3;
-  private static final int SLOTS = 6;
-  private static final int PITCH_1 = 1;
-  private static final int PITCH_2 = 2;
+  private static final int MIN_TEAMS_PER_GROUP = 2;
   private static final long MS_PER_MINUTE = 60_000L;
 
   private ScheduleGenerator() {
@@ -35,52 +27,109 @@ public final class ScheduleGenerator {
   }
 
   public static List<MatchSpec> generate(GenerationInput input) {
-    if (input.groupATeams().size() != TEAMS_PER_GROUP
-        || input.groupBTeams().size() != TEAMS_PER_GROUP) {
-      throw new IllegalArgumentException("Each group must have exactly 4 teams");
+    var groups = orderedGroups(input.teamsByGroup());
+    if (groups.isEmpty()) {
+      throw new IllegalArgumentException("At least one group is required");
+    }
+    var teamsPerGroup = groups.getFirst().getValue().size();
+    if (teamsPerGroup < MIN_TEAMS_PER_GROUP) {
+      throw new IllegalArgumentException(
+          "Each group must have at least " + MIN_TEAMS_PER_GROUP + " teams");
+    }
+    for (var entry : groups) {
+      if (entry.getValue().size() != teamsPerGroup) {
+        throw new IllegalArgumentException(
+            "All groups must have the same number of teams (group "
+                + entry.getKey() + " has " + entry.getValue().size()
+                + ", expected " + teamsPerGroup + ")");
+      }
     }
     if (input.matchDurationMinutes() <= 0 || input.breakBetweenMatchesMinutes() < 0) {
       throw new IllegalArgumentException(
           "Match duration must be positive and break must be non-negative");
     }
 
+    var roundsPerGroup = roundRobin(teamsPerGroup);
     var slotMs = (long) (input.matchDurationMinutes() + input.breakBetweenMatchesMinutes())
         * MS_PER_MINUTE;
     var baseMs = input.startTime().toEpochMilli();
-    var matches = new ArrayList<MatchSpec>(SLOTS * 2);
+    var matches = new ArrayList<MatchSpec>();
 
-    for (int slot = 0; slot < SLOTS; slot++) {
-      var isGroupA = slot % 2 == 0;
-      var round = slot / 2;
-      if (round >= ROUNDS) {
-        break;
-      }
-      var teams = isGroupA ? input.groupATeams() : input.groupBTeams();
-      var groupLabel = isGroupA ? GroupLabel.A : GroupLabel.B;
-      var slotStart = Instant.ofEpochMilli(baseMs + (long) slot * slotMs);
-
-      var pairings = ROUND_PAIRINGS[round];
-      for (int m = 0; m < pairings.length; m++) {
-        var homeIdx = pairings[m][0];
-        var awayIdx = pairings[m][1];
-        var pitch = m == 0 ? PITCH_1 : PITCH_2;
-        matches.add(new MatchSpec(
-            input.cupId(),
-            groupLabel,
-            pitch,
-            slotStart,
-            teams.get(homeIdx).getId(),
-            teams.get(awayIdx).getId()));
+    for (int round = 0; round < roundsPerGroup.size(); round++) {
+      var pairings = roundsPerGroup.get(round);
+      for (int g = 0; g < groups.size(); g++) {
+        var slot = round * groups.size() + g;
+        var slotStart = Instant.ofEpochMilli(baseMs + (long) slot * slotMs);
+        var entry = groups.get(g);
+        var teams = entry.getValue();
+        for (int m = 0; m < pairings.size(); m++) {
+          var pair = pairings.get(m);
+          matches.add(new MatchSpec(
+              input.cupId(),
+              entry.getKey(),
+              m + 1,
+              slotStart,
+              teams.get(pair[0]).getId(),
+              teams.get(pair[1]).getId()));
+        }
       }
     }
 
     return matches;
   }
 
+  /**
+   * Circle-method round-robin pairings for {@code m} teams. Returns one inner
+   * list per round; each inner list contains real-team-index pairs (byes
+   * stripped for odd {@code m}).
+   */
+  private static List<List<int[]>> roundRobin(int m) {
+    var size = m % 2 == 0 ? m : m + 1;
+    var byeIndex = m;
+    var positions = new int[size];
+    for (int i = 0; i < size; i++) {
+      positions[i] = i;
+    }
+    var rounds = new ArrayList<List<int[]>>(size - 1);
+    for (int r = 0; r < size - 1; r++) {
+      var round = new ArrayList<int[]>(size / 2);
+      for (int i = 0; i < size / 2; i++) {
+        var a = positions[i];
+        var b = positions[size - 1 - i];
+        if (a != byeIndex && b != byeIndex) {
+          round.add(new int[] {a, b});
+        }
+      }
+      rounds.add(round);
+      rotate(positions);
+    }
+    return rounds;
+  }
+
+  /** Standard circle rotation: index 0 stays fixed, others rotate clockwise. */
+  private static void rotate(int[] positions) {
+    if (positions.length <= 2) {
+      return;
+    }
+    var last = positions[positions.length - 1];
+    for (int i = positions.length - 1; i > 1; i--) {
+      positions[i] = positions[i - 1];
+    }
+    positions[1] = last;
+  }
+
+  private static List<Map.Entry<GroupLabel, List<Team>>> orderedGroups(
+      Map<GroupLabel, List<Team>> teamsByGroup) {
+    var ordered = new LinkedHashMap<GroupLabel, List<Team>>();
+    teamsByGroup.entrySet().stream()
+        .sorted(Comparator.comparingInt(e -> e.getKey().ordinal()))
+        .forEach(e -> ordered.put(e.getKey(), e.getValue()));
+    return new ArrayList<>(ordered.entrySet());
+  }
+
   public record GenerationInput(
       UUID cupId,
-      List<Team> groupATeams,
-      List<Team> groupBTeams,
+      Map<GroupLabel, List<Team>> teamsByGroup,
       Instant startTime,
       int matchDurationMinutes,
       int breakBetweenMatchesMinutes) {}

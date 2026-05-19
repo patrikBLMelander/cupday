@@ -37,6 +37,8 @@ function buildCupBody(overrides: Partial<CupCreateRequest> = {}): CupCreateReque
     hasParking: false,
     mapUrl: '',
     startTime: null,
+    numberOfGroups: 2,
+    teamsPerGroup: 4,
     ...overrides,
   };
 }

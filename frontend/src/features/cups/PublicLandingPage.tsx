@@ -106,10 +106,10 @@ export function PublicLandingPage(): JSX.Element {
           <div className="mt-4 flex flex-col items-center gap-1 text-sm">
             <p className="font-medium">Patrik Melander</p>
             <a
-              href="mailto:patrik.blmelander@gmail.com"
+              href="mailto:patrikblmelander@gmail.com"
               className="underline"
             >
-              patrik.blmelander@gmail.com
+              patrikblmelander@gmail.com
             </a>
             <a href="tel:+46704011119" className="underline">
               0704011119

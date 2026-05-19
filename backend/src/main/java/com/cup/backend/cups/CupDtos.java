@@ -53,7 +53,9 @@ public final class CupDtos {
       boolean hasFood,
       boolean hasParking,
       String mapUrl,
-      LocalTime startTime) {
+      LocalTime startTime,
+      int numberOfGroups,
+      int teamsPerGroup) {
 
     public static CupResponse from(Cup cup, int activeTeamCount) {
       return new CupResponse(
@@ -85,7 +87,9 @@ public final class CupDtos {
           cup.isHasFood(),
           cup.isHasParking(),
           cup.getMapUrl(),
-          cup.getStartTime());
+          cup.getStartTime(),
+          cup.getNumberOfGroups(),
+          cup.getTeamsPerGroup());
     }
 
     /** Delegates with {@code activeTeamCount = 0} — kept for callers that don't need the count. */
@@ -129,7 +133,9 @@ public final class CupDtos {
       Boolean hasFood,
       Boolean hasParking,
       String mapUrl,
-      LocalTime startTime) {}
+      LocalTime startTime,
+      Integer numberOfGroups,
+      Integer teamsPerGroup) {}
 
   /** Partial update — null means "leave unchanged". */
   public record CupUpdateRequest(
@@ -158,5 +164,7 @@ public final class CupDtos {
       Boolean hasFood,
       Boolean hasParking,
       String mapUrl,
-      LocalTime startTime) {}
+      LocalTime startTime,
+      Integer numberOfGroups,
+      Integer teamsPerGroup) {}
 }

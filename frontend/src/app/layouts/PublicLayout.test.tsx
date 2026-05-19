@@ -43,6 +43,8 @@ function buildCup(overrides: Partial<Cup> = {}): Cup {
     hasParking: false,
     mapUrl: '',
     startTime: null,
+    numberOfGroups: 2,
+    teamsPerGroup: 4,
     ...overrides,
   };
 }

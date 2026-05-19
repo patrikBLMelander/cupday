@@ -1,6 +1,24 @@
 export type TeamStatus = 'reserved' | 'paid' | 'cancelled';
 
-export type GroupLabel = 'A' | 'B';
+export type GroupLabel = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H';
+
+/** All possible group labels, in display order. */
+export const ALL_GROUP_LABELS: readonly GroupLabel[] = [
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+] as const;
+
+/** Returns the first {@code n} group labels (A, B, ... up to H). */
+export function groupLabelsFor(numberOfGroups: number): GroupLabel[] {
+  const n = Math.max(0, Math.min(numberOfGroups, ALL_GROUP_LABELS.length));
+  return ALL_GROUP_LABELS.slice(0, n) as GroupLabel[];
+}
 
 export type Team = {
   id: string;

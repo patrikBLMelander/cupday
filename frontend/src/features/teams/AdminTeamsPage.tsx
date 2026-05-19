@@ -136,7 +136,14 @@ export function AdminTeamsPage(): JSX.Element {
                   <div className="flex items-center gap-3">
                     <TeamAvatar team={team} size="sm" />
                     <div className="flex flex-col">
-                      <span className="text-base font-medium">{team.name}</span>
+                      <span className="flex items-center gap-2 text-base font-medium">
+                        {team.name}
+                        {team.level && (
+                          <Badge variant="outline" className="text-xs font-normal">
+                            {team.level}
+                          </Badge>
+                        )}
+                      </span>
                       <span className="text-xs text-muted-foreground">
                         {team.clubName}
                       </span>

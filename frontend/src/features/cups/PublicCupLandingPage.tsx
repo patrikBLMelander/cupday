@@ -549,11 +549,6 @@ function TeamsGroup({
               <span className="flex items-center gap-2 text-sm">
                 <TeamAvatar team={team} size="sm" />
                 {team.name}
-                {team.level && (
-                  <Badge variant="outline" className="text-xs">
-                    {team.level}
-                  </Badge>
-                )}
               </span>
               <Badge
                 variant={team.status === 'paid' ? 'default' : 'secondary'}

@@ -2,6 +2,13 @@ package com.cup.backend.common;
 
 import com.cup.backend.cups.CupNotFoundException;
 import com.cup.backend.cups.SlugConflictException;
+import com.cup.backend.practicematches.BookingNotFoundException;
+import com.cup.backend.practicematches.BookingTeamConflictException;
+import com.cup.backend.practicematches.InvalidManageTokenException;
+import com.cup.backend.practicematches.PracticeMatchFullException;
+import com.cup.backend.practicematches.PracticeMatchNotBookableException;
+import com.cup.backend.practicematches.PracticeMatchNotFoundException;
+import com.cup.backend.practicematches.RateLimitedException;
 import com.cup.backend.schedule.CupNotReadyException;
 import com.cup.backend.schedule.InsufficientPaidTeamsException;
 import com.cup.backend.schedule.MatchNotFoundException;
@@ -88,6 +95,46 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(CupNotReadyException.class)
   public ResponseEntity<Map<String, Object>> handleCupNotReady(CupNotReadyException ex) {
     return ProblemDetails.response(422, "Cup not ready", ex.getMessage());
+  }
+
+  @ExceptionHandler(PracticeMatchNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handlePracticeMatchNotFound(PracticeMatchNotFoundException ex) {
+    return ProblemDetails.response(404, "Not found", ex.getMessage());
+  }
+
+  @ExceptionHandler(BookingNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleBookingNotFound(BookingNotFoundException ex) {
+    return ProblemDetails.response(404, "Not found", ex.getMessage());
+  }
+
+  @ExceptionHandler(PracticeMatchFullException.class)
+  public ResponseEntity<Map<String, Object>> handlePracticeMatchFull(PracticeMatchFullException ex) {
+    return ProblemDetails.response(422, "Match is full", ex.getMessage());
+  }
+
+  @ExceptionHandler(PracticeMatchNotBookableException.class)
+  public ResponseEntity<Map<String, Object>> handlePracticeMatchNotBookable(
+      PracticeMatchNotBookableException ex) {
+    return ProblemDetails.response(422, "Match not bookable", ex.getMessage());
+  }
+
+  @ExceptionHandler(BookingTeamConflictException.class)
+  public ResponseEntity<Map<String, Object>> handleBookingTeamConflict(BookingTeamConflictException ex) {
+    return ProblemDetails.response(
+        409,
+        "Team already booked",
+        ex.getMessage(),
+        Map.of("teamName", ex.getTeamName()));
+  }
+
+  @ExceptionHandler(InvalidManageTokenException.class)
+  public ResponseEntity<Map<String, Object>> handleInvalidManageToken(InvalidManageTokenException ex) {
+    return ProblemDetails.response(403, "Forbidden", ex.getMessage());
+  }
+
+  @ExceptionHandler(RateLimitedException.class)
+  public ResponseEntity<Map<String, Object>> handleRateLimited(RateLimitedException ex) {
+    return ProblemDetails.response(429, "Too many requests", ex.getMessage());
   }
 
   @ExceptionHandler(IllegalArgumentException.class)

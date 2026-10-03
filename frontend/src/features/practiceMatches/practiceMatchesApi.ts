@@ -27,8 +27,9 @@ export const practiceMatchesApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: resolveBaseUrl() }),
   tagTypes: ['PracticeMatches', 'PracticeMatch', 'ManagedPracticeMatch'],
   endpoints: (builder) => ({
-    listPracticeMatches: builder.query<PracticeMatch[], void>({
-      query: () => '/practice-matches',
+    /** Active matches with kickoff in [from, to). The board fetches one visible window at a time. */
+    listPracticeMatches: builder.query<PracticeMatch[], { from: string; to: string }>({
+      query: ({ from, to }) => ({ url: '/practice-matches', params: { from, to } }),
       providesTags: [{ type: 'PracticeMatches', id: 'LIST' }],
     }),
     getPracticeMatch: builder.query<PracticeMatch, string>({
@@ -106,4 +107,5 @@ export const {
   useCancelPracticeMatchMutation,
   useBookPracticeMatchMutation,
   useCancelBookingMutation,
+  usePrefetch: usePracticeMatchesPrefetch,
 } = practiceMatchesApi;

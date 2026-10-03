@@ -78,4 +78,19 @@ describe('PracticeMatchListPage', () => {
     expect(screen.getByText('Ni möter')).toBeInTheDocument();
     expect(screen.queryByText('Solna BK')).not.toBeInTheDocument();
   });
+
+  it('pages the date strip a week ahead and loads matches beyond the first two weeks', async () => {
+    db.write((d) => {
+      d.practiceMatches.push(buildMockMatch({ teamName: 'Råsunda BK', kickoffAt: inDays(17, 10) }));
+    });
+    renderList();
+    await screen.findByText('Solna BK');
+    expect(screen.queryByText('Råsunda BK')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Föregående vecka' })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nästa vecka' }));
+
+    expect(await screen.findByText('Råsunda BK')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Föregående vecka' })).toBeEnabled();
+  });
 });

@@ -352,10 +352,9 @@
     "roleOrganizer": "You organise",
     "roleOpponent": "You play",
     "list": {
-      "heroLead": "Looking for opponents.",
-      "heroAccent": "Book a slot.",
+      "heroLead": "Find practice matches.",
+      "heroAccent": "All ages in one place.",
       "dates": "Pick a date",
-      "allDates": "All dates",
       "today": "Today",
       "tomorrow": "Tomorrow",
       "dayCount": "{{count}}",
@@ -386,7 +385,12 @@
       "emptyHint": "Change the filters or post your own match.",
       "loadError": "Could not load matches. Try again.",
       "yourPosts": "Your posted matches",
-      "manage": "Manage"
+      "manage": "Manage",
+      "calendar": "Date",
+      "pickDate": "Pick a date in the calendar",
+      "prevWeek": "Previous week",
+      "nextWeek": "Next week",
+      "heroSub": "Post a match or book a free slot. No account needed."
     },
     "detail": {
       "back": "Back",

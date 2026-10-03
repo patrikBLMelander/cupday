@@ -352,10 +352,9 @@
     "roleOrganizer": "Ni arrangerar",
     "roleOpponent": "Ni möter",
     "list": {
-      "heroLead": "Söker motstånd.",
-      "heroAccent": "Boka en plats.",
+      "heroLead": "Hitta träningsmatcher.",
+      "heroAccent": "Alla åldrar på ett ställe.",
       "dates": "Välj datum",
-      "allDates": "Alla datum",
       "today": "Idag",
       "tomorrow": "Imorgon",
       "dayCount": "{{count}} st",
@@ -386,7 +385,12 @@
       "emptyHint": "Ändra filtren eller lägg upp en egen match.",
       "loadError": "Kunde inte hämta matcherna. Försök igen.",
       "yourPosts": "Dina upplagda matcher",
-      "manage": "Hantera"
+      "manage": "Hantera",
+      "calendar": "Datum",
+      "pickDate": "Välj datum i kalendern",
+      "prevWeek": "Föregående vecka",
+      "nextWeek": "Nästa vecka",
+      "heroSub": "Lägg upp en match eller boka en ledig plats. Inget konto behövs."
     },
     "detail": {
       "back": "Tillbaka",

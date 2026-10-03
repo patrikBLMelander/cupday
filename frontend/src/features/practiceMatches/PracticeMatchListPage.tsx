@@ -16,13 +16,22 @@ import {
   groupByDay,
   matchRole,
   nextBookableId,
+  WINDOW_DAYS,
+  WINDOW_STEP_DAYS,
+  addDays,
+  localDateKey,
+  startOfDay,
   toFeedItems,
   upcomingDays,
+  windowRange,
   type DayGroup,
   type MatchFilters,
 } from '@/features/practiceMatches/practiceMatchFeed';
 import { formatLongDate, parseDateKey, relativeDayLabel } from '@/features/practiceMatches/practiceMatchFormat';
-import { useListPracticeMatchesQuery } from '@/features/practiceMatches/practiceMatchesApi';
+import {
+  useListPracticeMatchesQuery,
+  usePracticeMatchesPrefetch,
+} from '@/features/practiceMatches/practiceMatchesApi';
 import type { PracticeMatch } from '@/features/practiceMatches/practiceMatchTypes';
 import { useIsDesktop } from '@/features/practiceMatches/useIsDesktop';
 import { cn } from '@/lib/cn';
@@ -32,7 +41,12 @@ type ViewMode = 'list' | 'cards';
 export function PracticeMatchListPage(): JSX.Element {
   const { t } = useTranslation();
   const isDesktop = useIsDesktop();
-  const { data: matches, isLoading, isError } = useListPracticeMatchesQuery();
+  const today = useMemo(() => startOfDay(new Date()), []);
+  const [windowStart, setWindowStart] = useState<Date>(today);
+  const range = useMemo(() => windowRange(windowStart), [windowStart]);
+  // `data` keeps the previous window's result while the next one loads, so paging doesn't flash empty.
+  const { data: matches, isLoading, isFetching, isError } = useListPracticeMatchesQuery(range);
+  const prefetch = usePracticeMatchesPrefetch('listPracticeMatches');
   const [filters, setFilters] = useState<MatchFilters>(() => ({ ...DEFAULT_FILTERS, teamQuery: readTeamQuery() }));
   const [view, setView] = useState<ViewMode>('list');
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -46,13 +60,30 @@ export function PracticeMatchListPage(): JSX.Element {
   const counts = useMemo(() => countByDay(filteredItems), [filteredItems]);
   const nextId = useMemo(() => nextBookableId(filteredItems), [filteredItems]);
   const ageOptions = useMemo(() => availableAgeKeys(matches ?? []), [matches]);
-  const days = useMemo(() => upcomingDays(new Date()), []);
+  const days = useMemo(() => upcomingDays(windowStart), [windowStart]);
+  const canGoBack = windowStart.getTime() > today.getTime();
   const ownMatches = useMemo(
     () => (matches ?? []).filter((m) => ownedIds.has(m.id)),
     [matches, ownedIds],
   );
   const visibleCount = groups.reduce((sum, g) => sum + g.items.length, 0);
   const closeSheet = useCallback(() => setSheetOpen(false), []);
+
+  function moveWindow(days: number): void {
+    const next = addDays(windowStart, days);
+    setWindowStart(next.getTime() < today.getTime() ? today : next);
+    setFilters((prev) => ({ ...prev, date: null }));
+  }
+
+  function jumpTo(dateKey: string): void {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    const picked = new Date(year, month - 1, day);
+    const lastVisible = addDays(windowStart, WINDOW_DAYS - 1);
+    if (picked < windowStart || picked > lastVisible) {
+      setWindowStart(picked.getTime() < today.getTime() ? today : picked);
+    }
+    setFilters((prev) => ({ ...prev, date: localDateKey(picked) }));
+  }
 
   function changeTeamQuery(teamQuery: string): void {
     setFilters((prev) => ({ ...prev, teamQuery }));
@@ -64,9 +95,12 @@ export function PracticeMatchListPage(): JSX.Element {
 
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="font-display text-4xl font-extrabold leading-none tracking-tight sm:text-5xl">
-        {t('practice.list.heroLead')} <span className="text-accent-foreground">{t('practice.list.heroAccent')}</span>
-      </h1>
+      <div>
+        <h1 className="font-display text-4xl font-extrabold leading-none tracking-tight sm:text-5xl">
+          {t('practice.list.heroLead')} <span className="text-accent-foreground">{t('practice.list.heroAccent')}</span>
+        </h1>
+        <p className="mt-3 text-lg text-muted-foreground">{t('practice.list.heroSub')}</p>
+      </div>
 
       <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-border bg-card px-4">
         <Search className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -88,6 +122,11 @@ export function PracticeMatchListPage(): JSX.Element {
         counts={counts}
         selected={filters.date}
         onSelect={(date) => setFilters((prev) => ({ ...prev, date }))}
+        onPrev={() => moveWindow(-WINDOW_STEP_DAYS)}
+        onNext={() => moveWindow(WINDOW_STEP_DAYS)}
+        onNextIntent={() => prefetch(windowRange(addDays(windowStart, WINDOW_STEP_DAYS)))}
+        canGoBack={canGoBack}
+        onPickDate={jumpTo}
       />
 
       {isDesktop ? (
@@ -130,7 +169,7 @@ export function PracticeMatchListPage(): JSX.Element {
           {t('practice.list.loadError')}
         </p>
       )}
-      {!isLoading && !isError && groups.length === 0 && (
+      {!isLoading && !isError && !isFetching && groups.length === 0 && (
         <div className="rounded-[20px] border border-dashed border-input px-6 py-12 text-center">
           <p className="text-lg font-bold">
             {filters.date ? t('practice.list.emptyDay') : t('practice.list.empty')}
@@ -139,16 +178,18 @@ export function PracticeMatchListPage(): JSX.Element {
         </div>
       )}
 
-      {groups.map((group) => (
-        <DaySection
-          key={group.dateKey}
-          group={group}
-          view={effectiveView}
-          nextId={nextId}
-          teamQuery={filters.teamQuery}
-          ownedIds={ownedIds}
-        />
-      ))}
+      <div aria-busy={isFetching} className={cn('flex flex-col gap-5 transition-opacity', isFetching && 'opacity-50')}>
+        {groups.map((group) => (
+          <DaySection
+            key={group.dateKey}
+            group={group}
+            view={effectiveView}
+            nextId={nextId}
+            teamQuery={filters.teamQuery}
+            ownedIds={ownedIds}
+          />
+        ))}
+      </div>
 
       <FilterSheet
         open={sheetOpen && !isDesktop}

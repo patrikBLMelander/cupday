@@ -88,11 +88,18 @@ function findMatch(id: string): MockPracticeMatch | undefined {
 }
 
 export const practiceMatchHandlers = [
-  http.get(BASE, () => {
-    const now = Date.now();
+  http.get(BASE, ({ request }) => {
+    const url = new URL(request.url);
+    const from = url.searchParams.get('from');
+    const to = url.searchParams.get('to');
+    const start = from ? new Date(from).getTime() : Date.now();
+    const end = to ? new Date(to).getTime() : start + 60 * 24 * 60 * 60 * 1000;
     const rows = db
       .read()
-      .practiceMatches.filter((m) => m.status === 'active' && new Date(m.kickoffAt).getTime() >= now)
+      .practiceMatches.filter((m) => {
+        const kickoff = new Date(m.kickoffAt).getTime();
+        return m.status === 'active' && kickoff >= Math.max(start, Date.now()) && kickoff < end;
+      })
       .sort((a, b) => a.kickoffAt.localeCompare(b.kickoffAt))
       .map(toPublic);
     return HttpResponse.json(rows);

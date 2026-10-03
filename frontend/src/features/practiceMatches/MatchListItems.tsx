@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -39,7 +40,7 @@ function BookLink({ match, size = 'md' }: { match: PracticeMatch; size?: 'md' | 
 }
 
 /** Desktop list row — dense overview, one line per match. */
-export function MatchRow({ match, role, isNext }: MatchItemProps): JSX.Element {
+export const MatchRow = memo(function MatchRow({ match, role, isNext }: MatchItemProps): JSX.Element {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? 'sv';
   return (
@@ -73,10 +74,10 @@ export function MatchRow({ match, role, isNext }: MatchItemProps): JSX.Element {
       </span>
     </li>
   );
-}
+});
 
 /** Desktop card — the "Kort" view. */
-export function MatchCard({ match, role, isNext }: MatchItemProps): JSX.Element {
+export const MatchCard = memo(function MatchCard({ match, role, isNext }: MatchItemProps): JSX.Element {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? 'sv';
   return (
@@ -118,10 +119,10 @@ export function MatchCard({ match, role, isNext }: MatchItemProps): JSX.Element 
       </div>
     </li>
   );
-}
+});
 
 /** Mobile card — the whole card links to the match page. */
-export function MatchCompactCard({ match, role, isNext }: MatchItemProps): JSX.Element {
+export const MatchCompactCard = memo(function MatchCompactCard({ match, role, isNext }: MatchItemProps): JSX.Element {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? 'sv';
   return (
@@ -161,4 +162,4 @@ export function MatchCompactCard({ match, role, isNext }: MatchItemProps): JSX.E
       </Link>
     </li>
   );
-}
+});

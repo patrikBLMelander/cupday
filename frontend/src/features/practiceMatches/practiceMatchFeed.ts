@@ -131,13 +131,28 @@ export function countByDay(items: readonly FeedItem[]): Map<string, number> {
   return counts;
 }
 
-/** `count` consecutive days starting today, for the date strip. */
-export function upcomingDays(today: Date, count = 14): Date[] {
-  return Array.from({ length: count }, (_, i) => {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    d.setDate(d.getDate() + i);
-    return d;
-  });
+export const WINDOW_DAYS = 14;
+export const WINDOW_STEP_DAYS = 7;
+
+/** Local midnight of the given day. */
+export function startOfDay(value: Date): Date {
+  return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+}
+
+export function addDays(value: Date, days: number): Date {
+  const d = startOfDay(value);
+  d.setDate(d.getDate() + days);
+  return d;
+}
+
+/** `count` consecutive days starting at `start`, for the date strip. */
+export function upcomingDays(start: Date, count = WINDOW_DAYS): Date[] {
+  return Array.from({ length: count }, (_, i) => addDays(start, i));
+}
+
+/** API time range for a strip window: local midnight of the first day up to midnight after the last. */
+export function windowRange(start: Date, days = WINDOW_DAYS): { from: string; to: string } {
+  return { from: startOfDay(start).toISOString(), to: addDays(start, days).toISOString() };
 }
 
 /** Number of filters that narrow the list (team search and date excluded) — shown on the mobile filter button. */

@@ -60,6 +60,20 @@ export function PublicLandingPage(): JSX.Element {
       </section>
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6">
+        <Card className="mb-10">
+          <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold tracking-tight">
+                {t('landing.practiceTitle')}
+              </h2>
+              <p className="mt-1 text-muted-foreground">{t('landing.practiceBody')}</p>
+            </div>
+            <Button asChild>
+              <Link to="/matcher">{t('landing.practiceCta')}</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
         <h2 className="mb-6 text-2xl font-semibold tracking-tight">
           {t('landing.upcomingTitle')}
         </h2>

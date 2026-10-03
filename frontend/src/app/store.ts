@@ -6,6 +6,7 @@ import type { TypedUseSelectorHook } from 'react-redux';
 import { authApi } from '@/features/auth/authApi';
 import { authReducer } from '@/features/auth/authSlice';
 import { cupsApi } from '@/features/cups/cupsApi';
+import { practiceMatchesApi } from '@/features/practiceMatches/practiceMatchesApi';
 import { scheduleApi } from '@/features/schedule/scheduleApi';
 import { teamsApi } from '@/features/teams/teamsApi';
 
@@ -16,6 +17,7 @@ export const store = configureStore({
     [cupsApi.reducerPath]: cupsApi.reducer,
     [teamsApi.reducerPath]: teamsApi.reducer,
     [scheduleApi.reducerPath]: scheduleApi.reducer,
+    [practiceMatchesApi.reducerPath]: practiceMatchesApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -23,6 +25,7 @@ export const store = configureStore({
       cupsApi.middleware,
       teamsApi.middleware,
       scheduleApi.middleware,
+      practiceMatchesApi.middleware,
     ),
 });
 

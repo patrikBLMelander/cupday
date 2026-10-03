@@ -36,6 +36,53 @@
   }
 }
 
+/* Träningsmatcher "Gräsplan" theme. Scoped so cup pages keep their own look. */
+@layer base {
+  .theme-grass {
+    --background: 80 23% 95%;
+    --foreground: 135 23% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 135 23% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 135 23% 10%;
+    --primary: 138 59% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 84 23% 91%;
+    --secondary-foreground: 135 23% 10%;
+    --muted: 87 22% 90%;
+    --muted-foreground: 133 8% 33%;
+    --accent: 92 52% 94%;
+    --accent-foreground: 138 61% 26%;
+    --border: 87 18% 88%;
+    --input: 90 16% 80%;
+    --ring: 138 59% 30%;
+    --radius: 0.875rem;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    color-scheme: light;
+  }
+
+  .theme-grass.dark {
+    --background: 144 14% 7%;
+    --foreground: 120 17% 94%;
+    --card: 137 13% 10%;
+    --card-foreground: 120 17% 94%;
+    --popover: 137 13% 10%;
+    --popover-foreground: 120 17% 94%;
+    --primary: 142 69% 58%;
+    --primary-foreground: 140 41% 7%;
+    --secondary: 135 17% 5%;
+    --secondary-foreground: 120 17% 94%;
+    --muted: 140 13% 14%;
+    --muted-foreground: 134 8% 68%;
+    --accent: 135 24% 13%;
+    --accent-foreground: 142 72% 67%;
+    --border: 142 13% 17%;
+    --input: 152 11% 23%;
+    --ring: 142 69% 58%;
+    color-scheme: dark;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

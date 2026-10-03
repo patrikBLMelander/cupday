@@ -23,6 +23,7 @@ import {
   type TeamStatus,
 } from '@/features/teams/teamTypes';
 import { db, type MockUser } from '@/mocks/db';
+import { practiceMatchHandlers } from '@/mocks/practiceMatchHandlers';
 
 const EMAIL_RE = /^.+@.+\..+$/;
 const SLUG_RE = /^[a-z0-9-]+$/;
@@ -178,6 +179,8 @@ type LoginResponse = { token: string; user: MockUser };
 type MeResponse = { user: MockUser };
 
 export const handlers = [
+  ...practiceMatchHandlers,
+
   // --- Auth ---
   http.post('/api/auth/login', async ({ request }) => {
     const body = (await request.json()) as LoginBody;

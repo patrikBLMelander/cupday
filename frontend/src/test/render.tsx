@@ -8,6 +8,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { authApi } from '@/features/auth/authApi';
 import { authReducer } from '@/features/auth/authSlice';
 import { cupsApi } from '@/features/cups/cupsApi';
+import { practiceMatchesApi } from '@/features/practiceMatches/practiceMatchesApi';
 import { scheduleApi } from '@/features/schedule/scheduleApi';
 import { teamsApi } from '@/features/teams/teamsApi';
 
@@ -17,6 +18,7 @@ export function makeTestStore(): ReturnType<typeof configureStore<{
   [cupsApi.reducerPath]: ReturnType<typeof cupsApi.reducer>;
   [teamsApi.reducerPath]: ReturnType<typeof teamsApi.reducer>;
   [scheduleApi.reducerPath]: ReturnType<typeof scheduleApi.reducer>;
+  [practiceMatchesApi.reducerPath]: ReturnType<typeof practiceMatchesApi.reducer>;
 }>> {
   const store = configureStore({
     reducer: {
@@ -25,6 +27,7 @@ export function makeTestStore(): ReturnType<typeof configureStore<{
       [cupsApi.reducerPath]: cupsApi.reducer,
       [teamsApi.reducerPath]: teamsApi.reducer,
       [scheduleApi.reducerPath]: scheduleApi.reducer,
+      [practiceMatchesApi.reducerPath]: practiceMatchesApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(
@@ -32,6 +35,7 @@ export function makeTestStore(): ReturnType<typeof configureStore<{
         cupsApi.middleware,
         teamsApi.middleware,
         scheduleApi.middleware,
+        practiceMatchesApi.middleware,
       ),
   });
   setupListeners(store.dispatch);

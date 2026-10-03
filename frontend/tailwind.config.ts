@@ -48,6 +48,9 @@ const config: Config = {
           foreground: 'hsl(var(--popover-foreground) / <alpha-value>)',
         },
       },
+      fontFamily: {
+        display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

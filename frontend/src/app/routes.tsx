@@ -8,6 +8,11 @@ import { AdminCupListPage } from '@/features/cups/AdminCupListPage';
 import { AdminCupSettingsPage } from '@/features/cups/AdminCupSettingsPage';
 import { PublicCupLandingPage } from '@/features/cups/PublicCupLandingPage';
 import { PublicLandingPage } from '@/features/cups/PublicLandingPage';
+import { PracticeLayout } from '@/features/practiceMatches/PracticeLayout';
+import { PracticeMatchDetailPage } from '@/features/practiceMatches/PracticeMatchDetailPage';
+import { PracticeMatchFormPage } from '@/features/practiceMatches/PracticeMatchFormPage';
+import { PracticeMatchListPage } from '@/features/practiceMatches/PracticeMatchListPage';
+import { PracticeMatchManagePage } from '@/features/practiceMatches/PracticeMatchManagePage';
 import { AdminSchedulePage } from '@/features/schedule/AdminSchedulePage';
 import { PublicSchedulePage } from '@/features/schedule/PublicSchedulePage';
 import { AdminTeamsPage } from '@/features/teams/AdminTeamsPage';
@@ -47,6 +52,17 @@ export const router = createBrowserRouter([
       { path: 'register', element: <RegistrationFormPage /> },
       { path: 'payment/:registrationId', element: <PaymentPage /> },
       { path: 'schedule', element: <PublicSchedulePage /> },
+    ],
+  },
+  {
+    path: '/matcher',
+    element: <PracticeLayout />,
+    children: [
+      { index: true, element: <PracticeMatchListPage /> },
+      { path: 'ny', element: <PracticeMatchFormPage /> },
+      { path: ':id', element: <PracticeMatchDetailPage /> },
+      { path: ':id/hantera', element: <PracticeMatchManagePage /> },
+      { path: ':id/redigera', element: <PracticeMatchFormPage /> },
     ],
   },
   {

@@ -1,7 +1,7 @@
 # Plan: Träningsmatcher
 
 Underlag: designcanvas https://claude.ai/artifact/Pw6SUNeKor8rwc4EphsexB (6d "Gräsplan" ljust + 7a–7i mörkt läge och mobil).
-Status: godkänd 2026-10-03. Fas 1 (backend) implementerad på branch `feature/practice-matches`, `mvnd verify` grön.
+Status: godkänd 2026-10-03. Fas 1 (backend) och Fas 2 (frontend) implementerade på branch `feature/practice-matches`.
 
 Beslut 2026-10-03: direkt bokning (först till kvarn, arrangören kan ta bort bokningar) · arrangörens kontaktuppgifter syns öppet · ålder = kön (P/F/Mix) + födelseår.
 

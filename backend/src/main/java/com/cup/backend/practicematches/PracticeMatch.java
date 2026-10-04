@@ -30,9 +30,13 @@ public class PracticeMatch {
   @Column(name = "birth_year", nullable = false)
   private int birthYear;
 
-  /** 1 = Lätt− … 9 = Svår+. */
-  @Column(nullable = false)
-  private short level;
+  /** Lowest level, 1 = Lätt− … 9 = Svår+. */
+  @Column(name = "level_min", nullable = false)
+  private short levelMin;
+
+  /** Highest level; equals {@code levelMin} for a single level. */
+  @Column(name = "level_max", nullable = false)
+  private short levelMax;
 
   @Column(name = "players_per_side", nullable = false)
   private int playersPerSide;
@@ -97,7 +101,8 @@ public class PracticeMatch {
   public String getTeamName() { return teamName; }
   public Gender getGender() { return gender; }
   public int getBirthYear() { return birthYear; }
-  public int getLevel() { return level; }
+  public int getLevelMin() { return levelMin; }
+  public int getLevelMax() { return levelMax; }
   public int getPlayersPerSide() { return playersPerSide; }
   public Instant getKickoffAt() { return kickoffAt; }
   public Instant getEndsAt() { return endsAt; }
@@ -117,7 +122,8 @@ public class PracticeMatch {
   public void setTeamName(String teamName) { this.teamName = teamName; }
   public void setGender(Gender gender) { this.gender = gender; }
   public void setBirthYear(int birthYear) { this.birthYear = birthYear; }
-  public void setLevel(int level) { this.level = (short) level; }
+  public void setLevelMin(int levelMin) { this.levelMin = (short) levelMin; }
+  public void setLevelMax(int levelMax) { this.levelMax = (short) levelMax; }
   public void setPlayersPerSide(int playersPerSide) { this.playersPerSide = playersPerSide; }
   public void setKickoffAt(Instant kickoffAt) { this.kickoffAt = kickoffAt; }
   public void setEndsAt(Instant endsAt) { this.endsAt = endsAt; }

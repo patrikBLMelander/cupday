@@ -202,6 +202,9 @@ public class PracticeMatchService {
     if (!ALLOWED_PLAYERS_PER_SIDE.contains(request.playersPerSide())) {
       throw new IllegalArgumentException("playersPerSide must be one of " + ALLOWED_PLAYERS_PER_SIDE);
     }
+    if (request.levelMin() > request.levelMax()) {
+      throw new IllegalArgumentException("levelMin must not be above levelMax");
+    }
     if (!request.endsAt().isAfter(request.kickoffAt())) {
       throw new IllegalArgumentException("endsAt must be after kickoffAt");
     }
@@ -211,7 +214,8 @@ public class PracticeMatchService {
     match.setTeamName(request.teamName().trim());
     match.setGender(request.gender());
     match.setBirthYear(request.birthYear());
-    match.setLevel(request.level());
+    match.setLevelMin(request.levelMin());
+    match.setLevelMax(request.levelMax());
     match.setPlayersPerSide(request.playersPerSide());
     match.setKickoffAt(request.kickoffAt());
     match.setEndsAt(request.endsAt());

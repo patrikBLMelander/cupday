@@ -73,6 +73,8 @@ class PracticeMatchControllerIT extends AbstractIntegrationTest {
         .andExpect(jsonPath("$[0].teamName").value("Ekens IF F11"))
         .andExpect(jsonPath("$[0].gender").value("P"))
         .andExpect(jsonPath("$[0].costSek").value(200))
+        .andExpect(jsonPath("$[0].levelMin").value(2))
+        .andExpect(jsonPath("$[0].levelMax").value(4))
         .andExpect(jsonPath("$[0].freeSlots").value(2));
 
     var booking = json(mvc.perform(post(BASE + "/" + matchId + "/bookings")
@@ -158,6 +160,18 @@ class PracticeMatchControllerIT extends AbstractIntegrationTest {
   }
 
   @Test
+  void invertedLevelRangeReturns400() throws Exception {
+    var body = matchBody(1);
+    body.put("levelMin", 6);
+    body.put("levelMax", 3);
+    mvc.perform(post(BASE)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.detail").value("levelMin must not be above levelMax"));
+  }
+
+  @Test
   void postingWithoutConsentReturns400() throws Exception {
     var body = matchBody(1);
     body.put("acceptTerms", false);
@@ -231,7 +245,8 @@ class PracticeMatchControllerIT extends AbstractIntegrationTest {
     body.put("teamName", "Ekens IF F11");
     body.put("gender", "P");
     body.put("birthYear", 2015);
-    body.put("level", 2);
+    body.put("levelMin", 2);
+    body.put("levelMax", 4);
     body.put("playersPerSide", 5);
     var kickoff = Instant.now().plus(Duration.ofDays(2));
     body.put("kickoffAt", kickoff.toString());

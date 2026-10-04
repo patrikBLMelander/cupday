@@ -5,10 +5,11 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { ConsentCheckbox, Field, inputClass } from '@/features/practiceMatches/FormField';
+import { LevelRangePicker } from '@/features/practiceMatches/LevelRangePicker';
 import { getMatchToken, readTeamQuery, saveMatchToken } from '@/features/practiceMatches/manageTokens';
 import { asProblem } from '@/features/practiceMatches/practiceMatchErrors';
 import { localDateKey } from '@/features/practiceMatches/practiceMatchFeed';
-import { formatLabel, levelLabel } from '@/features/practiceMatches/practiceMatchFormat';
+import { formatLabel } from '@/features/practiceMatches/practiceMatchFormat';
 import {
   useCreatePracticeMatchMutation,
   useGetManagedPracticeMatchQuery,
@@ -16,7 +17,6 @@ import {
 } from '@/features/practiceMatches/practiceMatchesApi';
 import {
   GENDERS,
-  LEVEL_KEYS,
   MAX_OPPONENT_SLOTS,
   PLAYERS_PER_SIDE,
   type Gender,
@@ -39,7 +39,8 @@ export interface MatchFormValues {
   endTime: string;
   venue: string;
   playersPerSide: string;
-  level: string;
+  levelMin: number;
+  levelMax: number;
   opponentSlots: number;
   contactName: string;
   contactPhone: string;
@@ -60,7 +61,8 @@ function emptyValues(): MatchFormValues {
     endTime: '',
     venue: '',
     playersPerSide: '7',
-    level: '5',
+    levelMin: 5,
+    levelMax: 5,
     opponentSlots: 1,
     contactName: '',
     contactPhone: '',
@@ -87,7 +89,8 @@ function valuesFromMatch(match: PracticeMatch): MatchFormValues {
     endTime: clockTime(new Date(match.endsAt)),
     venue: match.venue,
     playersPerSide: String(match.playersPerSide),
-    level: String(match.level),
+    levelMin: match.levelMin,
+    levelMax: match.levelMax,
     opponentSlots: match.opponentSlots,
     contactName: match.contactName,
     contactPhone: match.contactPhone,
@@ -105,7 +108,8 @@ function toRequest(values: MatchFormValues): PracticeMatchRequest {
     teamName: values.teamName.trim(),
     gender: values.gender,
     birthYear: Number(values.birthYear),
-    level: Number(values.level),
+    levelMin: values.levelMin,
+    levelMax: values.levelMax,
     playersPerSide: Number(values.playersPerSide) as PlayersPerSide,
     kickoffAt: new Date(`${values.date}T${values.time}`).toISOString(),
     endsAt: new Date(`${values.date}T${values.endTime}`).toISOString(),
@@ -193,6 +197,8 @@ function MatchForm({ mode, cancelTo, initial, onSubmit }: MatchFormProps): JSX.E
     formState: { errors, isSubmitting },
   } = useForm<MatchFormValues>({ defaultValues: initial });
   const slots = watch('opponentSlots');
+  const levelMin = watch('levelMin');
+  const levelMax = watch('levelMax');
   const requiredText = t('practice.form.errors.required');
   const required = { validate: (v: string) => v.trim().length > 0 || requiredText };
   const currentYear = new Date().getFullYear();
@@ -316,11 +322,14 @@ function MatchForm({ mode, cancelTo, initial, onSubmit }: MatchFormProps): JSX.E
               <Chip key={format} label={formatLabel(t, format)} value={String(format)} {...register('playersPerSide')} />
             ))}
           </ChipGroup>
-          <ChipGroup legend={t('practice.form.level')} columns={3} hint={t('practice.form.levelHint')}>
-            {LEVEL_KEYS.map((_, i) => (
-              <Chip key={i} label={levelLabel(t, i + 1)} value={String(i + 1)} {...register('level')} />
-            ))}
-          </ChipGroup>
+          <LevelRangePicker
+            min={levelMin}
+            max={levelMax}
+            onChange={({ min, max }) => {
+              setValue('levelMin', min);
+              setValue('levelMax', max);
+            }}
+          />
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -470,22 +479,11 @@ function Section({ title, children }: { title: string; children: ReactNode }): J
   );
 }
 
-function ChipGroup({
-  legend,
-  columns,
-  hint,
-  children,
-}: {
-  legend: string;
-  columns: 3 | 4;
-  hint?: string;
-  children: ReactNode;
-}): JSX.Element {
+function ChipGroup({ legend, columns, children }: { legend: string; columns: 3 | 4; children: ReactNode }): JSX.Element {
   return (
     <fieldset className="flex min-w-0 flex-col gap-1.5">
       <legend className="mb-1.5 text-sm font-semibold">{legend}</legend>
       <div className={cn('grid gap-1.5', columns === 3 ? 'grid-cols-3' : 'grid-cols-4')}>{children}</div>
-      {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
     </fieldset>
   );
 }

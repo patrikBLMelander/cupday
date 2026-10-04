@@ -8,6 +8,11 @@ export function levelLabel(t: TFunction, level: number): string {
   return t(`practice.levels.${key}`);
 }
 
+/** "Lätt+–Medel", or a single label when min = max. */
+export function levelRangeLabel(t: TFunction, min: number, max: number): string {
+  return min === max ? levelLabel(t, min) : `${levelLabel(t, min)}–${levelLabel(t, max)}`;
+}
+
 export function formatLabel(t: TFunction, playersPerSide: number): string {
   return t('practice.formatLabel', { n: playersPerSide });
 }

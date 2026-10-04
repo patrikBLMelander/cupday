@@ -6,8 +6,8 @@ import { cn } from '@/lib/cn';
 
 const LEVELS_PER_GROUP = 3;
 
-/** Nine ticks in three groups (Lätt / Medel / Svår), filled up to the level. Decorative — pair with text. */
-export function LevelMeter({ level, size = 'md' }: { level: number; size?: 'sm' | 'md' }): JSX.Element {
+/** Nine ticks in three groups (Lätt / Medel / Svår) with the level range filled. Decorative — pair with text. */
+export function LevelMeter({ min, max, size = 'md' }: { min: number; max: number; size?: 'sm' | 'md' }): JSX.Element {
   return (
     <span aria-hidden="true" className="inline-flex items-end gap-0.5">
       {Array.from({ length: MAX_LEVEL }, (_, i) => (
@@ -17,7 +17,7 @@ export function LevelMeter({ level, size = 'md' }: { level: number; size?: 'sm' 
             'rounded-sm',
             size === 'sm' ? 'h-2.5 w-1' : 'h-3.5 w-[5px]',
             i > 0 && i % LEVELS_PER_GROUP === 0 && 'ml-[3px]',
-            i < level ? 'bg-primary' : 'bg-input',
+            i + 1 >= min && i + 1 <= max ? 'bg-primary' : 'bg-input',
           )}
         />
       ))}

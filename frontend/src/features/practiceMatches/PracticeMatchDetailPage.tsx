@@ -18,7 +18,7 @@ import {
   formatLabel,
   formatLongDate,
   formatTimeRange,
-  levelLabel,
+  levelRangeLabel,
   mapsUrl,
   matchAgeLabel,
 } from '@/features/practiceMatches/practiceMatchFormat';
@@ -127,8 +127,8 @@ export function MatchSummary({ match }: { match: PracticeMatch }): JSX.Element {
         <div className="rounded-2xl border border-border bg-card p-4">
           <div className="text-sm font-semibold text-muted-foreground">{t('practice.detail.level')}</div>
           <div className="mt-1.5 flex items-center gap-2">
-            <LevelMeter level={match.level} />
-            <span className="font-display text-xl font-extrabold">{levelLabel(t, match.level)}</span>
+            <LevelMeter min={match.levelMin} max={match.levelMax} />
+            <span className="font-display text-xl font-extrabold">{levelRangeLabel(t, match.levelMin, match.levelMax)}</span>
           </div>
         </div>
       </div>

@@ -500,7 +500,10 @@
       },
       "endTime": "End time",
       "manageLinkTitle": "Save the link you get.",
-      "manageLinkInfo": "When you publish you get a personal link to edit or cancel the match. Without it the match cannot be edited later."
+      "manageLinkInfo": "When you publish you get a personal link to edit or cancel the match. Without it the match cannot be edited later.",
+      "levelSelected": "Selected level: {{level}}",
+      "levelHowTo": "Tap one level, or two for a range.",
+      "levelPickSecond": "Tap another level for a range."
     },
     "manage": {
       "title": "Manage your match",

@@ -500,7 +500,10 @@
       },
       "endTime": "Sluttid",
       "manageLinkTitle": "Spara länken du får.",
-      "manageLinkInfo": "När du publicerar får du en personlig länk för att ändra eller ställa in matchen. Utan länken går det inte att redigera matchen i efterhand."
+      "manageLinkInfo": "När du publicerar får du en personlig länk för att ändra eller ställa in matchen. Utan länken går det inte att redigera matchen i efterhand.",
+      "levelSelected": "Vald nivå: {{level}}",
+      "levelHowTo": "Tryck på en nivå, eller på två för ett spann.",
+      "levelPickSecond": "Tryck på en nivå till för ett spann."
     },
     "manage": {
       "title": "Hantera din match",

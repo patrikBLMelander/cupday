@@ -7,7 +7,7 @@ import type { MatchRole } from '@/features/practiceMatches/practiceMatchFeed';
 import {
   formatLabel,
   formatTime,
-  levelLabel,
+  levelRangeLabel,
   matchAgeLabel,
 } from '@/features/practiceMatches/practiceMatchFormat';
 import type { PracticeMatch } from '@/features/practiceMatches/practiceMatchTypes';
@@ -46,7 +46,7 @@ export const MatchRow = memo(function MatchRow({ match, role, isNext }: MatchIte
   return (
     <li
       className={cn(
-        'grid min-w-[1000px] grid-cols-[76px_minmax(180px,1.6fr)_64px_72px_150px_minmax(160px,1.4fr)_150px_96px] items-center gap-3 border-t border-border px-4 py-3 first:border-t-0',
+        'grid min-w-[1000px] grid-cols-[76px_minmax(180px,1.6fr)_64px_72px_190px_minmax(160px,1.4fr)_150px_96px] items-center gap-3 border-t border-border px-4 py-3 first:border-t-0',
         isNext && 'bg-accent',
         match.freeSlots === 0 && 'opacity-60',
       )}
@@ -67,8 +67,8 @@ export const MatchRow = memo(function MatchRow({ match, role, isNext }: MatchIte
         {formatLabel(t, match.playersPerSide)}
       </span>
       <span className="flex items-center gap-2.5">
-        <LevelMeter level={match.level} />
-        <span className="font-semibold">{levelLabel(t, match.level)}</span>
+        <LevelMeter min={match.levelMin} max={match.levelMax} />
+        <span className="font-semibold">{levelRangeLabel(t, match.levelMin, match.levelMax)}</span>
       </span>
       <span className="text-sm text-muted-foreground">{match.venue}</span>
       <SlotsStatus free={match.freeSlots} total={match.opponentSlots} />
@@ -112,8 +112,8 @@ export const MatchCard = memo(function MatchCard({ match, role, isNext }: MatchI
       <div className="flex flex-wrap items-center gap-2">
         <span className="rounded-lg bg-muted px-2.5 py-1 text-sm font-semibold">{matchAgeLabel(match)}</span>
         <span className="inline-flex items-center gap-2 rounded-lg bg-muted px-2.5 py-1 text-sm font-semibold">
-          <LevelMeter level={match.level} size="sm" />
-          {levelLabel(t, match.level)}
+          <LevelMeter min={match.levelMin} max={match.levelMax} size="sm" />
+          {levelRangeLabel(t, match.levelMin, match.levelMax)}
         </span>
         {role && <RoleBadge role={role} />}
       </div>
@@ -161,8 +161,8 @@ export const MatchCompactCard = memo(function MatchCompactCard({ match, role, is
             {matchAgeLabel(match)} · {formatLabel(t, match.playersPerSide)} · {match.venue}
           </div>
           <div className="mt-0.5 flex flex-wrap items-center gap-2">
-            <LevelMeter level={match.level} size="sm" />
-            <span className="text-sm font-semibold">{levelLabel(t, match.level)}</span>
+            <LevelMeter min={match.levelMin} max={match.levelMax} size="sm" />
+            <span className="text-sm font-semibold">{levelRangeLabel(t, match.levelMin, match.levelMax)}</span>
             {role && <RoleBadge role={role} />}
           </div>
         </div>

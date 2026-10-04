@@ -26,7 +26,8 @@ export interface PracticeMatch {
   teamName: string;
   gender: Gender;
   birthYear: number;
-  level: number;
+  levelMin: number;
+  levelMax: number;
   playersPerSide: PlayersPerSide;
   kickoffAt: string;
   endsAt: string;
@@ -47,7 +48,8 @@ export interface PracticeMatchRequest {
   teamName: string;
   gender: Gender;
   birthYear: number;
-  level: number;
+  levelMin: number;
+  levelMax: number;
   playersPerSide: PlayersPerSide;
   kickoffAt: string;
   endsAt: string;

@@ -53,7 +53,9 @@ function validateMatch(body: Partial<PracticeMatchRequest>): Response | null {
   if (missing) return problem(400, 'Validation', `${missing} is required`);
   if (!EMAIL_RE.test(body.contactEmail ?? '')) return problem(400, 'Validation', 'contactEmail is invalid');
   if (!body.gender || !body.birthYear) return problem(400, 'Validation', 'gender and birthYear are required');
-  if (!body.level || body.level < 1 || body.level > 9) return problem(400, 'Validation', 'level must be 1-9');
+  if (!body.levelMin || !body.levelMax || body.levelMin < 1 || body.levelMax > 9 || body.levelMin > body.levelMax) {
+    return problem(400, 'Validation', 'levelMin/levelMax must be 1-9 with levelMin <= levelMax');
+  }
   if (!ALLOWED_PLAYERS.has(body.playersPerSide ?? 0)) return problem(400, 'Validation', 'invalid playersPerSide');
   if (!body.kickoffAt || new Date(body.kickoffAt).getTime() <= Date.now()) {
     return problem(400, 'Validation', 'kickoffAt must be in the future');
@@ -75,7 +77,8 @@ function applyRequest(body: PracticeMatchRequest): Omit<PracticeMatch, 'id' | 'f
     teamName: body.teamName.trim(),
     gender: body.gender,
     birthYear: body.birthYear,
-    level: body.level,
+    levelMin: body.levelMin,
+    levelMax: body.levelMax,
     playersPerSide: body.playersPerSide,
     kickoffAt: body.kickoffAt,
     endsAt: body.endsAt,

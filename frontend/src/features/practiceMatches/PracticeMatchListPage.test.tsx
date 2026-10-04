@@ -28,7 +28,7 @@ describe('PracticeMatchListPage', () => {
       d.practiceMatches.push(
         buildMockMatch({ teamName: 'Hässelby SK', kickoffAt: inDays(1, 9), freeSlots: 0, opponentSlots: 1 }),
         buildMockMatch({ teamName: 'Solna BK', kickoffAt: inDays(1, 13), opponentSlots: 3 }),
-        buildMockMatch({ teamName: 'Ekens IF F11', kickoffAt: inDays(2, 11), level: 2 }),
+        buildMockMatch({ teamName: 'Ekens IF F11', kickoffAt: inDays(2, 11), levelMin: 2, levelMax: 2 }),
       );
       d.practiceBookings.push({
         id: 'b1',

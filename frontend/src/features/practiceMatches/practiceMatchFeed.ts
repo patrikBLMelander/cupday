@@ -82,7 +82,8 @@ export function filterMatches(
     if (hasTeamQuery && matchRole(match, filters.teamQuery, ownedIds) === null) return false;
     if (filters.formats.length > 0 && !filters.formats.includes(match.playersPerSide)) return false;
     if (filters.ageKey && ageKey(match.gender, match.birthYear) !== filters.ageKey) return false;
-    if (match.level < filters.levelMin || match.level > filters.levelMax) return false;
+    // Overlap: a Lätt+–Medel match shows up when searching for Medel–Svår.
+    if (match.levelMax < filters.levelMin || match.levelMin > filters.levelMax) return false;
     if (filters.onlyFree && match.freeSlots === 0) return false;
     return true;
   });

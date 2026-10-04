@@ -20,12 +20,14 @@ describe('practiceMatchFeed', () => {
   });
 
   it('filters by level range, format and free slots', () => {
-    const easy = buildMatch({ level: 2, playersPerSide: 5 });
-    const hard = buildMatch({ level: 8, playersPerSide: 7 });
-    const full = buildMatch({ level: 4, playersPerSide: 7, freeSlots: 0 });
+    const easy = buildMatch({ levelMin: 1, levelMax: 2, playersPerSide: 5 });
+    const hard = buildMatch({ levelMin: 8, levelMax: 9, playersPerSide: 7 });
+    const full = buildMatch({ levelMin: 4, levelMax: 7, playersPerSide: 7, freeSlots: 0 });
     const all = [easy, hard, full];
 
     expect(filterMatches(all, { ...DEFAULT_FILTERS, levelMin: 1, levelMax: 6 }, none)).toEqual([easy, full]);
+    // A range overlapping the filter's upper end still counts.
+    expect(filterMatches(all, { ...DEFAULT_FILTERS, levelMin: 7, levelMax: 7 }, none)).toEqual([full]);
     expect(filterMatches(all, { ...DEFAULT_FILTERS, formats: [7] }, none)).toEqual([hard, full]);
     expect(filterMatches(all, { ...DEFAULT_FILTERS, onlyFree: true }, none)).toEqual([easy, hard]);
   });

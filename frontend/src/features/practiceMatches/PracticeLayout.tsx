@@ -45,9 +45,14 @@ export function PracticeLayout(): JSX.Element {
           </Link>
         )}
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-28 sm:px-6 sm:pb-16">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 sm:px-6">
         <Outlet />
       </main>
+      <footer className="mx-auto w-full max-w-6xl px-4 pb-28 pt-4 text-sm sm:px-6 sm:pb-10">
+        <Link to="/matcher/integritet" className="inline-flex min-h-11 items-center text-muted-foreground underline hover:text-foreground">
+          {t('practice.nav.privacy')}
+        </Link>
+      </footer>
       {!onCreatePage && (
         <Link
           to="/matcher/ny"

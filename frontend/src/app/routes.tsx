@@ -8,11 +8,13 @@ import { AdminCupListPage } from '@/features/cups/AdminCupListPage';
 import { AdminCupSettingsPage } from '@/features/cups/AdminCupSettingsPage';
 import { PublicCupLandingPage } from '@/features/cups/PublicCupLandingPage';
 import { PublicLandingPage } from '@/features/cups/PublicLandingPage';
+import { AdminPracticeMatchesPage } from '@/features/practiceMatches/AdminPracticeMatchesPage';
 import { PracticeLayout } from '@/features/practiceMatches/PracticeLayout';
 import { PracticeMatchDetailPage } from '@/features/practiceMatches/PracticeMatchDetailPage';
 import { PracticeMatchFormPage } from '@/features/practiceMatches/PracticeMatchFormPage';
 import { PracticeMatchListPage } from '@/features/practiceMatches/PracticeMatchListPage';
 import { PracticeMatchManagePage } from '@/features/practiceMatches/PracticeMatchManagePage';
+import { PracticeMatchPrivacyPage } from '@/features/practiceMatches/PracticeMatchPrivacyPage';
 import { AdminSchedulePage } from '@/features/schedule/AdminSchedulePage';
 import { PublicSchedulePage } from '@/features/schedule/PublicSchedulePage';
 import { AdminTeamsPage } from '@/features/teams/AdminTeamsPage';
@@ -40,6 +42,7 @@ export const router = createBrowserRouter([
           { path: 'cups/:id', element: <AdminCupSettingsPage /> },
           { path: 'cups/:id/teams', element: <AdminTeamsPage /> },
           { path: 'cups/:id/schedule', element: <AdminSchedulePage /> },
+          { path: 'traningsmatcher', element: <AdminPracticeMatchesPage /> },
         ],
       },
     ],
@@ -60,6 +63,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <PracticeMatchListPage /> },
       { path: 'ny', element: <PracticeMatchFormPage /> },
+      { path: 'integritet', element: <PracticeMatchPrivacyPage /> },
       { path: ':id', element: <PracticeMatchDetailPage /> },
       { path: ':id/hantera', element: <PracticeMatchManagePage /> },
       { path: ':id/redigera', element: <PracticeMatchFormPage /> },

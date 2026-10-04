@@ -1,8 +1,9 @@
-import { Check, Copy, Mail, Phone } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useParams } from 'react-router-dom';
 
+import { ManageLinkNotice } from '@/features/practiceMatches/ManageLinkNotice';
 import { MatchSummary } from '@/features/practiceMatches/PracticeMatchDetailPage';
 import { getMatchToken, saveMatchToken } from '@/features/practiceMatches/manageTokens';
 import { asProblem } from '@/features/practiceMatches/practiceMatchErrors';
@@ -58,7 +59,7 @@ export function PracticeMatchManagePage(): JSX.Element {
         </p>
       )}
 
-      <ManageLinkNotice matchId={match.id} token={token} />
+      <ManageLinkNotice match={match} token={token} emphasized={justCreated} />
 
       <MatchSummary match={match} />
 
@@ -99,50 +100,6 @@ export function PracticeMatchManagePage(): JSX.Element {
         </p>
       )}
     </div>
-  );
-}
-
-function ManageLinkNotice({ matchId, token }: { matchId: string; token: string }): JSX.Element {
-  const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
-  const link = `${window.location.origin}/matcher/${matchId}/hantera#${encodeURIComponent(token)}`;
-
-  async function copy(): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(link);
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  }
-
-  return (
-    <section aria-labelledby="manage-link-title" className="rounded-2xl border border-primary bg-card p-4">
-      <h2 id="manage-link-title" className="font-display text-lg font-bold">
-        {t('practice.manage.linkTitle')}
-      </h2>
-      <p className="mb-3 text-sm text-muted-foreground">{t('practice.manage.linkBody')}</p>
-      <div className="flex flex-wrap gap-2">
-        <label htmlFor="manage-link" className="sr-only">
-          {t('practice.manage.linkLabel')}
-        </label>
-        <input
-          id="manage-link"
-          readOnly
-          value={link}
-          onFocus={(e) => e.currentTarget.select()}
-          className="min-h-11 min-w-0 flex-1 rounded-xl border border-input bg-background px-3 text-sm"
-        />
-        <button
-          type="button"
-          onClick={copy}
-          className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-bold text-primary-foreground"
-        >
-          {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
-          {copied ? t('practice.manage.copied') : t('practice.manage.copy')}
-        </button>
-      </div>
-    </section>
   );
 }
 

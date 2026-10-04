@@ -20,6 +20,11 @@ export function formatTime(iso: string, locale: string): string {
   return new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
 }
 
+/** "10:00–11:30". */
+export function formatTimeRange(kickoffAt: string, endsAt: string, locale: string): string {
+  return `${formatTime(kickoffAt, locale)}–${formatTime(endsAt, locale)}`;
+}
+
 /** "Lördag 3 oktober" — capitalised weekday plus date. */
 export function formatLongDate(value: string | Date, locale: string): string {
   const d = typeof value === 'string' ? new Date(value) : value;

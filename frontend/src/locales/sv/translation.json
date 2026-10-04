@@ -192,6 +192,31 @@
       "statusReserved": "Reserverad",
       "statusPaid": "Betald",
       "statusCancelled": "Avbruten"
+    },
+    "nav": {
+      "cups": "Cuper",
+      "practiceMatches": "Träningsmatcher"
+    },
+    "practiceMatches": {
+      "title": "Träningsmatcher – moderering",
+      "searchLabel": "Sök lag, plats eller kontakt",
+      "search": "Sök",
+      "empty": "Inga matcher hittades.",
+      "loadFailed": "Kunde inte hämta matcherna.",
+      "total_one": "{{count}} match",
+      "total_other": "{{count}} matcher",
+      "statusActive": "Aktiv",
+      "statusCancelled": "Inställd",
+      "posted": "Upplagd {{date}}",
+      "bookings": "{{booked}} av {{slots}} platser bokade",
+      "view": "Visa",
+      "delete": "Ta bort",
+      "confirmDelete": "Ja, ta bort permanent",
+      "keep": "Avbryt",
+      "deleteHint": "Matchen och alla bokningar tas bort permanent.",
+      "prev": "Föregående",
+      "next": "Nästa",
+      "pageOf": "Sida {{page}} av {{total}}"
     }
   },
   "common": {
@@ -326,7 +351,8 @@
       "title": "Träningsmatcher",
       "home": "Din Cup",
       "postMatch": "Lägg upp match",
-      "toggleTheme": "Växla ljust/mörkt läge"
+      "toggleTheme": "Växla ljust/mörkt läge",
+      "privacy": "Integritet & personuppgifter"
     },
     "formatLabel": "{{n}}v{{n}}",
     "levels": {
@@ -443,7 +469,7 @@
       "gender": "Kön",
       "birthYear": "Födelseår",
       "date": "Datum",
-      "time": "Tid",
+      "time": "Starttid",
       "venue": "Plats",
       "venuePlaceholder": "T.ex. Ekens BP, plan 4",
       "format": "Spelform",
@@ -469,14 +495,18 @@
         "future": "Tiden måste ligga framåt i tiden",
         "costNonNegative": "Kostnaden kan inte vara negativ",
         "slotsBelowBookings": "Det finns redan fler bokningar än så",
-        "generic": "Något gick fel. Försök igen."
-      }
+        "generic": "Något gick fel. Försök igen.",
+        "endAfterStart": "Sluttiden måste vara efter starttiden"
+      },
+      "endTime": "Sluttid",
+      "manageLinkTitle": "Spara länken du får.",
+      "manageLinkInfo": "När du publicerar får du en personlig länk för att ändra eller ställa in matchen. Utan länken går det inte att redigera matchen i efterhand."
     },
     "manage": {
       "title": "Hantera din match",
       "justCreated": "Matchen är upplagd!",
-      "linkTitle": "Spara din hanteringslänk",
-      "linkBody": "Med länken kan du ändra eller ställa in matchen från vilken enhet som helst. Den här webbläsaren kommer ihåg den.",
+      "linkTitle": "Din hanteringslänk",
+      "linkBody": "Med länken kan du ändra eller ställa in matchen och se vilka som bokat, från vilken enhet som helst.",
       "linkLabel": "Hanteringslänk",
       "copy": "Kopiera länk",
       "copied": "Kopierad!",
@@ -490,7 +520,37 @@
       "removeBooking": "Ta bort bokning",
       "bookingCancelled": "Avbokad",
       "invalidLink": "Länken är ogiltig. Kontrollera att du kopierat hela hanteringslänken.",
-      "viewPublic": "Visa publika sidan"
+      "viewPublic": "Visa publika sidan",
+      "linkImportantTitle": "Viktigt: spara länken nu!",
+      "linkImportantBody": "Länken är det enda sättet att ändra eller ställa in matchen och se vilka som bokat. Det finns inga konton, och vi kan inte skicka länken till dig i efterhand.",
+      "emailToMe": "Mejla länken till mig",
+      "share": "Dela länken",
+      "emailSubject": "Hanteringslänk – {{team}}",
+      "emailBody": "Här är länken för att ändra eller ställa in träningsmatchen för {{team}} ({{date}}):\n\n{{link}}\n\nSpara det här mejlet.",
+      "savedConfirm": "Jag har sparat länken",
+      "saved": "Bra! Spara mejlet eller anteckningen, så hittar du alltid tillbaka."
+    },
+    "consent": {
+      "match": "Jag godkänner att kontaktuppgifterna visas öppet på sidan så att andra lag kan nå mig. Matchen och uppgifterna raderas automatiskt 30 dagar efter matchdagen.",
+      "booking": "Jag godkänner att arrangören får se mina kontaktuppgifter. De raderas automatiskt 30 dagar efter matchdagen.",
+      "readMore": "Läs mer om personuppgifter",
+      "required": "Du behöver godkänna för att gå vidare"
+    },
+    "privacy": {
+      "title": "Integritet & personuppgifter",
+      "intro": "Här beskriver vi vilka uppgifter träningsmatcherna sparar och varför. Sidan drivs privat av {{name}}.",
+      "whatTitle": "Vilka uppgifter sparas?",
+      "whatBody": "När du lägger upp en match sparas lagnamn, tid, plats, ålder, nivå, spelform, eventuell kostnad och övrig info, samt kontaktpersonens namn, telefonnummer och e-postadress. När du bokar en plats sparas lagnamn, kontaktuppgifter och ett eventuellt meddelande.",
+      "whoTitle": "Vem ser uppgifterna?",
+      "whoBody": "Arrangörens kontaktuppgifter visas öppet för alla besökare så att andra lag kan höra av sig. Namnen på lag som bokat visas också öppet. Bokarens kontaktuppgifter och meddelande visas bara för arrangören via hanteringslänken.",
+      "whyTitle": "Varför?",
+      "whyBody": "Uppgifterna används enbart för att lag ska kunna hitta varandra och boka träningsmatcher. De säljs inte och används inte för reklam. Du lämnar ditt samtycke när du lägger upp eller bokar en match.",
+      "howLongTitle": "Hur länge sparas de?",
+      "howLongBody": "Matcher och bokningar, inklusive kontaktuppgifter, raderas automatiskt 30 dagar efter matchdagen. Du kan när som helst ställa in din match eller avboka din plats.",
+      "browserTitle": "Vad sparas i din webbläsare?",
+      "browserBody": "Sidan använder inga spårningscookies. I din webbläsare sparas hanteringsnycklar för matcher du lagt upp och platser du bokat, lagnamnet i sökfältet och om du valt ljust eller mörkt läge. Du kan ta bort det när som helst genom att rensa webbplatsdata.",
+      "removeTitle": "Vill du få uppgifter borttagna?",
+      "removeBody": "Kontakta {{name}} på {{email}}, så tar vi bort uppgifterna. Du har också rätt att få veta vilka uppgifter som finns sparade om dig."
     }
   }
 }

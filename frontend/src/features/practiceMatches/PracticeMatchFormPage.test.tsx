@@ -33,7 +33,8 @@ describe('PracticeMatchFormPage', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Publicera match' }));
 
-    expect(await screen.findAllByText('Fyll i det här fältet')).toHaveLength(8);
+    expect(await screen.findAllByText('Fyll i det här fältet')).toHaveLength(9);
+    expect(screen.getByText('Du behöver godkänna för att gå vidare')).toBeInTheDocument();
     expect(screen.getByLabelText('Kostnad per lag i kr (valfritt)')).not.toHaveAttribute('aria-invalid', 'true');
     expect(db.read().practiceMatches).toHaveLength(0);
   });
@@ -46,7 +47,8 @@ describe('PracticeMatchFormPage', () => {
 
     await user.type(screen.getByLabelText('Ditt lag'), 'Ekens IF F11');
     await user.type(screen.getByLabelText('Datum'), localDateKey(tomorrow));
-    await user.type(screen.getByLabelText('Tid'), '11:15');
+    await user.type(screen.getByLabelText('Starttid'), '11:15');
+    await user.type(screen.getByLabelText('Sluttid'), '12:45');
     await user.type(screen.getByLabelText('Plats'), 'Ekens BP, plan 4');
     await user.click(screen.getByRole('radio', { name: 'Flickor' }));
     await user.selectOptions(screen.getByLabelText('Födelseår'), '2015');
@@ -57,9 +59,17 @@ describe('PracticeMatchFormPage', () => {
     await user.type(screen.getByLabelText('Telefon'), '070-123 45 67');
     await user.type(screen.getByLabelText('E-post'), 'ali@example.com');
     await user.type(screen.getByLabelText('Kostnad per lag i kr (valfritt)'), '200');
+    await user.click(screen.getByRole('checkbox', { name: /visas öppet/ }));
     await user.click(screen.getByRole('button', { name: 'Publicera match' }));
 
     expect(await screen.findByText('Matchen är upplagd!')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Viktigt: spara länken nu!' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Mejla länken till mig' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('mailto:ali%40example.com'),
+    );
+    await user.click(screen.getByRole('button', { name: 'Jag har sparat länken' }));
+    expect(screen.getByRole('heading', { name: 'Din hanteringslänk' })).toBeInTheDocument();
     const link = screen.getByLabelText<HTMLInputElement>('Hanteringslänk').value;
     expect(link).toContain(`#${db.read().practiceMatches[0].manageToken}`);
     const saved = db.read().practiceMatches[0];

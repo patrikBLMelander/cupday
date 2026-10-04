@@ -192,6 +192,31 @@
       "statusReserved": "Reserved",
       "statusPaid": "Paid",
       "statusCancelled": "Cancelled"
+    },
+    "nav": {
+      "cups": "Cups",
+      "practiceMatches": "Practice matches"
+    },
+    "practiceMatches": {
+      "title": "Practice matches – moderation",
+      "searchLabel": "Search team, venue or contact",
+      "search": "Search",
+      "empty": "No matches found.",
+      "loadFailed": "Could not load matches.",
+      "total_one": "{{count}} match",
+      "total_other": "{{count}} matches",
+      "statusActive": "Active",
+      "statusCancelled": "Cancelled",
+      "posted": "Posted {{date}}",
+      "bookings": "{{booked}} of {{slots}} slots booked",
+      "view": "View",
+      "delete": "Delete",
+      "confirmDelete": "Yes, delete permanently",
+      "keep": "Cancel",
+      "deleteHint": "The match and all bookings are deleted permanently.",
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{total}}"
     }
   },
   "common": {
@@ -326,7 +351,8 @@
       "title": "Practice matches",
       "home": "Din Cup",
       "postMatch": "Post a match",
-      "toggleTheme": "Toggle light/dark mode"
+      "toggleTheme": "Toggle light/dark mode",
+      "privacy": "Privacy & personal data"
     },
     "formatLabel": "{{n}}v{{n}}",
     "levels": {
@@ -443,7 +469,7 @@
       "gender": "Gender",
       "birthYear": "Birth year",
       "date": "Date",
-      "time": "Time",
+      "time": "Start time",
       "venue": "Venue",
       "venuePlaceholder": "E.g. Ekens BP, pitch 4",
       "format": "Format",
@@ -469,14 +495,18 @@
         "future": "The time must be in the future",
         "costNonNegative": "Cost cannot be negative",
         "slotsBelowBookings": "There are already more bookings than that",
-        "generic": "Something went wrong. Try again."
-      }
+        "generic": "Something went wrong. Try again.",
+        "endAfterStart": "The end time must be after the start time"
+      },
+      "endTime": "End time",
+      "manageLinkTitle": "Save the link you get.",
+      "manageLinkInfo": "When you publish you get a personal link to edit or cancel the match. Without it the match cannot be edited later."
     },
     "manage": {
       "title": "Manage your match",
       "justCreated": "Your match is posted!",
-      "linkTitle": "Save your manage link",
-      "linkBody": "With the link you can edit or cancel the match from any device. This browser remembers it.",
+      "linkTitle": "Your manage link",
+      "linkBody": "With the link you can edit or cancel the match and see who booked, from any device.",
       "linkLabel": "Manage link",
       "copy": "Copy link",
       "copied": "Copied!",
@@ -490,7 +520,37 @@
       "removeBooking": "Remove booking",
       "bookingCancelled": "Cancelled",
       "invalidLink": "The link is invalid. Check that you copied the whole manage link.",
-      "viewPublic": "View public page"
+      "viewPublic": "View public page",
+      "linkImportantTitle": "Important: save the link now!",
+      "linkImportantBody": "The link is the only way to edit or cancel the match and see who booked. There are no accounts, and we cannot send you the link afterwards.",
+      "emailToMe": "Email the link to me",
+      "share": "Share the link",
+      "emailSubject": "Manage link – {{team}}",
+      "emailBody": "Here is the link to edit or cancel the practice match for {{team}} ({{date}}):\n\n{{link}}\n\nKeep this email.",
+      "savedConfirm": "I have saved the link",
+      "saved": "Great! Keep the email or note so you can always get back."
+    },
+    "consent": {
+      "match": "I agree that the contact details are shown publicly on the site so that other teams can reach me. The match and the details are deleted automatically 30 days after the match day.",
+      "booking": "I agree that the organiser can see my contact details. They are deleted automatically 30 days after the match day.",
+      "readMore": "Read more about personal data",
+      "required": "You need to agree to continue"
+    },
+    "privacy": {
+      "title": "Privacy & personal data",
+      "intro": "This page describes what data the practice match board stores and why. The site is run privately by {{name}}.",
+      "whatTitle": "What is stored?",
+      "whatBody": "When you post a match we store team name, time, venue, age, level, format, any cost and other info, plus the contact person's name, phone number and email. When you book a slot we store team name, contact details and an optional message.",
+      "whoTitle": "Who can see it?",
+      "whoBody": "The organiser's contact details are shown publicly so that other teams can get in touch. Names of teams that booked are also public. A booker's contact details and message are only visible to the organiser via the manage link.",
+      "whyTitle": "Why?",
+      "whyBody": "The data is only used so that teams can find each other and book practice matches. It is not sold or used for advertising. You give your consent when you post or book a match.",
+      "howLongTitle": "How long is it kept?",
+      "howLongBody": "Matches and bookings, including contact details, are deleted automatically 30 days after the match day. You can cancel your match or booking at any time.",
+      "browserTitle": "What is stored in your browser?",
+      "browserBody": "The site uses no tracking cookies. Your browser stores manage keys for matches you posted and slots you booked, the team name in the search field and your light/dark choice. You can remove it at any time by clearing site data.",
+      "removeTitle": "Want data removed?",
+      "removeBody": "Contact {{name}} at {{email}} and we will remove it. You also have the right to know what data is stored about you."
     }
   }
 }

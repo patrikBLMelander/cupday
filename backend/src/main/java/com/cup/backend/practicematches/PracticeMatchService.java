@@ -1,5 +1,6 @@
 package com.cup.backend.practicematches;
 
+import com.cup.backend.practicematches.PracticeMatchDtos.AdminPracticeMatchPage;
 import com.cup.backend.practicematches.PracticeMatchDtos.BookingRequest;
 import com.cup.backend.practicematches.PracticeMatchDtos.BookingResponse;
 import com.cup.backend.practicematches.PracticeMatchDtos.CreateBookingResponse;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,9 @@ public class PracticeMatchService {
   private static final Set<Integer> ALLOWED_PLAYERS_PER_SIDE = Set.of(5, 7, 9, 11);
   private static final Duration DEFAULT_WINDOW = Duration.ofDays(60);
   private static final Duration MAX_WINDOW = Duration.ofDays(180);
+  private static final int ADMIN_PAGE_SIZE = 50;
+  /** Longest allowed match/event, e.g. a mini-tournament day. */
+  private static final Duration MAX_DURATION = Duration.ofHours(12);
 
   private final PracticeMatchRepository matchRepository;
   private final PracticeMatchBookingRepository bookingRepository;
@@ -50,6 +55,26 @@ public class PracticeMatchService {
     }
     var matches = matchRepository.findByStatusAndKickoffAtBetweenOrderByKickoffAtAsc(
         PracticeMatchStatus.ACTIVE, start, end);
+    return withActiveBookings(matches);
+  }
+
+  /** Admin moderation list (all statuses), newest posts first, optionally filtered by a search term. */
+  @Transactional(readOnly = true)
+  public AdminPracticeMatchPage adminList(String query, int page) {
+    var pageable = PageRequest.of(Math.max(0, page), ADMIN_PAGE_SIZE);
+    var trimmed = query == null ? "" : query.trim();
+    var result = trimmed.isEmpty()
+        ? matchRepository.findAllByOrderByCreatedAtDesc(pageable)
+        : matchRepository.search(trimmed, pageable);
+    return new AdminPracticeMatchPage(
+        withActiveBookings(result.getContent()),
+        result.getNumber(),
+        result.getTotalPages(),
+        result.getTotalElements());
+  }
+
+  /** Maps matches with their active bookings, fetched in one query. */
+  private List<PublicPracticeMatch> withActiveBookings(List<PracticeMatch> matches) {
     var matchIds = matches.stream().map(PracticeMatch::getId).toList();
     var bookingsByMatch = bookingRepository
         .findByMatchIdInAndStatusOrderByCreatedAtAsc(matchIds, BookingStatus.BOOKED).stream()
@@ -177,12 +202,19 @@ public class PracticeMatchService {
     if (!ALLOWED_PLAYERS_PER_SIDE.contains(request.playersPerSide())) {
       throw new IllegalArgumentException("playersPerSide must be one of " + ALLOWED_PLAYERS_PER_SIDE);
     }
+    if (!request.endsAt().isAfter(request.kickoffAt())) {
+      throw new IllegalArgumentException("endsAt must be after kickoffAt");
+    }
+    if (Duration.between(request.kickoffAt(), request.endsAt()).compareTo(MAX_DURATION) > 0) {
+      throw new IllegalArgumentException("endsAt may be at most " + MAX_DURATION.toHours() + " hours after kickoffAt");
+    }
     match.setTeamName(request.teamName().trim());
     match.setGender(request.gender());
     match.setBirthYear(request.birthYear());
     match.setLevel(request.level());
     match.setPlayersPerSide(request.playersPerSide());
     match.setKickoffAt(request.kickoffAt());
+    match.setEndsAt(request.endsAt());
     match.setVenue(request.venue().trim());
     match.setOpponentSlots(request.opponentSlots());
     match.setContactName(request.contactName().trim());

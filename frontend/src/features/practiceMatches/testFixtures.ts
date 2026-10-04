@@ -10,6 +10,7 @@ export function inDays(days: number, hour = 10): string {
 }
 
 export function buildMatch(overrides: Partial<PracticeMatch> = {}): PracticeMatch {
+  const kickoffAt = overrides.kickoffAt ?? inDays(1);
   return {
     id: crypto.randomUUID(),
     teamName: 'Västerort FF',
@@ -17,7 +18,8 @@ export function buildMatch(overrides: Partial<PracticeMatch> = {}): PracticeMatc
     birthYear: 2013,
     level: 5,
     playersPerSide: 7,
-    kickoffAt: inDays(1),
+    kickoffAt,
+    endsAt: new Date(new Date(kickoffAt).getTime() + 90 * 60 * 1000).toISOString(),
     venue: 'Grimsta IP',
     opponentSlots: 1,
     freeSlots: 1,

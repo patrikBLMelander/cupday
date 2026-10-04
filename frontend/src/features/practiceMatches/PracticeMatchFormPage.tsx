@@ -1,10 +1,10 @@
-import { Minus, Plus } from 'lucide-react';
+import { KeyRound, Minus, Plus } from 'lucide-react';
 import { forwardRef, useState, type ReactNode } from 'react';
 import { useForm, type UseFormRegisterReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
-import { Field, inputClass } from '@/features/practiceMatches/FormField';
+import { ConsentCheckbox, Field, inputClass } from '@/features/practiceMatches/FormField';
 import { getMatchToken, readTeamQuery, saveMatchToken } from '@/features/practiceMatches/manageTokens';
 import { asProblem } from '@/features/practiceMatches/practiceMatchErrors';
 import { localDateKey } from '@/features/practiceMatches/practiceMatchFeed';
@@ -36,6 +36,7 @@ export interface MatchFormValues {
   birthYear: string;
   date: string;
   time: string;
+  endTime: string;
   venue: string;
   playersPerSide: string;
   level: string;
@@ -45,6 +46,7 @@ export interface MatchFormValues {
   contactEmail: string;
   costSek: string;
   notes: string;
+  acceptTerms: boolean;
   website: string;
 }
 
@@ -55,6 +57,7 @@ function emptyValues(): MatchFormValues {
     birthYear: '',
     date: '',
     time: '',
+    endTime: '',
     venue: '',
     playersPerSide: '7',
     level: '5',
@@ -64,19 +67,24 @@ function emptyValues(): MatchFormValues {
     contactEmail: '',
     costSek: '',
     notes: '',
+    acceptTerms: false,
     website: '',
   };
 }
 
+function clockTime(d: Date): string {
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
 function valuesFromMatch(match: PracticeMatch): MatchFormValues {
   const kickoff = new Date(match.kickoffAt);
-  const time = `${String(kickoff.getHours()).padStart(2, '0')}:${String(kickoff.getMinutes()).padStart(2, '0')}`;
   return {
     teamName: match.teamName,
     gender: match.gender,
     birthYear: String(match.birthYear),
     date: localDateKey(kickoff),
-    time,
+    time: clockTime(kickoff),
+    endTime: clockTime(new Date(match.endsAt)),
     venue: match.venue,
     playersPerSide: String(match.playersPerSide),
     level: String(match.level),
@@ -86,6 +94,7 @@ function valuesFromMatch(match: PracticeMatch): MatchFormValues {
     contactEmail: match.contactEmail,
     costSek: match.costSek === null ? '' : String(match.costSek),
     notes: match.notes ?? '',
+    acceptTerms: true,
     website: '',
   };
 }
@@ -99,6 +108,7 @@ function toRequest(values: MatchFormValues): PracticeMatchRequest {
     level: Number(values.level),
     playersPerSide: Number(values.playersPerSide) as PlayersPerSide,
     kickoffAt: new Date(`${values.date}T${values.time}`).toISOString(),
+    endsAt: new Date(`${values.date}T${values.endTime}`).toISOString(),
     venue: values.venue.trim(),
     opponentSlots: values.opponentSlots,
     contactName: values.contactName.trim(),
@@ -106,6 +116,7 @@ function toRequest(values: MatchFormValues): PracticeMatchRequest {
     contactEmail: values.contactEmail.trim(),
     costSek: values.costSek.trim() === '' ? null : Number(values.costSek),
     notes: values.notes.trim() || null,
+    acceptTerms: values.acceptTerms,
     website: values.website,
   };
 }
@@ -198,12 +209,20 @@ function MatchForm({ mode, cancelTo, initial, onSubmit }: MatchFormProps): JSX.E
       const detail = asProblem(err).data?.detail ?? '';
       if (detail.includes('opponentSlots')) {
         setError('opponentSlots', { message: t('practice.form.errors.slotsBelowBookings') });
+      } else if (detail.includes('endsAt')) {
+        setError('endTime', { message: t('practice.form.errors.endAfterStart') });
       } else if (detail.includes('kickoffAt')) {
         setError('time', { message: t('practice.form.errors.future') });
       } else {
         setFormError(t('practice.form.errors.generic'));
       }
     }
+  }
+
+  function validateEnd(endTime: string): true | string {
+    if (!endTime) return requiredText;
+    const start = getValues('time');
+    return !start || endTime > start || t('practice.form.errors.endAfterStart');
   }
 
   function validateFuture(time: string): true | string {
@@ -235,10 +254,10 @@ function MatchForm({ mode, cancelTo, initial, onSubmit }: MatchFormProps): JSX.E
               {...register('teamName', required)}
             />
           </Field>
+          <Field id="pm-date" label={t('practice.form.date')} error={errors.date?.message}>
+            <input id="pm-date" type="date" aria-invalid={Boolean(errors.date)} className={inputClass} {...register('date', required)} />
+          </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field id="pm-date" label={t('practice.form.date')} error={errors.date?.message}>
-              <input id="pm-date" type="date" aria-invalid={Boolean(errors.date)} className={inputClass} {...register('date', required)} />
-            </Field>
             <Field id="pm-time" label={t('practice.form.time')} error={errors.time?.message}>
               <input
                 id="pm-time"
@@ -246,6 +265,15 @@ function MatchForm({ mode, cancelTo, initial, onSubmit }: MatchFormProps): JSX.E
                 aria-invalid={Boolean(errors.time)}
                 className={inputClass}
                 {...register('time', { validate: validateFuture })}
+              />
+            </Field>
+            <Field id="pm-end-time" label={t('practice.form.endTime')} error={errors.endTime?.message}>
+              <input
+                id="pm-end-time"
+                type="time"
+                aria-invalid={Boolean(errors.endTime)}
+                className={inputClass}
+                {...register('endTime', { validate: validateEnd })}
               />
             </Field>
           </div>
@@ -396,6 +424,21 @@ function MatchForm({ mode, cancelTo, initial, onSubmit }: MatchFormProps): JSX.E
         </Section>
 
         <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" {...register('website')} />
+
+        {mode === 'create' && (
+          <div className="flex items-start gap-3 rounded-2xl border border-primary bg-accent p-4">
+            <KeyRound className="mt-0.5 h-5 w-5 shrink-0 text-accent-foreground" aria-hidden="true" />
+            <p className="text-sm">
+              <strong className="font-bold">{t('practice.form.manageLinkTitle')}</strong> {t('practice.form.manageLinkInfo')}
+            </p>
+          </div>
+        )}
+
+        <ConsentCheckbox
+          label={t('practice.consent.match')}
+          error={errors.acceptTerms?.message}
+          {...register('acceptTerms', { validate: (v) => v || t('practice.consent.required') })}
+        />
 
         {formError && (
           <p role="alert" className="font-semibold text-destructive">

@@ -29,6 +29,7 @@ export interface PracticeMatch {
   level: number;
   playersPerSide: PlayersPerSide;
   kickoffAt: string;
+  endsAt: string;
   venue: string;
   opponentSlots: number;
   freeSlots: number;
@@ -49,6 +50,7 @@ export interface PracticeMatchRequest {
   level: number;
   playersPerSide: PlayersPerSide;
   kickoffAt: string;
+  endsAt: string;
   venue: string;
   opponentSlots: number;
   contactName: string;
@@ -56,6 +58,8 @@ export interface PracticeMatchRequest {
   contactEmail: string;
   costSek: number | null;
   notes: string | null;
+  /** Consent to publishing the contact details. */
+  acceptTerms: boolean;
   /** Honeypot — always empty for humans. */
   website?: string;
 }
@@ -66,6 +70,8 @@ export interface BookingRequest {
   contactPhone: string;
   contactEmail: string;
   message: string | null;
+  /** Consent to sharing the contact details with the organizer. */
+  acceptTerms: boolean;
   /** Honeypot — always empty for humans. */
   website?: string;
 }
@@ -96,4 +102,11 @@ export interface CreateBookingResponse {
 export interface ManagedPracticeMatch {
   match: PracticeMatch;
   bookings: Booking[];
+}
+
+export interface AdminPracticeMatchPage {
+  items: PracticeMatch[];
+  page: number;
+  totalPages: number;
+  totalElements: number;
 }

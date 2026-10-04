@@ -17,7 +17,7 @@ import { asProblem } from '@/features/practiceMatches/practiceMatchErrors';
 import {
   formatLabel,
   formatLongDate,
-  formatTime,
+  formatTimeRange,
   levelLabel,
   mapsUrl,
   matchAgeLabel,
@@ -28,7 +28,7 @@ import {
   useGetPracticeMatchQuery,
 } from '@/features/practiceMatches/practiceMatchesApi';
 import type { PracticeMatch } from '@/features/practiceMatches/practiceMatchTypes';
-import { Field, inputClass } from '@/features/practiceMatches/FormField';
+import { ConsentCheckbox, Field, inputClass } from '@/features/practiceMatches/FormField';
 
 const EMAIL_RE = /^.+@.+\..+$/;
 
@@ -122,7 +122,7 @@ export function MatchSummary({ match }: { match: PracticeMatch }): JSX.Element {
             <CalendarDays className="h-4 w-4" aria-hidden="true" />
             {formatLongDate(match.kickoffAt, locale)}
           </div>
-          <div className="font-display text-3xl font-extrabold">{formatTime(match.kickoffAt, locale)}</div>
+          <div className="font-display text-3xl font-extrabold">{formatTimeRange(match.kickoffAt, match.endsAt, locale)}</div>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4">
           <div className="text-sm font-semibold text-muted-foreground">{t('practice.detail.level')}</div>
@@ -239,6 +239,7 @@ interface BookingFormShape {
   contactPhone: string;
   contactEmail: string;
   message: string;
+  acceptTerms: boolean;
   website: string;
 }
 
@@ -253,7 +254,7 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
     reset,
     formState: { errors },
   } = useForm<BookingFormShape>({
-    defaultValues: { teamName: readTeamQuery(), contactName: '', contactPhone: '', contactEmail: '', message: '', website: '' },
+    defaultValues: { teamName: readTeamQuery(), contactName: '', contactPhone: '', contactEmail: '', message: '', acceptTerms: false, website: '' },
   });
   const required = { required: t('practice.form.errors.required'), validate: (v: string) => v.trim().length > 0 || t('practice.form.errors.required') };
 
@@ -269,6 +270,7 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
           contactPhone: values.contactPhone.trim(),
           contactEmail: values.contactEmail.trim(),
           message: values.message.trim() || null,
+          acceptTerms: values.acceptTerms,
           website: values.website,
         },
       }).unwrap();
@@ -331,6 +333,11 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
           <textarea id="booking-message" rows={3} className={`${inputClass} py-3`} {...register('message')} />
         </Field>
         <input type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" {...register('website')} />
+        <ConsentCheckbox
+          label={t('practice.consent.booking')}
+          error={errors.acceptTerms?.message}
+          {...register('acceptTerms', { validate: (v) => v || t('practice.consent.required') })}
+        />
         {formError && (
           <p role="alert" className="text-sm font-semibold text-destructive">
             {formError}

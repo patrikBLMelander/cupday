@@ -1,6 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import { TOKEN_STORAGE_KEY } from '@/features/auth/authSlice';
 import type {
+  AdminPracticeMatchPage,
   BookingRequest,
   CreateBookingResponse,
   CreatePracticeMatchResponse,
@@ -24,8 +26,18 @@ type ManageArgs = { id: string; token: string };
 
 export const practiceMatchesApi = createApi({
   reducerPath: 'practiceMatchesApi',
-  baseQuery: fetchBaseQuery({ baseUrl: resolveBaseUrl() }),
-  tagTypes: ['PracticeMatches', 'PracticeMatch', 'ManagedPracticeMatch'],
+  baseQuery: fetchBaseQuery({
+    baseUrl: resolveBaseUrl(),
+    // Only the admin endpoints need it; public ones ignore the header.
+    prepareHeaders: (headers) => {
+      if (typeof window !== 'undefined') {
+        const token = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+        if (token) headers.set('Authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
+  tagTypes: ['PracticeMatches', 'PracticeMatch', 'ManagedPracticeMatch', 'AdminPracticeMatches'],
   endpoints: (builder) => ({
     /** Active matches with kickoff in [from, to). The board fetches one visible window at a time. */
     listPracticeMatches: builder.query<PracticeMatch[], { from: string; to: string }>({
@@ -95,6 +107,18 @@ export const practiceMatchesApi = createApi({
         { type: 'ManagedPracticeMatch', id: matchId },
       ],
     }),
+    adminListPracticeMatches: builder.query<AdminPracticeMatchPage, { q: string; page: number }>({
+      query: ({ q, page }) => ({ url: '/admin/practice-matches', params: { q, page } }),
+      providesTags: [{ type: 'AdminPracticeMatches', id: 'LIST' }],
+    }),
+    adminDeletePracticeMatch: builder.mutation<void, string>({
+      query: (id) => ({ url: `/admin/practice-matches/${id}`, method: 'DELETE' }),
+      invalidatesTags: (_result, _err, id) => [
+        { type: 'AdminPracticeMatches', id: 'LIST' },
+        { type: 'PracticeMatches', id: 'LIST' },
+        { type: 'PracticeMatch', id },
+      ],
+    }),
   }),
 });
 
@@ -107,5 +131,7 @@ export const {
   useCancelPracticeMatchMutation,
   useBookPracticeMatchMutation,
   useCancelBookingMutation,
+  useAdminListPracticeMatchesQuery,
+  useAdminDeletePracticeMatchMutation,
   usePrefetch: usePracticeMatchesPrefetch,
 } = practiceMatchesApi;

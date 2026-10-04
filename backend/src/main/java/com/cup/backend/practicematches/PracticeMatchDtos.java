@@ -1,5 +1,6 @@
 package com.cup.backend.practicematches;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Max;
@@ -24,6 +25,7 @@ public final class PracticeMatchDtos {
 
   /**
    * Create/update body. Everything is required except {@code costSek} and {@code notes}.
+   * {@code acceptTerms} confirms consent to publishing the contact details (GDPR).
    * {@code website} is a honeypot: humans never see it, bots tend to fill it.
    */
   public record PracticeMatchRequest(
@@ -33,6 +35,7 @@ public final class PracticeMatchDtos {
       @NotNull @Min(1) @Max(9) Integer level,
       @NotNull Integer playersPerSide,
       @NotNull @Future Instant kickoffAt,
+      @NotNull Instant endsAt,
       @NotBlank @Size(max = MAX_TEXT) String venue,
       @NotNull @Min(1) @Max(5) Integer opponentSlots,
       @NotBlank @Size(max = MAX_TEXT) String contactName,
@@ -40,15 +43,20 @@ public final class PracticeMatchDtos {
       @NotBlank @Email @Size(max = MAX_TEXT) String contactEmail,
       @PositiveOrZero Integer costSek,
       @Size(max = MAX_NOTES) String notes,
+      @NotNull @AssertTrue Boolean acceptTerms,
       String website) {}
 
-  /** Booking body. Everything is required except {@code message}; {@code website} is a honeypot. */
+  /**
+   * Booking body. Everything is required except {@code message}. {@code acceptTerms} confirms consent
+   * to sharing the contact details with the organizer; {@code website} is a honeypot.
+   */
   public record BookingRequest(
       @NotBlank @Size(max = MAX_TEXT) String teamName,
       @NotBlank @Size(max = MAX_TEXT) String contactName,
       @NotBlank @Size(max = MAX_TEXT) String contactPhone,
       @NotBlank @Email @Size(max = MAX_TEXT) String contactEmail,
       @Size(max = MAX_NOTES) String message,
+      @NotNull @AssertTrue Boolean acceptTerms,
       String website) {}
 
   /** Public view of a match: organizer contact is public, booking contacts are not. */
@@ -60,6 +68,7 @@ public final class PracticeMatchDtos {
       int level,
       int playersPerSide,
       Instant kickoffAt,
+      Instant endsAt,
       String venue,
       int opponentSlots,
       int freeSlots,
@@ -82,6 +91,7 @@ public final class PracticeMatchDtos {
           match.getLevel(),
           match.getPlayersPerSide(),
           match.getKickoffAt(),
+          match.getEndsAt(),
           match.getVenue(),
           match.getOpponentSlots(),
           Math.max(0, match.getOpponentSlots() - activeBookings.size()),
@@ -129,6 +139,13 @@ public final class PracticeMatchDtos {
 
   /** Returned once on booking; the raw token is never stored or shown again. */
   public record CreateBookingResponse(BookingResponse booking, String manageToken) {}
+
+  /** One page of the admin moderation list, newest posts first. */
+  public record AdminPracticeMatchPage(
+      List<PublicPracticeMatch> items,
+      int page,
+      int totalPages,
+      long totalElements) {}
 
   /** Organizer view: the match plus all bookings including contact details. */
   public record ManagedPracticeMatch(PublicPracticeMatch match, List<BookingResponse> bookings) {}

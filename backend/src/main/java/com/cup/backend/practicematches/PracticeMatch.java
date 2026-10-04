@@ -40,6 +40,9 @@ public class PracticeMatch {
   @Column(name = "kickoff_at", nullable = false)
   private Instant kickoffAt;
 
+  @Column(name = "ends_at", nullable = false)
+  private Instant endsAt;
+
   @Column(nullable = false)
   private String venue;
 
@@ -97,6 +100,7 @@ public class PracticeMatch {
   public int getLevel() { return level; }
   public int getPlayersPerSide() { return playersPerSide; }
   public Instant getKickoffAt() { return kickoffAt; }
+  public Instant getEndsAt() { return endsAt; }
   public String getVenue() { return venue; }
   public int getOpponentSlots() { return opponentSlots; }
   public String getContactName() { return contactName; }
@@ -116,6 +120,7 @@ public class PracticeMatch {
   public void setLevel(int level) { this.level = (short) level; }
   public void setPlayersPerSide(int playersPerSide) { this.playersPerSide = playersPerSide; }
   public void setKickoffAt(Instant kickoffAt) { this.kickoffAt = kickoffAt; }
+  public void setEndsAt(Instant endsAt) { this.endsAt = endsAt; }
   public void setVenue(String venue) { this.venue = venue; }
   public void setOpponentSlots(int opponentSlots) { this.opponentSlots = opponentSlots; }
   public void setContactName(String contactName) { this.contactName = contactName; }

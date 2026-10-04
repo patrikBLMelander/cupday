@@ -29,6 +29,7 @@ async function fillBooking(teamName: string): Promise<void> {
   await user.type(screen.getByLabelText('Kontaktperson'), 'Jonas Lind');
   await user.type(screen.getByLabelText('Telefon'), '070-765 43 21');
   await user.type(screen.getByLabelText('E-post'), 'jonas@example.com');
+  await user.click(screen.getByRole('checkbox', { name: /arrangören får se/ }));
   await user.click(form.querySelector('button[type="submit"]') as HTMLElement);
 }
 

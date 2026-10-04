@@ -51,7 +51,10 @@ export const MatchRow = memo(function MatchRow({ match, role, isNext }: MatchIte
         match.freeSlots === 0 && 'opacity-60',
       )}
     >
-      <span className="font-display text-2xl font-extrabold leading-none">{formatTime(match.kickoffAt, locale)}</span>
+      <span className="flex flex-col">
+        <span className="font-display text-2xl font-extrabold leading-none">{formatTime(match.kickoffAt, locale)}</span>
+        <span className="mt-1 text-xs font-semibold text-muted-foreground">–{formatTime(match.endsAt, locale)}</span>
+      </span>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <Link to={`/matcher/${match.id}`} className="text-base font-bold hover:underline">
           {match.teamName}
@@ -89,7 +92,10 @@ export const MatchCard = memo(function MatchCard({ match, role, isNext }: MatchI
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="font-display text-5xl font-extrabold leading-none">{formatTime(match.kickoffAt, locale)}</span>
+        <span className="flex items-baseline gap-1.5">
+          <span className="font-display text-5xl font-extrabold leading-none">{formatTime(match.kickoffAt, locale)}</span>
+          <span className="text-sm font-semibold text-muted-foreground">–{formatTime(match.endsAt, locale)}</span>
+        </span>
         <div className="flex flex-col items-end gap-1.5">
           <span className="rounded-[10px] border border-input px-2.5 py-0.5 font-display text-xl font-bold">
             {formatLabel(t, match.playersPerSide)}
@@ -137,6 +143,7 @@ export const MatchCompactCard = memo(function MatchCompactCard({ match, role, is
       >
         <div className="w-[52px] shrink-0">
           <div className="font-display text-xl font-extrabold leading-tight">{formatTime(match.kickoffAt, locale)}</div>
+          <div className="text-xs font-semibold text-muted-foreground">–{formatTime(match.endsAt, locale)}</div>
           {isNext && (
             <span className="mt-1.5 inline-block">
               <NextBadge />

@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 
 import { useAppDispatch } from '@/app/store';
 import { useLogoutMutation } from '@/features/auth/authApi';
 import { tokenCleared } from '@/features/auth/authSlice';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { cn } from '@/lib/cn';
 
 export function AdminLayout(): JSX.Element {
   const { t } = useTranslation();
@@ -26,12 +27,29 @@ export function AdminLayout(): JSX.Element {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-card px-4 py-3 sm:px-6">
-        <Link
-          to="/admin"
-          className="text-lg font-semibold tracking-tight text-foreground"
-        >
-          {t('app.title')}
-        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            to="/admin"
+            className="text-lg font-semibold tracking-tight text-foreground"
+          >
+            {t('app.title')}
+          </Link>
+          <nav className="flex gap-1 text-sm">
+            <NavLink
+              to="/admin"
+              end
+              className={({ isActive }) => cn('rounded-md px-3 py-2 font-medium hover:bg-muted', isActive && 'bg-muted')}
+            >
+              {t('admin.nav.cups')}
+            </NavLink>
+            <NavLink
+              to="/admin/traningsmatcher"
+              className={({ isActive }) => cn('rounded-md px-3 py-2 font-medium hover:bg-muted', isActive && 'bg-muted')}
+            >
+              {t('admin.nav.practiceMatches')}
+            </NavLink>
+          </nav>
+        </div>
         <div className="flex flex-wrap items-center gap-3">
           <LanguageSwitcher />
           <Button

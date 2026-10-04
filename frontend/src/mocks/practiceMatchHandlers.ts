@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import type {
+  AdminPracticeMatchPage,
   Booking,
   BookingRequest,
   CreateBookingResponse,
@@ -57,10 +58,14 @@ function validateMatch(body: Partial<PracticeMatchRequest>): Response | null {
   if (!body.kickoffAt || new Date(body.kickoffAt).getTime() <= Date.now()) {
     return problem(400, 'Validation', 'kickoffAt must be in the future');
   }
+  if (!body.endsAt || new Date(body.endsAt).getTime() <= new Date(body.kickoffAt).getTime()) {
+    return problem(400, 'Validation', 'endsAt must be after kickoffAt');
+  }
   if (!body.opponentSlots || body.opponentSlots < 1 || body.opponentSlots > 5) {
     return problem(400, 'Validation', 'opponentSlots must be 1-5');
   }
   if (body.costSek != null && body.costSek < 0) return problem(400, 'Validation', 'costSek must be >= 0');
+  if (body.acceptTerms !== true) return problem(400, 'Validation', 'acceptTerms must be true');
   if (!isBlank(body.website)) return problem(400, 'Validation', 'Request rejected');
   return null;
 }
@@ -73,6 +78,7 @@ function applyRequest(body: PracticeMatchRequest): Omit<PracticeMatch, 'id' | 'f
     level: body.level,
     playersPerSide: body.playersPerSide,
     kickoffAt: body.kickoffAt,
+    endsAt: body.endsAt,
     venue: body.venue.trim(),
     opponentSlots: body.opponentSlots,
     contactName: body.contactName.trim(),
@@ -87,7 +93,45 @@ function findMatch(id: string): MockPracticeMatch | undefined {
   return db.read().practiceMatches.find((m) => m.id === id);
 }
 
+const ADMIN_PAGE_SIZE = 50;
+
+function isAdmin(request: Request): boolean {
+  const auth = request.headers.get('Authorization');
+  const token = auth?.startsWith('Bearer ') ? auth.slice('Bearer '.length) : null;
+  return token !== null && db.read().sessions.some((s) => s.token === token);
+}
+
 export const practiceMatchHandlers = [
+  http.get('/api/admin/practice-matches', ({ request }) => {
+    if (!isAdmin(request)) return problem(401, 'Unauthorized', 'Missing or invalid token');
+    const url = new URL(request.url);
+    const q = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+    const page = Math.max(0, Number(url.searchParams.get('page') ?? 0));
+    const rows = db
+      .read()
+      .practiceMatches.filter((m) =>
+        !q || [m.teamName, m.venue, m.contactName, m.contactEmail].some((v) => v.toLowerCase().includes(q)),
+      )
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const payload: AdminPracticeMatchPage = {
+      items: rows.slice(page * ADMIN_PAGE_SIZE, (page + 1) * ADMIN_PAGE_SIZE).map(toPublic),
+      page,
+      totalPages: Math.ceil(rows.length / ADMIN_PAGE_SIZE),
+      totalElements: rows.length,
+    };
+    return HttpResponse.json(payload);
+  }),
+
+  http.delete('/api/admin/practice-matches/:id', ({ params, request }) => {
+    if (!isAdmin(request)) return problem(401, 'Unauthorized', 'Missing or invalid token');
+    if (!findMatch(String(params.id))) return problem(404, 'Not found', 'Practice match not found');
+    db.write((draft) => {
+      draft.practiceMatches = draft.practiceMatches.filter((m) => m.id !== params.id);
+      draft.practiceBookings = draft.practiceBookings.filter((b) => b.matchId !== params.id);
+    });
+    return new HttpResponse(null, { status: 204 });
+  }),
+
   http.get(BASE, ({ request }) => {
     const url = new URL(request.url);
     const from = url.searchParams.get('from');
@@ -175,6 +219,7 @@ export const practiceMatchHandlers = [
     const required = ['teamName', 'contactName', 'contactPhone', 'contactEmail'] as const;
     const missing = required.find((field) => isBlank(body[field]));
     if (missing) return problem(400, 'Validation', `${missing} is required`);
+    if (body.acceptTerms !== true) return problem(400, 'Validation', 'acceptTerms must be true');
     if (row.status !== 'active' || new Date(row.kickoffAt).getTime() <= Date.now()) {
       return problem(422, 'Match not bookable', 'This match can no longer be booked');
     }

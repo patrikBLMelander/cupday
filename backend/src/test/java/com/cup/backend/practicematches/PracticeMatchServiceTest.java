@@ -31,6 +31,7 @@ class PracticeMatchServiceTest {
     match.setTeamName("Ekens IF F11");
     match.setOpponentSlots(slots);
     match.setKickoffAt(Instant.now().plus(Duration.ofDays(3)));
+    match.setEndsAt(match.getKickoffAt().plus(Duration.ofMinutes(90)));
     return match;
   }
 
@@ -40,7 +41,7 @@ class PracticeMatchServiceTest {
   }
 
   private static BookingRequest bookingRequest(String teamName) {
-    return new BookingRequest(teamName, "Jonas", "0701", "j@example.com", null, null);
+    return new BookingRequest(teamName, "Jonas", "0701", "j@example.com", null, true, null);
   }
 
   @Test

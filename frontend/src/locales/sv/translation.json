@@ -729,5 +729,20 @@
       "invalidLink": "Länken är ogiltig. Kontrollera att du kopierat hela adminlänken.",
       "notFound": "Cupen hittades inte."
     }
+  },
+  "share": {
+    "whatsapp": "Dela i WhatsApp",
+    "native": "Dela…",
+    "copy": "Kopiera länk",
+    "copied": "Länken är kopierad",
+    "matchTitle": "Dela matchen",
+    "cupTitle": "Dela cupen",
+    "matchHeadline": "⚽ {{team}} söker motstånd!",
+    "matchCta": "Boka här",
+    "cupCta": "Anmäl laget här",
+    "matchCardTitle": "Dela matchen i din lagchatt",
+    "matchCardBody": "Ju fler som ser matchen, desto snabbare hittar du motstånd. Dela den i lagets eller klubbens WhatsApp-grupp.",
+    "cupCardTitle": "Sprid cupen",
+    "cupCardBody": "Dela cupen i klubbens och tränarnas grupper så att lagen hittar den. Länken visar cupens publika sida – inte din adminlänk."
   }
 }

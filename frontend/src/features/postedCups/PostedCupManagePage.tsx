@@ -13,6 +13,8 @@ import {
   useSetPostedCupTeamStatusMutation,
 } from '@/features/postedCups/postedCupsApi';
 import { asProblem } from '@/features/practiceMatches/practiceMatchErrors';
+import { ShareCard } from '@/features/share/ShareButtons';
+import { cupShare } from '@/features/share/shareText';
 import type { Team } from '@/features/teams/teamTypes';
 import { cn } from '@/lib/cn';
 
@@ -64,6 +66,8 @@ export function PostedCupManagePage(): JSX.Element {
         <Stat value={`${paid}`} label={t('postedCup.manage.paid')} tone="good" />
         <Stat value={`${unpaid}`} label={t('postedCup.manage.unpaid')} tone="warn" />
       </div>
+
+      <ShareCard content={cupShare(t, cup, locale)} title={t('share.cupCardTitle')} body={t('share.cupCardBody')} />
 
       <div role="group" aria-label={t('postedCup.manage.filter')} className="flex gap-2">
         {(['all', 'unpaid'] as const).map((value) => (

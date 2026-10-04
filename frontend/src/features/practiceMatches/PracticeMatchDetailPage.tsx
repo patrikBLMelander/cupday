@@ -29,11 +29,13 @@ import {
 } from '@/features/practiceMatches/practiceMatchesApi';
 import type { PracticeMatch } from '@/features/practiceMatches/practiceMatchTypes';
 import { ConsentCheckbox, Field, inputClass } from '@/features/practiceMatches/FormField';
+import { ShareButtons } from '@/features/share/ShareButtons';
+import { matchShare } from '@/features/share/shareText';
 
 const EMAIL_RE = /^.+@.+\..+$/;
 
 export function PracticeMatchDetailPage(): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id = '' } = useParams();
   const { data: match, isLoading, isError } = useGetPracticeMatchQuery(id);
   const [myBookings, setMyBookings] = useState<StoredBooking[]>(() => bookingsForMatch(id));
@@ -61,6 +63,15 @@ export function PracticeMatchDetailPage(): JSX.Element {
       </Link>
 
       <MatchSummary match={match} />
+
+      {match.status === 'active' && (
+        <section aria-labelledby="share-match-title">
+          <h2 id="share-match-title" className="mb-2 font-display text-lg font-bold">
+            {t('share.matchTitle')}
+          </h2>
+          <ShareButtons content={matchShare(t, match, i18n.resolvedLanguage ?? 'sv')} />
+        </section>
+      )}
 
       {match.status === 'cancelled' && (
         <p role="status" className="rounded-xl border border-destructive/40 p-4 font-semibold text-destructive">

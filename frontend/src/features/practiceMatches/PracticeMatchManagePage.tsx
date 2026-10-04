@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useParams } from 'react-router-dom';
 
 import { ManageLinkNotice } from '@/features/practiceMatches/ManageLinkNotice';
+import { ShareButtons, ShareCard } from '@/features/share/ShareButtons';
+import { matchShare } from '@/features/share/shareText';
 import { MatchSummary } from '@/features/practiceMatches/PracticeMatchDetailPage';
 import { getMatchToken, saveMatchToken } from '@/features/practiceMatches/manageTokens';
 import { asProblem } from '@/features/practiceMatches/practiceMatchErrors';
@@ -27,7 +29,7 @@ function resolveToken(matchId: string, hash: string): string | null {
 
 /** Organizer view at `/matcher/:id/hantera` — authorized by the secret manage token. */
 export function PracticeMatchManagePage(): JSX.Element {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id = '' } = useParams();
   const location = useLocation();
   const [token] = useState(() => resolveToken(id, location.hash));
@@ -61,6 +63,14 @@ export function PracticeMatchManagePage(): JSX.Element {
 
       <ManageLinkNotice match={match} token={token} emphasized={justCreated} />
 
+      {justCreated && isActive && (
+        <ShareCard
+          content={matchShare(t, match, i18n.resolvedLanguage ?? 'sv')}
+          title={t('share.matchCardTitle')}
+          body={t('share.matchCardBody')}
+        />
+      )}
+
       <MatchSummary match={match} />
 
       <div className="flex flex-wrap gap-2">
@@ -70,6 +80,7 @@ export function PracticeMatchManagePage(): JSX.Element {
         >
           {t('practice.manage.viewPublic')}
         </Link>
+        {isActive && !justCreated && <ShareButtons content={matchShare(t, match, i18n.resolvedLanguage ?? 'sv')} />}
         {isActive && (
           <Link
             to={`/matcher/${match.id}/redigera`}

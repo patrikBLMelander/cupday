@@ -19,6 +19,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Cup } from '@/features/cups/cupTypes';
 import { SlotQuotaBars } from '@/features/postedCups/SlotQuotaBars';
+import { ShareButtons } from '@/features/share/ShareButtons';
+import { cupShare } from '@/features/share/shareText';
 import { formatCupTimes } from '@/features/postedCups/postedCupFormat';
 import { levelRangeLabel } from '@/features/practiceMatches/practiceMatchFormat';
 import { PublicScheduleView } from '@/features/schedule/PublicScheduleView';
@@ -90,6 +92,17 @@ export function PublicCupLandingPage(): JSX.Element {
           </TabsList>
 
           <TabsContent value="info" className="flex flex-col gap-4">
+            {cup.status !== 'draft' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('share.cupTitle')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ShareButtons content={cupShare(t, cup, i18n.resolvedLanguage ?? 'sv')} />
+                </CardContent>
+              </Card>
+            )}
+
             {cup.description && (
               <Card>
                 <CardHeader>

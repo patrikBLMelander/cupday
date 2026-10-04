@@ -17,6 +17,9 @@ RUN npm run build
 # Run stage: nginx serves the static bundle with SPA fallback.
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# The nginx image renders /etc/nginx/templates/*.template with envsubst on start.
+# BACKEND_ORIGIN is where link-preview bots are proxied for Open Graph pages.
+ENV BACKEND_ORIGIN=http://localhost:8080
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,61 @@
+# Rendered by the nginx image's envsubst step at container start; only ${BACKEND_ORIGIN} is
+# substituted (nginx's own $variables are left alone because they are not set in the env).
+
+# Link-preview crawlers (WhatsApp, Facebook, …) don't run JavaScript, so they get a small
+# server-rendered page with Open Graph tags from the backend instead of the SPA.
+map $http_user_agent $link_preview_bot {
+  default 0;
+  "~*(whatsapp|facebookexternalhit|facebot|twitterbot|slackbot|telegrambot|discordbot|linkedinbot|skypeuripreview|applebot|googlebot|bingbot|pinterest|redditbot|embedly|iframely|vkshare)" 1;
+}
+
+server {
+  listen 80 default_server;
+  server_name _;
+  root /usr/share/nginx/html;
+  index index.html;
+
+  location = / {
+    if ($link_preview_bot) { rewrite ^ /api/og/site last; }
+    try_files /index.html =404;
+  }
+
+  location ~ "^/matcher/?$" {
+    if ($link_preview_bot) { rewrite ^ /api/og/matches last; }
+    try_files /index.html =404;
+  }
+
+  location ~ "^/matcher/([0-9a-fA-F-]{36})/?$" {
+    if ($link_preview_bot) { rewrite "^/matcher/([0-9a-fA-F-]{36})/?$" /api/og/match/$1 last; }
+    try_files /index.html =404;
+  }
+
+  location ~ "^/c/([a-z0-9-]+)/?$" {
+    if ($link_preview_bot) { rewrite "^/c/([a-z0-9-]+)/?$" /api/og/cup/$1 last; }
+    try_files /index.html =404;
+  }
+
+  # Only reachable through the rewrites above.
+  location ^~ /api/og/ {
+    internal;
+    proxy_pass ${BACKEND_ORIGIN};
+    proxy_ssl_server_name on;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+
+  # SPA fallback: any non-asset path falls back to index.html so React Router
+  # handles the client-side routes (e.g. /admin, /c/<slug>, etc.).
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+  # Asset caching for fingerprinted bundle files.
+  location ~* \.(js|css|woff2?|svg|png|jpg|jpeg|gif|ico)$ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+  }
+
+  # Never cache the entry HTML — it references hashed asset URLs.
+  location = /index.html {
+    add_header Cache-Control "no-cache, no-store, must-revalidate";
+  }
+}

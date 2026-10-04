@@ -55,9 +55,23 @@ public final class CupDtos {
       String mapUrl,
       LocalTime startTime,
       int numberOfGroups,
-      int teamsPerGroup) {
+      int teamsPerGroup,
+      LocalTime endTime,
+      List<String> ageClasses,
+      Integer levelMin,
+      Integer levelMax,
+      LocalDate registrationDeadline,
+      String externalRegistrationUrl,
+      String description,
+      boolean publiclyPosted,
+      List<SlotQuotaResponse> slotQuotas) {
 
     public static CupResponse from(Cup cup, int activeTeamCount) {
+      return from(cup, activeTeamCount, List.of());
+    }
+
+    /** Full response including locked slot quotas (public cup page). */
+    public static CupResponse from(Cup cup, int activeTeamCount, List<SlotQuotaResponse> slotQuotas) {
       return new CupResponse(
           cup.getId(),
           cup.getSlug(),
@@ -89,7 +103,16 @@ public final class CupDtos {
           cup.getMapUrl(),
           cup.getStartTime(),
           cup.getNumberOfGroups(),
-          cup.getTeamsPerGroup());
+          cup.getTeamsPerGroup(),
+          cup.getEndTime(),
+          splitLevels(cup.getAgeClasses()),
+          cup.getLevelMin(),
+          cup.getLevelMax(),
+          cup.getRegistrationDeadline(),
+          cup.getExternalRegistrationUrl(),
+          cup.getDescription(),
+          cup.isPubliclyPosted(),
+          slotQuotas);
     }
 
     /** Delegates with {@code activeTeamCount = 0} — kept for callers that don't need the count. */
@@ -167,4 +190,7 @@ public final class CupDtos {
       LocalTime startTime,
       Integer numberOfGroups,
       Integer teamsPerGroup) {}
+
+  /** Locked slots for a class and/or level ('' = any) and how many are still free. */
+  public record SlotQuotaResponse(String ageClass, String level, int maxTeams, int remaining) {}
 }

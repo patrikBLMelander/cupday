@@ -15,6 +15,10 @@ public interface TeamRepository extends JpaRepository<Team, UUID> {
   @Query("SELECT COUNT(t) FROM Team t WHERE t.cupId = :cupId AND t.status <> com.cup.backend.teams.TeamStatus.CANCELLED")
   long countActiveByCupId(@Param("cupId") UUID cupId);
 
+  /** Active (non-cancelled) team count per class and level for a cup: rows of [ageClass, level, count]. */
+  @Query("SELECT t.ageClass, t.level, COUNT(t) FROM Team t WHERE t.cupId = :cupId AND t.status <> com.cup.backend.teams.TeamStatus.CANCELLED GROUP BY t.ageClass, t.level")
+  List<Object[]> countActiveByClassAndLevel(@Param("cupId") UUID cupId);
+
   List<Team> findByRegistrationIdOrderByCreatedAtAsc(UUID registrationId);
 
   /** All teams for a cup, including cancelled ones. Used by the admin teams endpoint. */

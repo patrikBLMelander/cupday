@@ -5,7 +5,15 @@ export type CupColors = {
   accent: string;
 };
 
-export type PlayersPerTeam = 5 | 7 | 9;
+export type PlayersPerTeam = 5 | 7 | 9 | 11;
+
+/** Locked team slots for an age class and/or level ('' = any) and how many are free (posted cups). */
+export type SlotQuota = {
+  ageClass: string;
+  level: string;
+  maxTeams: number;
+  remaining: number;
+};
 
 export type Cup = {
   id: string;
@@ -44,11 +52,38 @@ export type Cup = {
   numberOfGroups: number;
   /** Teams per group (≥2). */
   teamsPerGroup: number;
+  /** End of play each day as {@code HH:mm:ss}; set on posted cups. */
+  endTime?: string | null;
+  /** Age classes such as "P13". Empty for admin-created cups. */
+  ageClasses?: string[];
+  /** Level range on the 1–9 practice scale (Lätt− … Svår+). */
+  levelMin?: number | null;
+  levelMax?: number | null;
+  registrationDeadline?: string | null;
+  /** When set, teams register on the organizer's own site instead of here. */
+  externalRegistrationUrl?: string | null;
+  description?: string | null;
+  /** True for cups posted without an account (managed with a manage link). */
+  publiclyPosted?: boolean;
+  /** Locked slots per class and/or level; only filled on the single-cup endpoint. */
+  slotQuotas?: SlotQuota[];
 };
 
 export type CupCreateRequest = Omit<
   Cup,
-  'id' | 'status' | 'createdAt' | 'activeTeamCount'
+  | 'id'
+  | 'status'
+  | 'createdAt'
+  | 'activeTeamCount'
+  | 'endTime'
+  | 'ageClasses'
+  | 'levelMin'
+  | 'levelMax'
+  | 'registrationDeadline'
+  | 'externalRegistrationUrl'
+  | 'description'
+  | 'publiclyPosted'
+  | 'slotQuotas'
 >;
 
 export type CupUpdateRequest = Partial<CupCreateRequest> & {

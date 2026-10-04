@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { PracticeLayout } from '@/features/practiceMatches/PracticeLayout';
 import { PracticeMatchListPage } from '@/features/practiceMatches/PracticeMatchListPage';
+import { buildPostedCup, dateIn } from '@/features/postedCups/testFixtures';
 import { buildMockMatch, inDays } from '@/features/practiceMatches/testFixtures';
 import i18n from '@/lib/i18n';
 import { db } from '@/mocks/db';
@@ -92,5 +93,21 @@ describe('PracticeMatchListPage', () => {
 
     expect(await screen.findByText('Råsunda BK')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Föregående vecka' })).toBeEnabled();
+  });
+
+  it('shows a cup as a distinct cup card that can be filtered away', async () => {
+    db.write((d) => {
+      d.cups.push(buildPostedCup({ name: 'Grimsta Höstcup', startDate: dateIn(1), endDate: dateIn(1) }));
+    });
+    renderList();
+
+    const card = await screen.findByRole('article', { name: 'Cup: Grimsta Höstcup' });
+    expect(within(card).getByText('CUP')).toBeInTheDocument();
+    expect(within(card).getAllByRole('link', { name: 'Till cupen →' })[0]).toHaveAttribute('href', '/c/grimsta-hostcup');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Matcher' }));
+
+    expect(screen.queryByRole('article', { name: 'Cup: Grimsta Höstcup' })).not.toBeInTheDocument();
+    expect(screen.getByText('Solna BK')).toBeInTheDocument();
   });
 });

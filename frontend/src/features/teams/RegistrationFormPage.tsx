@@ -12,6 +12,8 @@ import {
   useCreateRegistrationMutation,
   useListPublicTeamsByCupQuery,
 } from '@/features/teams/teamsApi';
+import type { SlotQuota } from '@/features/cups/cupTypes';
+import { levelSlotsFor, quotasByClass } from '@/features/postedCups/postedCupFormat';
 import type { RegistrationCreateRequest } from '@/features/teams/teamTypes';
 
 const EMAIL_RE = /^.+@.+\..+$/;
@@ -25,6 +27,8 @@ type FormShape = {
   teamName2?: string;
   teamLevel1?: string;
   teamLevel2?: string;
+  teamClass1?: string;
+  teamClass2?: string;
   teamLogo1?: string;
   teamLogo2?: string;
 };
@@ -54,6 +58,7 @@ export function RegistrationFormPage(): JSX.Element {
     setError,
     unregister,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<FormShape>({
     defaultValues: {
@@ -66,7 +71,23 @@ export function RegistrationFormPage(): JSX.Element {
   });
 
 
-  if (cup.status !== 'open') {
+  const deadlinePassed =
+    Boolean(cup.registrationDeadline) && new Date(`${cup.registrationDeadline}T23:59:59`).getTime() < Date.now();
+  const quotas = cup.slotQuotas ?? [];
+  const classes = cup.ageClasses ?? [];
+  const multiClass = classes.length > 1;
+  const levelsLocked = quotas.some((q) => q.level !== '');
+  const [chosenClass1, chosenClass2] = watch(['teamClass1', 'teamClass2']);
+  /** Level options for a team: per chosen class when slots are locked per class + level. */
+  function levelOptionsFor(chosenClass: string | undefined): { levels: string[]; quotas?: SlotQuota[] } {
+    if (!levelsLocked) return { levels: cup.levels };
+    const slots = levelSlotsFor(quotas, multiClass ? chosenClass ?? '' : '');
+    return { levels: slots.map((q) => q.level), quotas: slots };
+  }
+  const levelOptions1 = levelOptionsFor(chosenClass1);
+  const levelOptions2 = levelOptionsFor(chosenClass2);
+
+  if (cup.status !== 'open' || cup.externalRegistrationUrl || deadlinePassed) {
     return (
       <NotOpenPanel message={t('registration.cupNotOpen')} cupSlug={cup.slug} t={t} />
     );
@@ -95,6 +116,7 @@ export function RegistrationFormPage(): JSX.Element {
   function hideSecondTeam(): void {
     unregister('teamName2');
     unregister('teamLevel2');
+    unregister('teamClass2');
     unregister('teamLogo2');
     setSecondTeamShown(false);
   }
@@ -112,6 +134,9 @@ export function RegistrationFormPage(): JSX.Element {
       contactPhone: values.contactPhone.trim(),
       teamNames,
     };
+    if (multiClass) {
+      body.teamAgeClasses = teamNames.length === 2 ? [values.teamClass1 ?? '', values.teamClass2 ?? ''] : [values.teamClass1 ?? ''];
+    }
     if (cup.useLevels) {
       const levels = [values.teamLevel1 ?? ''];
       if (teamNames.length === 2) {
@@ -255,6 +280,18 @@ export function RegistrationFormPage(): JSX.Element {
             />
           </Field>
 
+          {multiClass && (
+            <Field id="teamClass1" label={t('registration.fields.class1')} error={errors.teamClass1?.message}>
+              <ClassSelect
+                id="teamClass1"
+                classes={classes}
+                quotas={quotas}
+                placeholder={t('registration.fields.classPlaceholder')}
+                {...register('teamClass1', { required: t('registration.validation.classRequired') })}
+              />
+            </Field>
+          )}
+
           {cup.useLevels && (
             <Field
               id="teamLevel1"
@@ -263,7 +300,8 @@ export function RegistrationFormPage(): JSX.Element {
             >
               <LevelSelect
                 id="teamLevel1"
-                levels={cup.levels}
+                levels={levelOptions1.levels}
+                quotas={levelOptions1.quotas}
                 placeholder={t('registration.fields.levelPlaceholder')}
                 {...register('teamLevel1', {
                   required: t('registration.validation.levelRequired'),
@@ -316,6 +354,17 @@ export function RegistrationFormPage(): JSX.Element {
                   </Button>
                 </div>
               </Field>
+              {multiClass && (
+                <Field id="teamClass2" label={t('registration.fields.class2')} error={errors.teamClass2?.message}>
+                  <ClassSelect
+                    id="teamClass2"
+                    classes={classes}
+                    quotas={quotas}
+                    placeholder={t('registration.fields.classPlaceholder')}
+                    {...register('teamClass2', { required: t('registration.validation.classRequired') })}
+                  />
+                </Field>
+              )}
               {cup.useLevels && (
                 <Field
                   id="teamLevel2"
@@ -324,7 +373,8 @@ export function RegistrationFormPage(): JSX.Element {
                 >
                   <LevelSelect
                     id="teamLevel2"
-                    levels={cup.levels}
+                    levels={levelOptions2.levels}
+                    quotas={levelOptions2.quotas}
                     placeholder={t('registration.fields.levelPlaceholder')}
                     {...register('teamLevel2', {
                       validate: (value) => {
@@ -384,6 +434,8 @@ export function RegistrationFormPage(): JSX.Element {
 type LevelSelectProps = {
   id: string;
   levels: string[];
+  /** Locked slots for these levels (posted cups) — full levels are shown but disabled. */
+  quotas?: SlotQuota[];
   placeholder: string;
   name?: string;
   onChange?: React.ChangeEventHandler<HTMLSelectElement>;
@@ -391,7 +443,7 @@ type LevelSelectProps = {
 };
 
 const LevelSelect = forwardRef<HTMLSelectElement, LevelSelectProps>(
-  ({ id, levels, placeholder, ...rest }, ref) => (
+  ({ id, levels, quotas, placeholder, ...rest }, ref) => (
     <select
       id={id}
       ref={ref}
@@ -402,15 +454,55 @@ const LevelSelect = forwardRef<HTMLSelectElement, LevelSelectProps>(
       <option value="" disabled>
         {placeholder}
       </option>
-      {levels.map((level) => (
-        <option key={level} value={level}>
-          {level}
-        </option>
-      ))}
+      {levels.map((level) => {
+        const quota = quotas?.find((q) => q.level === level);
+        return (
+          <option key={level} value={level} disabled={quota?.remaining === 0}>
+            {quota ? `${level} (${quota.remaining}/${quota.maxTeams})` : level}
+          </option>
+        );
+      })}
     </select>
   ),
 );
 LevelSelect.displayName = 'LevelSelect';
+
+type ClassSelectProps = {
+  id: string;
+  classes: string[];
+  quotas: SlotQuota[];
+  placeholder: string;
+  name?: string;
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>;
+  onBlur?: React.FocusEventHandler<HTMLSelectElement>;
+};
+
+/** Age class picker for multi-class cups; full classes are shown but disabled. */
+const ClassSelect = forwardRef<HTMLSelectElement, ClassSelectProps>(({ id, classes, quotas, placeholder, ...rest }, ref) => {
+  const byClass = quotasByClass(quotas);
+  return (
+    <select
+      id={id}
+      ref={ref}
+      defaultValue=""
+      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      {...rest}
+    >
+      <option value="" disabled>
+        {placeholder}
+      </option>
+      {classes.map((cls) => {
+        const group = byClass.find((g) => g.ageClass === cls);
+        return (
+          <option key={cls} value={cls} disabled={group?.remaining === 0}>
+            {group ? `${cls} (${group.remaining}/${group.maxTeams})` : cls}
+          </option>
+        );
+      })}
+    </select>
+  );
+});
+ClassSelect.displayName = 'ClassSelect';
 
 function NotOpenPanel({
   message,

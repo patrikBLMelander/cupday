@@ -18,6 +18,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { Cup } from '@/features/cups/cupTypes';
+import { SlotQuotaBars } from '@/features/postedCups/SlotQuotaBars';
+import { formatCupTimes } from '@/features/postedCups/postedCupFormat';
+import { levelRangeLabel } from '@/features/practiceMatches/practiceMatchFormat';
 import { PublicScheduleView } from '@/features/schedule/PublicScheduleView';
 import { useListMatchesByCupQuery } from '@/features/schedule/scheduleApi';
 import type { Match } from '@/features/schedule/scheduleTypes';
@@ -32,7 +35,9 @@ export function PublicCupLandingPage(): JSX.Element {
   const { cup } = useOutletContext<PublicCupOutletContext>();
   const { data: publicTeams = [], isLoading: isLoadingTeams } =
     useListPublicTeamsByCupQuery(cup.id);
-  const { data: matches = [] } = useListMatchesByCupQuery(cup.id);
+  // Free posted cups have no schedule (planned as a paid upgrade), so skip it entirely.
+  const hasSchedule = !cup.publiclyPosted;
+  const { data: matches = [] } = useListMatchesByCupQuery(cup.id, { skip: !hasSchedule });
   const now = useTickingNow(60_000);
 
   const teamMap = useMemo(
@@ -81,10 +86,32 @@ export function PublicCupLandingPage(): JSX.Element {
           <TabsList>
             <TabsTrigger value="info">{t('public.tabs.info')}</TabsTrigger>
             <TabsTrigger value="teams">{t('public.tabs.teams')}</TabsTrigger>
-            <TabsTrigger value="schedule">{t('public.tabs.schedule')}</TabsTrigger>
+            {hasSchedule && <TabsTrigger value="schedule">{t('public.tabs.schedule')}</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="info" className="flex flex-col gap-4">
+            {cup.description && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('public.info.about')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="whitespace-pre-wrap text-sm">{cup.description}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {(cup.slotQuotas?.length ?? 0) > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('public.info.slotQuotas')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SlotQuotaBars quotas={cup.slotQuotas ?? []} />
+                </CardContent>
+              </Card>
+            )}
+
             <AmenitiesCard cup={cup} t={t} />
 
             {cup.paymentInstructions && (
@@ -148,9 +175,11 @@ export function PublicCupLandingPage(): JSX.Element {
             )}
           </TabsContent>
 
-          <TabsContent value="schedule">
-            <PublicScheduleView cupId={cup.id} />
-          </TabsContent>
+          {hasSchedule && (
+            <TabsContent value="schedule">
+              <PublicScheduleView cupId={cup.id} />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>
@@ -180,7 +209,10 @@ function CupHero({
     100,
     Math.round((cup.activeTeamCount / Math.max(1, cup.maxTeams)) * 100),
   );
-  const timeSuffix = cup.startTime ? ` · ${cup.startTime.slice(0, 5)}` : '';
+  const { t: translate } = useTranslation();
+  const times = formatCupTimes(cup.startTime, cup.endTime);
+  const timeSuffix = times ? ` · ${times}` : '';
+  const deadlinePassed = Boolean(cup.registrationDeadline) && new Date(`${cup.registrationDeadline}T23:59:59`).getTime() < Date.now();
   const dateRange = `${dateFormatter.format(new Date(cup.startDate))}${timeSuffix} – ${dateFormatter.format(new Date(cup.endDate))}`;
   const cupStart = new Date(`${cup.startDate}T00:00:00`);
   const today = new Date();
@@ -241,6 +273,15 @@ function CupHero({
             label={t('public.info.fee')}
             value={`${cup.registrationFeeSek} SEK`}
           />
+          {(cup.ageClasses?.length ?? 0) > 0 && (
+            <HeroFact label={t('public.info.ageClasses')} value={(cup.ageClasses ?? []).join(', ')} />
+          )}
+          {cup.levelMin != null && cup.levelMax != null && (
+            <HeroFact label={t('public.info.level')} value={levelRangeLabel(translate, cup.levelMin, cup.levelMax)} />
+          )}
+          {cup.registrationDeadline && (
+            <HeroFact label={t('public.info.deadline')} value={dateFormatter.format(new Date(cup.registrationDeadline))} />
+          )}
         </dl>
 
         <div className="flex flex-col gap-1.5">
@@ -276,7 +317,18 @@ function CupHero({
           />
         )}
 
-        {cup.status === 'open' && remaining > 0 ? (
+        {cup.externalRegistrationUrl && cup.status === 'open' && !deadlinePassed ? (
+          <Button
+            asChild
+            size="lg"
+            variant="secondary"
+            className="self-start text-base font-semibold shadow-lg"
+          >
+            <a href={cup.externalRegistrationUrl} target="_blank" rel="noopener noreferrer">
+              {t('public.info.registerExternal')}
+            </a>
+          </Button>
+        ) : cup.status === 'open' && remaining > 0 && !deadlinePassed ? (
           <Button
             asChild
             size="lg"

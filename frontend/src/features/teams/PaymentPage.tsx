@@ -96,7 +96,7 @@ export function PaymentPage(): JSX.Element {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {t('payment.paymentCard.openLagkassan')}
+                  {cup.publiclyPosted ? t('payment.paymentCard.openLink') : t('payment.paymentCard.openLagkassan')}
                 </a>
               </Button>
               <p className="text-sm font-medium text-muted-foreground">

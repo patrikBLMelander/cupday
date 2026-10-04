@@ -78,4 +78,35 @@ describe('PublicCupLandingPage', () => {
       screen.getByText(/teams will appear|lag visas/i),
     ).toBeInTheDocument();
   });
+
+  it('shows slots per level and no schedule tab for a free posted cup', async () => {
+    db.write((d) => {
+      d.cups.push(
+        buildCup({
+          publiclyPosted: true,
+          useLevels: true,
+          levels: ['Medel', 'Svår'],
+          slotQuotas: [
+            { ageClass: '', level: 'Medel', maxTeams: 4, remaining: 4 },
+            { ageClass: '', level: 'Svår', maxTeams: 4, remaining: 4 },
+          ],
+        }),
+      );
+    });
+    render(
+      <Provider store={makeTestStore()}>
+        <MemoryRouter initialEntries={['/c/test-cup']}>
+          <Routes>
+            <Route path="/c/:slug" element={<PublicLayout />}>
+              <Route index element={<PublicCupLandingPage />} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </Provider>,
+    );
+
+    expect(await screen.findByRole('tab', { name: /teams|lag/i })).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: /schedule|spelschema/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/available slots|lediga platser/i)).toBeInTheDocument();
+  });
 });

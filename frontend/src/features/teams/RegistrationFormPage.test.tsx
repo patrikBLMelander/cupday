@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -142,6 +142,46 @@ describe('RegistrationFormPage', () => {
     await waitFor(() => {
       const team = db.read().teams.find((t) => t.cupId === 'cup-1');
       expect(team?.level).toBe('Medel');
+    });
+  });
+
+  it('requires a class in multi-class cups and offers the levels locked for that class', async () => {
+    db.write((d) => {
+      d.cups.push(
+        buildCup({
+          publiclyPosted: true,
+          ageClasses: ['P13', 'P14'],
+          useLevels: true,
+          levels: ['Lätt', 'Medel', 'Svår'],
+          slotQuotas: [
+            { ageClass: 'P13', level: 'Lätt', maxTeams: 4, remaining: 4 },
+            { ageClass: 'P13', level: 'Medel', maxTeams: 4, remaining: 4 },
+            { ageClass: 'P14', level: 'Svår', maxTeams: 4, remaining: 4 },
+          ],
+        }),
+      );
+    });
+    renderRegistration();
+    const user = userEvent.setup();
+
+    await screen.findByRole('heading', { name: /register team|anmäl lag/i });
+    await user.type(screen.getByLabelText(/^club$|^klubb$/i), 'IFK');
+    await user.type(screen.getByLabelText(/^contact name$|^kontaktperson$/i), 'Patrik');
+    await user.type(screen.getByLabelText(/^email$|^e-post$/i), 'p@example.com');
+    await user.type(screen.getByLabelText(/^phone$|^telefon$/i), '0700000000');
+    await user.type(screen.getByLabelText(/^team name$|^lagets namn$/i), 'IFK Lag 1');
+    await user.click(screen.getByRole('button', { name: /^submit$|^anmäl$/i }));
+    expect(await screen.findByText(/choose a class|välj klass/i, { selector: '[role="alert"]' })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(/^class$|^klass$/i), 'P14');
+    const level = screen.getByLabelText(/team level|nivå för laget/i);
+    expect(within(level).queryByRole('option', { name: /Lätt/ })).not.toBeInTheDocument();
+    await user.selectOptions(level, 'Svår');
+    await user.click(screen.getByRole('button', { name: /^submit$|^anmäl$/i }));
+
+    await waitFor(() => {
+      const team = db.read().teams.find((t) => t.cupId === 'cup-1');
+      expect(team).toMatchObject({ ageClass: 'P14', level: 'Svår' });
     });
   });
 });

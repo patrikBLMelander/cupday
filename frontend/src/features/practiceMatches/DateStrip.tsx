@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -16,6 +16,8 @@ interface DateStripProps {
   onNextIntent?: () => void;
   canGoBack: boolean;
   onPickDate: (dateKey: string) => void;
+  /** Days with a cup — get a small trophy. */
+  cupDays?: ReadonlySet<string>;
 }
 
 const arrowClass =
@@ -35,6 +37,7 @@ export function DateStrip({
   onNextIntent,
   canGoBack,
   onPickDate,
+  cupDays,
 }: DateStripProps): JSX.Element {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? 'sv';
@@ -83,6 +86,7 @@ export function DateStrip({
           const key = localDateKey(day);
           const count = counts.get(key) ?? 0;
           const isSelected = selected === key;
+          const hasCup = cupDays?.has(key) ?? false;
           const label = key === todayKey ? t('practice.list.today') : weekday.format(day);
           return (
             <button
@@ -90,11 +94,11 @@ export function DateStrip({
               type="button"
               onClick={() => onSelect(isSelected ? null : key)}
               aria-pressed={isSelected}
-              aria-label={`${label} ${day.getDate()}/${day.getMonth() + 1}, ${t('practice.list.matchCount', { count })}`}
+              aria-label={`${label} ${day.getDate()}/${day.getMonth() + 1}, ${t('practice.list.matchCount', { count })}${hasCup ? `, ${t('postedCup.feed.hasCup')}` : ''}`}
               className={cn(
                 'flex min-h-16 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-[14px] border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card',
-                !isSelected && count === 0 && 'text-muted-foreground',
+                !isSelected && count === 0 && !hasCup && 'text-muted-foreground',
               )}
             >
               <span className="text-[11px] font-semibold capitalize">{label}</span>
@@ -105,7 +109,8 @@ export function DateStrip({
                   isSelected ? 'text-primary-foreground' : count > 0 ? 'text-accent-foreground' : 'text-muted-foreground',
                 )}
               >
-                {count > 0 ? t('practice.list.dayCount', { count }) : '–'}
+                {count > 0 ? t('practice.list.dayCount', { count }) : hasCup ? '' : '–'}
+                {hasCup && <Trophy className="ml-0.5 inline h-3 w-3 text-amber-700 dark:text-amber-400" aria-hidden="true" />}
               </span>
             </button>
           );

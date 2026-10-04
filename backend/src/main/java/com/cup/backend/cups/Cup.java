@@ -114,6 +114,35 @@ public class Cup {
   @Column(name = "teams_per_group", nullable = false)
   private int teamsPerGroup = 4;
 
+  /** End of play each cup day. Null when not set. */
+  @Column(name = "end_time")
+  private LocalTime endTime;
+
+  /** Age classes as CSV, e.g. "P13,P14". Empty for admin-created cups. */
+  @Column(name = "age_classes", nullable = false)
+  private String ageClasses = "";
+
+  /** Optional level range on the 1–9 scale (Lätt− … Svår+). */
+  @Column(name = "level_min")
+  private Short levelMin;
+
+  @Column(name = "level_max")
+  private Short levelMax;
+
+  @Column(name = "registration_deadline")
+  private LocalDate registrationDeadline;
+
+  /** When set, teams register on the organizer's own site instead of via Din Cup. */
+  @Column(name = "external_registration_url")
+  private String externalRegistrationUrl;
+
+  @Column
+  private String description;
+
+  /** Hash of the secret manage token; set only for cups posted publicly without an account. */
+  @Column(name = "manage_token_hash", updatable = false)
+  private String manageTokenHash;
+
   @Version
   private Long version;
 
@@ -277,6 +306,15 @@ public class Cup {
   public LocalTime getStartTime() { return startTime; }
   public int getNumberOfGroups() { return numberOfGroups; }
   public int getTeamsPerGroup() { return teamsPerGroup; }
+  public LocalTime getEndTime() { return endTime; }
+  public String getAgeClasses() { return ageClasses; }
+  public Integer getLevelMin() { return levelMin == null ? null : levelMin.intValue(); }
+  public Integer getLevelMax() { return levelMax == null ? null : levelMax.intValue(); }
+  public LocalDate getRegistrationDeadline() { return registrationDeadline; }
+  public String getExternalRegistrationUrl() { return externalRegistrationUrl; }
+  public String getDescription() { return description; }
+  public String getManageTokenHash() { return manageTokenHash; }
+  public boolean isPubliclyPosted() { return manageTokenHash != null; }
 
   public void setSlug(String slug) { this.slug = slug; }
   public void setName(String name) { this.name = name; }
@@ -307,4 +345,12 @@ public class Cup {
   public void setStartTime(LocalTime startTime) { this.startTime = startTime; }
   public void setNumberOfGroups(int numberOfGroups) { this.numberOfGroups = numberOfGroups; }
   public void setTeamsPerGroup(int teamsPerGroup) { this.teamsPerGroup = teamsPerGroup; }
+  public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
+  public void setAgeClasses(String ageClasses) { this.ageClasses = ageClasses == null ? "" : ageClasses; }
+  public void setLevelMin(Integer levelMin) { this.levelMin = levelMin == null ? null : levelMin.shortValue(); }
+  public void setLevelMax(Integer levelMax) { this.levelMax = levelMax == null ? null : levelMax.shortValue(); }
+  public void setRegistrationDeadline(LocalDate registrationDeadline) { this.registrationDeadline = registrationDeadline; }
+  public void setExternalRegistrationUrl(String externalRegistrationUrl) { this.externalRegistrationUrl = externalRegistrationUrl; }
+  public void setDescription(String description) { this.description = description; }
+  public void setManageTokenHash(String manageTokenHash) { this.manageTokenHash = manageTokenHash; }
 }

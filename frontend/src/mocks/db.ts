@@ -19,6 +19,8 @@ export type MockDB = {
   matches: Match[];
   practiceMatches: MockPracticeMatch[];
   practiceBookings: MockBooking[];
+  /** cupId → raw manage token for cups posted without an account. */
+  postedCupTokens: Record<string, string>;
   sessions: Array<{ token: string; userId: string }>;
 };
 
@@ -30,6 +32,7 @@ const emptyDB: MockDB = {
   matches: [],
   practiceMatches: [],
   practiceBookings: [],
+  postedCupTokens: {},
   sessions: [],
 };
 

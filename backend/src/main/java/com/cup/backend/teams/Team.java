@@ -56,6 +56,10 @@ public class Team {
   @Column(name = "cancelled_at")
   private Instant cancelledAt;
 
+  /** Age class (e.g. "P13") for cups with several classes; null otherwise. */
+  @Column(name = "age_class")
+  private String ageClass;
+
   /** Optional skill level; populated only when the cup uses levels. */
   @Column(name = "level")
   private String level;
@@ -107,6 +111,7 @@ public class Team {
   public Instant getPaidAt() { return paidAt; }
   public Instant getCancelledAt() { return cancelledAt; }
   public String getLevel() { return level; }
+  public String getAgeClass() { return ageClass; }
   public String getLogoUrl() { return logoUrl; }
 
   public void setGroupLabel(GroupLabel groupLabel) { this.groupLabel = groupLabel; }
@@ -114,5 +119,6 @@ public class Team {
   public void setPaidAt(Instant paidAt) { this.paidAt = paidAt; }
   public void setCancelledAt(Instant cancelledAt) { this.cancelledAt = cancelledAt; }
   public void setLevel(String level) { this.level = level; }
+  public void setAgeClass(String ageClass) { this.ageClass = ageClass; }
   public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl == null ? "" : logoUrl; }
 }

@@ -1,11 +1,13 @@
 package com.cup.backend.cups;
 
 import jakarta.persistence.LockModeType;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,4 +26,9 @@ public interface CupRepository extends JpaRepository<Cup, UUID> {
 
   /** Public landing-page list: excludes drafts; soonest cups first. */
   List<Cup> findByStatusNotOrderByStartDateAscNameAsc(CupStatus status);
+
+  /** Retention: bulk delete of publicly posted cups whose last day is before {@code cutoff}. */
+  @Modifying
+  @Query("DELETE FROM Cup c WHERE c.manageTokenHash IS NOT NULL AND c.endDate < :cutoff")
+  int deletePubliclyPostedEndingBefore(@Param("cutoff") LocalDate cutoff);
 }

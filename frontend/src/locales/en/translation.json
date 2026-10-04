@@ -29,7 +29,11 @@
     },
     "practiceTitle": "Practice matches",
     "practiceBody": "Find opponents for a practice match or book a slot with another team – no account needed.",
-    "practiceCta": "Go to practice matches"
+    "practiceCta": "Go to practice matches",
+    "postCupCta": "Post your cup",
+    "postCupTitle": "Organising a cup?",
+    "postCupBody": "Post it for free – it shows here and in the practice match feed. No account needed.",
+    "postCupButton": "Post a cup"
   },
   "auth": {
     "signIn": "Sign in",
@@ -49,7 +53,8 @@
       "edit": "Edit",
       "dates": "Dates",
       "status": "Status",
-      "teams": "teams"
+      "teams": "teams",
+      "publiclyPosted": "Posted publicly"
     },
     "cup": {
       "newTitle": "New cup",
@@ -247,7 +252,15 @@
       "amenityToilets": "Toilets",
       "amenityFood": "Food / café",
       "amenityParking": "Parking",
-      "amenityNotAvailable": "Not available"
+      "amenityNotAvailable": "Not available",
+      "about": "About the cup",
+      "levelRemaining": "{{remaining}} of {{max}} left",
+      "levelFull": "Full",
+      "ageClasses": "Classes",
+      "level": "Level",
+      "deadline": "Registration deadline",
+      "registerExternal": "Register on the organiser's site ↗",
+      "slotQuotas": "Available slots"
     },
     "empty": {
       "teams": "Teams will appear here once registration opens."
@@ -304,7 +317,10 @@
       "level2": "Second team level",
       "levelPlaceholder": "Pick a level",
       "logo1": "Team logo (optional)",
-      "logo2": "Second team logo (optional)"
+      "logo2": "Second team logo (optional)",
+      "class1": "Class",
+      "class2": "Class for team 2",
+      "classPlaceholder": "Choose class"
     },
     "submit": "Submit",
     "cupNotOpen": "Registration is not open for this cup.",
@@ -315,7 +331,8 @@
       "emailInvalid": "Invalid email",
       "sameNames": "Teams must have different names",
       "nameTaken": "The name is already taken — add a number or color to keep teams apart",
-      "levelRequired": "Pick a level"
+      "levelRequired": "Pick a level",
+      "classRequired": "Choose a class"
     },
     "generalFailure": "Registration failed — please try again"
   },
@@ -332,7 +349,8 @@
       "instructions": "Instructions",
       "qrAlt": "Lagkassan QR code",
       "openLagkassan": "Open Lagkassan",
-      "markWithTeamHint": "Don't forget to mark the payment with your team name."
+      "markWithTeamHint": "Don't forget to mark the payment with your team name.",
+      "openLink": "Pay via link"
     },
     "cancelCard": {
       "title": "Cancel registration",
@@ -348,7 +366,7 @@
   },
   "practice": {
     "nav": {
-      "title": "Practice matches",
+      "title": "Matches & cups",
       "home": "Din Cup",
       "postMatch": "Post a match",
       "toggleTheme": "Toggle light/dark mode",
@@ -378,7 +396,7 @@
     "roleOrganizer": "You organise",
     "roleOpponent": "You play",
     "list": {
-      "heroLead": "Find practice matches.",
+      "heroLead": "Find matches and cups.",
       "heroAccent": "All ages in one place.",
       "dates": "Pick a date",
       "today": "Today",
@@ -416,7 +434,7 @@
       "pickDate": "Pick a date in the calendar",
       "prevWeek": "Previous week",
       "nextWeek": "Next week",
-      "heroSub": "Post a match or book a free slot. No account needed."
+      "heroSub": "Post a match or cup, or book a free slot. No account needed."
     },
     "detail": {
       "back": "Back",
@@ -554,6 +572,162 @@
       "browserBody": "The site uses no tracking cookies. Your browser stores manage keys for matches you posted and slots you booked, the team name in the search field and your light/dark choice. You can remove it at any time by clearing site data.",
       "removeTitle": "Want data removed?",
       "removeBody": "Contact {{name}} at {{email}} and we will remove it. You also have the right to know what data is stored about you."
+    }
+  },
+  "postedCup": {
+    "nav": {
+      "postCup": "Post a cup",
+      "post": "Post"
+    },
+    "chooser": {
+      "title": "What do you want to post?",
+      "match": "Practice match",
+      "matchBody": "Find opponents for a match or mini tournament. Takes a minute.",
+      "cup": "Cup",
+      "cupBody": "Invite teams to a cup. Shown in the feed and on the cup page, with registration and payment."
+    },
+    "feed": {
+      "badge": "CUP",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "fee": "SEK {{fee}}/team",
+      "spotsLeft": "{{remaining}} of {{max}} team slots left",
+      "full": "Fully booked",
+      "deadline": "Register by {{date}}",
+      "cta": "Go to cup →",
+      "ongoing": "{{name}} is on – day {{day}} of {{days}}",
+      "viewCup": "View cup",
+      "hasCup": "cup",
+      "show": "Show",
+      "showAll": "All",
+      "showMatches": "Matches",
+      "showCups": "Cups",
+      "cupCount_one": "{{count}} cup",
+      "cupCount_other": "{{count}} cups",
+      "manageCup": "Manage cup",
+      "ariaLabel": "Cup: {{name}}"
+    },
+    "form": {
+      "createTitle": "Post a cup",
+      "editTitle": "Edit cup",
+      "sectionCup": "The cup",
+      "name": "Cup name",
+      "namePlaceholder": "E.g. Grimsta Autumn Cup 2026",
+      "club": "Organising club",
+      "logo": "Club badge – image link (optional)",
+      "sectionWhen": "Dates, time & venue",
+      "startDate": "First day",
+      "endDate": "Last day",
+      "timeHint": "The time applies to every cup day.",
+      "sectionWho": "Classes, level & number of teams",
+      "ageClasses": "Classes",
+      "addClass": "Add {{cls}}",
+      "removeClass": "Remove {{cls}}",
+      "sectionRegistration": "Registration",
+      "registrationMode": "How do teams register?",
+      "modeDinCup": "Registration via Din Cup",
+      "modeDinCupBody": "Teams register here. You see registered teams and mark who has paid.",
+      "modeExternal": "Own registration link",
+      "modeExternalBody": "The cup is shown here, but teams register on your own site.",
+      "externalUrl": "Link to your registration",
+      "maxTeams": "Number of teams",
+      "fee": "Fee per team (SEK)",
+      "deadline": "Registration deadline (optional)",
+      "lockLevels": "Lock slots per level",
+      "lockLevelsHint": "Optional. E.g. 8 slots for Easy and 8 for Medium.",
+      "quotaLevel": "Level",
+      "quotaTeams": "Teams",
+      "removeQuota": "Remove level",
+      "addQuota": "Add level",
+      "sectionPayment": "Payment",
+      "paymentHint": "Shown to teams after they register. Fill in a link, text or both.",
+      "paymentLink": "Payment link (optional)",
+      "paymentText": "About payment (optional)",
+      "paymentTextPlaceholder": "E.g. Swish SEK 1,200 to 123 456 78 90 by 10 Oct. Mark with team name.",
+      "sectionContact": "Contact & info",
+      "contactName": "Contact person",
+      "description": "About the cup (optional)",
+      "descriptionPlaceholder": "Match length, prizes, food, parking…",
+      "adminLinkTitle": "You get an admin link – save it.",
+      "adminLinkInfo": "It is the only way to see registered teams, mark who has paid and edit the cup. There is no account, and we cannot send the link again.",
+      "consent": "I agree that the contact details are shown publicly so that teams can reach me. The cup and all details are deleted automatically 30 days after the last cup day.",
+      "submitCreate": "Publish cup",
+      "errors": {
+        "url": "Enter a link starting with https://",
+        "ageClasses": "Add at least one class",
+        "endDate": "The last day cannot be before the first day",
+        "maxTeams": "At least 2 teams",
+        "maxBelowTeams": "More teams have already registered",
+        "quotaBelowTeams": "A level already has more registered teams than you are trying to set",
+        "slots": {
+          "groupCount": "Enter the number of teams (at least 1) for each class.",
+          "levelRows": "Add at least one level for each class.",
+          "levelCount": "Enter the number of teams (at least 1) for each level.",
+          "levelDuplicate": "The same level appears twice in a class."
+        }
+      },
+      "amenities": "Facilities on site",
+      "hasToilets": "Toilets",
+      "hasFood": "Food/café",
+      "hasParking": "Parking",
+      "mapUrl": "Map link to the venue (optional)",
+      "lockLevelsHintClasses": "Optional. E.g. P13: 4 Easy + 4 Medium.",
+      "teamsPerClass": "Teams per class",
+      "teamsInClass": "Teams in {{cls}}",
+      "classTotal": "{{count}} teams",
+      "addQuotaFor": "Add level in {{cls}}",
+      "totalTeams": "{{count}} teams in total"
+    },
+    "link": {
+      "step": "One last step",
+      "title": "Save your admin link",
+      "why": "The link is your key to the cup. With it you can:",
+      "useTeams": "see which teams have registered and their contact details",
+      "usePaid": "mark teams as paid",
+      "useEdit": "edit or delete the cup",
+      "noAccount": "There is no account and no password. If you lose the link you cannot get back to the admin page.",
+      "published": "{{name}} is published!",
+      "confirm": "I have saved the link somewhere I will find it",
+      "continue": "Continue to the admin page",
+      "continueHint": "Email, share or copy the link first – or tick the box.",
+      "viewPublic": "View the cup page",
+      "label": "Admin link",
+      "emailToMe": "Email the link to me",
+      "share": "Share the link",
+      "copy": "Copy link",
+      "copied": "Copied!",
+      "emailSubject": "Admin link – {{name}}",
+      "emailBody": "Here is the admin link for {{name}}. Use it to see registered teams, mark payments and edit the cup:\n\n{{link}}\n\nKeep this email – the link cannot be sent again."
+    },
+    "manage": {
+      "kicker": "Manage cup",
+      "registered": "registered",
+      "paid": "paid",
+      "unpaid": "unpaid",
+      "filter": "Show teams",
+      "filterAll": "All",
+      "filterUnpaid": "Unpaid ({{count}})",
+      "teams": "Teams",
+      "levelCount": "{{count}} of {{max}} slots",
+      "cancelledTeams": "Withdrawn teams",
+      "statusPaid": "Paid",
+      "statusUnpaid": "Not paid",
+      "markPaid": "Paid: {{team}}",
+      "noTeams": "No teams have registered yet. Share the cup page!",
+      "externalNote": "Teams register on your own site, so they are not listed here.",
+      "paymentInfo": "Payment info for teams",
+      "change": "Change",
+      "noPaymentInfo": "No payment info yet.",
+      "edit": "Edit cup",
+      "viewPublic": "Cup page",
+      "keepLinkTitle": "Your admin link",
+      "keepLinkBody": "Save the link – it is the only way back here from another device.",
+      "delete": "Delete cup",
+      "deleteHint": "The cup, all registered teams and their details are deleted permanently.",
+      "confirmDelete": "Yes, delete the cup",
+      "keep": "Cancel",
+      "invalidLink": "The link is invalid. Check that you copied the whole admin link.",
+      "notFound": "Cup not found."
     }
   }
 }

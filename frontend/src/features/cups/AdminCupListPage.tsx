@@ -64,6 +64,11 @@ export function AdminCupListPage(): JSX.Element {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
+                    {cup.publiclyPosted && (
+                      <span className="rounded-md bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900">
+                        {t('admin.cups.publiclyPosted')}
+                      </span>
+                    )}
                     <CupStatusBadge
                       status={cup.status}
                       label={t(`admin.cupStatus.${cup.status}`)}

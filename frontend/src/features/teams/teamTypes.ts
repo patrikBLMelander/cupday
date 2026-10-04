@@ -37,6 +37,8 @@ export type Team = {
   level: string | null;
   /** Empty string when unset. */
   logoUrl: string;
+  /** Age class such as "P13" in cups with several classes. */
+  ageClass?: string | null;
 };
 
 /** Public projection of a team (no contact info). */
@@ -69,6 +71,8 @@ export type RegistrationCreateRequest = {
   teamLevels?: string[];
   /** Optional logo URLs, one per team in {@link teamNames}; missing → empty. */
   teamLogoUrls?: string[];
+  /** Required when the cup has several age classes — one entry per team. */
+  teamAgeClasses?: string[];
 };
 
 export type RegistrationCreateResponse = {

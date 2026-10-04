@@ -29,7 +29,11 @@
     },
     "practiceTitle": "Träningsmatcher",
     "practiceBody": "Sök motstånd till en träningsmatch eller boka en plats hos ett annat lag – inget konto behövs.",
-    "practiceCta": "Till träningsmatcherna"
+    "practiceCta": "Till träningsmatcherna",
+    "postCupCta": "Lägg upp din cup",
+    "postCupTitle": "Arrangerar ni en cup?",
+    "postCupBody": "Lägg upp den gratis – den syns här och i flödet med träningsmatcher. Inget konto behövs.",
+    "postCupButton": "Lägg upp cup"
   },
   "auth": {
     "signIn": "Logga in",
@@ -49,7 +53,8 @@
       "edit": "Redigera",
       "dates": "Datum",
       "status": "Status",
-      "teams": "lag"
+      "teams": "lag",
+      "publiclyPosted": "Upplagd publikt"
     },
     "cup": {
       "newTitle": "Ny cup",
@@ -247,7 +252,15 @@
       "amenityToilets": "Toaletter",
       "amenityFood": "Mat/fika",
       "amenityParking": "Parkering",
-      "amenityNotAvailable": "Saknas"
+      "amenityNotAvailable": "Saknas",
+      "about": "Om cupen",
+      "levelRemaining": "{{remaining}} av {{max}} kvar",
+      "levelFull": "Fullt",
+      "ageClasses": "Klasser",
+      "level": "Nivå",
+      "deadline": "Sista anmälan",
+      "registerExternal": "Anmäl på arrangörens sida ↗",
+      "slotQuotas": "Lediga platser"
     },
     "empty": {
       "teams": "Lag visas här när anmälan är öppen."
@@ -304,7 +317,10 @@
       "level2": "Nivå för andra laget",
       "levelPlaceholder": "Välj nivå",
       "logo1": "Lagets logga (valfritt)",
-      "logo2": "Andra lagets logga (valfritt)"
+      "logo2": "Andra lagets logga (valfritt)",
+      "class1": "Klass",
+      "class2": "Klass för lag 2",
+      "classPlaceholder": "Välj klass"
     },
     "submit": "Anmäl",
     "cupNotOpen": "Anmälan är inte öppen för den här cupen.",
@@ -315,7 +331,8 @@
       "emailInvalid": "Ogiltig e-post",
       "sameNames": "Lagen måste ha olika namn",
       "nameTaken": "Namnet är upptaget — lägg till en siffra eller färg för att skilja lagen åt",
-      "levelRequired": "Välj en nivå"
+      "levelRequired": "Välj en nivå",
+      "classRequired": "Välj klass"
     },
     "generalFailure": "Anmälan misslyckades — försök igen"
   },
@@ -332,7 +349,8 @@
       "instructions": "Instruktioner",
       "qrAlt": "QR-kod till Lagkassan",
       "openLagkassan": "Öppna Lagkassan",
-      "markWithTeamHint": "Glöm inte att märka betalningen med lagets namn."
+      "markWithTeamHint": "Glöm inte att märka betalningen med lagets namn.",
+      "openLink": "Betala via länk"
     },
     "cancelCard": {
       "title": "Avbryt anmälan",
@@ -348,7 +366,7 @@
   },
   "practice": {
     "nav": {
-      "title": "Träningsmatcher",
+      "title": "Matcher & cuper",
       "home": "Din Cup",
       "postMatch": "Lägg upp match",
       "toggleTheme": "Växla ljust/mörkt läge",
@@ -378,7 +396,7 @@
     "roleOrganizer": "Ni arrangerar",
     "roleOpponent": "Ni möter",
     "list": {
-      "heroLead": "Hitta träningsmatcher.",
+      "heroLead": "Hitta matcher och cuper.",
       "heroAccent": "Alla åldrar på ett ställe.",
       "dates": "Välj datum",
       "today": "Idag",
@@ -416,7 +434,7 @@
       "pickDate": "Välj datum i kalendern",
       "prevWeek": "Föregående vecka",
       "nextWeek": "Nästa vecka",
-      "heroSub": "Lägg upp en match eller boka en ledig plats. Inget konto behövs."
+      "heroSub": "Lägg upp en match eller cup, eller boka en ledig plats. Inget konto behövs."
     },
     "detail": {
       "back": "Tillbaka",
@@ -554,6 +572,162 @@
       "browserBody": "Sidan använder inga spårningscookies. I din webbläsare sparas hanteringsnycklar för matcher du lagt upp och platser du bokat, lagnamnet i sökfältet och om du valt ljust eller mörkt läge. Du kan ta bort det när som helst genom att rensa webbplatsdata.",
       "removeTitle": "Vill du få uppgifter borttagna?",
       "removeBody": "Kontakta {{name}} på {{email}}, så tar vi bort uppgifterna. Du har också rätt att få veta vilka uppgifter som finns sparade om dig."
+    }
+  },
+  "postedCup": {
+    "nav": {
+      "postCup": "Lägg upp cup",
+      "post": "Lägg upp"
+    },
+    "chooser": {
+      "title": "Vad vill du lägga upp?",
+      "match": "Träningsmatch",
+      "matchBody": "Sök motstånd till en match eller minimatch-dag. Tar en minut.",
+      "cup": "Cup",
+      "cupBody": "Bjud in lag till en cup. Visas i flödet och på cupsidan, med anmälan och betalning."
+    },
+    "feed": {
+      "badge": "CUP",
+      "days_one": "{{count}} dag",
+      "days_other": "{{count}} dagar",
+      "fee": "{{fee}} kr/lag",
+      "spotsLeft": "{{remaining}} av {{max}} lagplatser kvar",
+      "full": "Fullbokad",
+      "deadline": "Sista anmälan {{date}}",
+      "cta": "Till cupen →",
+      "ongoing": "{{name}} pågår – dag {{day}} av {{days}}",
+      "viewCup": "Visa cupen",
+      "hasCup": "cup",
+      "show": "Visa",
+      "showAll": "Allt",
+      "showMatches": "Matcher",
+      "showCups": "Cuper",
+      "cupCount_one": "{{count}} cup",
+      "cupCount_other": "{{count}} cuper",
+      "manageCup": "Hantera cup",
+      "ariaLabel": "Cup: {{name}}"
+    },
+    "form": {
+      "createTitle": "Lägg upp cup",
+      "editTitle": "Redigera cup",
+      "sectionCup": "Cupen",
+      "name": "Cupens namn",
+      "namePlaceholder": "T.ex. Grimsta Höstcup 2026",
+      "club": "Arrangerande förening",
+      "logo": "Klubbmärke – länk till bild (valfritt)",
+      "sectionWhen": "Datum, tid & plats",
+      "startDate": "Första dagen",
+      "endDate": "Sista dagen",
+      "timeHint": "Tiden gäller varje cupdag.",
+      "sectionWho": "Klasser, nivå & antal lag",
+      "ageClasses": "Klasser",
+      "addClass": "Lägg till {{cls}}",
+      "removeClass": "Ta bort {{cls}}",
+      "sectionRegistration": "Anmälan",
+      "registrationMode": "Hur anmäler sig lagen?",
+      "modeDinCup": "Anmälan via Din Cup",
+      "modeDinCupBody": "Lagen anmäler sig här. Du ser anmälda lag och markerar vilka som har betalat.",
+      "modeExternal": "Egen anmälningslänk",
+      "modeExternalBody": "Cupen visas här, men anmälan sker på er egen sida.",
+      "externalUrl": "Länk till er anmälan",
+      "maxTeams": "Antal lag",
+      "fee": "Avgift per lag (kr)",
+      "deadline": "Sista anmälningsdag (valfritt)",
+      "lockLevels": "Låsa platser per nivå",
+      "lockLevelsHint": "Valfritt. T.ex. 8 platser för Lätt och 8 för Medel.",
+      "quotaLevel": "Nivå",
+      "quotaTeams": "Antal lag",
+      "removeQuota": "Ta bort nivå",
+      "addQuota": "Lägg till nivå",
+      "sectionPayment": "Betalning",
+      "paymentHint": "Visas för lagen när de har anmält sig. Fyll i länk, text eller båda.",
+      "paymentLink": "Länk till betalning (valfritt)",
+      "paymentText": "Om betalning (valfritt)",
+      "paymentTextPlaceholder": "T.ex. Swisha 1 200 kr till 123 456 78 90 senast 10 okt. Märk med lagnamn.",
+      "sectionContact": "Kontakt & info",
+      "contactName": "Kontaktperson",
+      "description": "Om cupen (valfritt)",
+      "descriptionPlaceholder": "Matchlängd, priser, servering, parkering…",
+      "adminLinkTitle": "Du får en adminlänk – spara den.",
+      "adminLinkInfo": "Det är enda sättet att se anmälda lag, markera vilka som har betalat och ändra cupen. Det finns inget konto, och vi kan inte skicka länken igen.",
+      "consent": "Jag godkänner att kontaktuppgifterna visas öppet så att lag kan nå mig. Cupen och alla uppgifter raderas automatiskt 30 dagar efter sista cupdagen.",
+      "submitCreate": "Publicera cupen",
+      "errors": {
+        "url": "Ange en länk som börjar med https://",
+        "ageClasses": "Lägg till minst en klass",
+        "endDate": "Sista dagen kan inte vara före första dagen",
+        "maxTeams": "Minst 2 lag",
+        "maxBelowTeams": "Det finns redan fler anmälda lag än så",
+        "quotaBelowTeams": "En nivå har redan fler anmälda lag än du försöker ställa in",
+        "slots": {
+          "groupCount": "Ange antal lag (minst 1) för varje klass.",
+          "levelRows": "Lägg till minst en nivå för varje klass.",
+          "levelCount": "Ange antal lag (minst 1) för varje nivå.",
+          "levelDuplicate": "Samma nivå finns två gånger i en klass."
+        }
+      },
+      "amenities": "Faciliteter på plats",
+      "hasToilets": "Toaletter",
+      "hasFood": "Mat/fika",
+      "hasParking": "Parkering",
+      "mapUrl": "Kartlänk till platsen (valfritt)",
+      "lockLevelsHintClasses": "Valfritt. T.ex. P13: 4 Lätt + 4 Medel.",
+      "teamsPerClass": "Antal lag per klass",
+      "teamsInClass": "Antal lag i {{cls}}",
+      "classTotal": "{{count}} lag",
+      "addQuotaFor": "Lägg till nivå i {{cls}}",
+      "totalTeams": "Totalt {{count}} lag"
+    },
+    "link": {
+      "step": "Ett sista steg",
+      "title": "Spara din adminlänk",
+      "why": "Länken är din nyckel till cupen. Med den kan du:",
+      "useTeams": "se vilka lag som har anmält sig och deras kontaktuppgifter",
+      "usePaid": "markera lag som betalda",
+      "useEdit": "ändra eller ta bort cupen",
+      "noAccount": "Det finns inget konto och inget lösenord. Tappar du länken kommer du inte åt adminsidan igen.",
+      "published": "{{name}} är publicerad!",
+      "confirm": "Jag har sparat länken på ett ställe där jag hittar den",
+      "continue": "Fortsätt till adminsidan",
+      "continueHint": "Mejla, dela eller kopiera länken först – eller kryssa i rutan.",
+      "viewPublic": "Visa cupens sida",
+      "label": "Adminlänk",
+      "emailToMe": "Mejla länken till mig",
+      "share": "Dela länken",
+      "copy": "Kopiera länk",
+      "copied": "Kopierad!",
+      "emailSubject": "Adminlänk – {{name}}",
+      "emailBody": "Här är adminlänken till {{name}}. Med den ser du anmälda lag, markerar betalningar och ändrar cupen:\n\n{{link}}\n\nSpara det här mejlet – länken går inte att få igen."
+    },
+    "manage": {
+      "kicker": "Hantera cup",
+      "registered": "anmälda",
+      "paid": "betalda",
+      "unpaid": "obetalda",
+      "filter": "Visa lag",
+      "filterAll": "Alla",
+      "filterUnpaid": "Obetalda ({{count}})",
+      "teams": "Lag",
+      "levelCount": "{{count}} av {{max}} platser",
+      "cancelledTeams": "Avanmälda lag",
+      "statusPaid": "Betald",
+      "statusUnpaid": "Ej betald",
+      "markPaid": "Betald: {{team}}",
+      "noTeams": "Inga lag har anmält sig än. Dela cupens sida!",
+      "externalNote": "Lagen anmäler sig på er egen sida, så de syns inte här.",
+      "paymentInfo": "Betalningsinfo till lagen",
+      "change": "Ändra",
+      "noPaymentInfo": "Ingen betalningsinfo angiven än.",
+      "edit": "Redigera cup",
+      "viewPublic": "Cupens sida",
+      "keepLinkTitle": "Din adminlänk",
+      "keepLinkBody": "Spara länken – den är enda vägen tillbaka hit från en annan enhet.",
+      "delete": "Ta bort cupen",
+      "deleteHint": "Cupen, alla anmälda lag och deras uppgifter tas bort permanent.",
+      "confirmDelete": "Ja, ta bort cupen",
+      "keep": "Avbryt",
+      "invalidLink": "Länken är ogiltig. Kontrollera att du kopierat hela adminlänken.",
+      "notFound": "Cupen hittades inte."
     }
   }
 }

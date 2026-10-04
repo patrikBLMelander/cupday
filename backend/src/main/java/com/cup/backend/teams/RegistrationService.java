@@ -1,6 +1,7 @@
 package com.cup.backend.teams;
 
 import com.cup.backend.cups.Cup;
+import com.cup.backend.cups.CupLevelQuotaService;
 import com.cup.backend.cups.CupNotFoundException;
 import com.cup.backend.cups.CupRepository;
 import com.cup.backend.cups.CupStatus;
@@ -10,6 +11,7 @@ import com.cup.backend.teams.TeamDtos.RegistrationCreateResponse;
 import com.cup.backend.teams.TeamDtos.RegistrationDetail;
 import com.cup.backend.teams.TeamDtos.RegistrationSummary;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -29,14 +31,17 @@ public class RegistrationService {
   private final CupRepository cupRepository;
   private final TeamRepository teamRepository;
   private final RegistrationRepository registrationRepository;
+  private final CupLevelQuotaService quotaService;
 
   public RegistrationService(
       CupRepository cupRepository,
       TeamRepository teamRepository,
-      RegistrationRepository registrationRepository) {
+      RegistrationRepository registrationRepository,
+      CupLevelQuotaService quotaService) {
     this.cupRepository = cupRepository;
     this.teamRepository = teamRepository;
     this.registrationRepository = registrationRepository;
+    this.quotaService = quotaService;
   }
 
   @Transactional
@@ -46,6 +51,12 @@ public class RegistrationService {
 
     if (cup.getStatus() != CupStatus.OPEN) {
       throw new CupNotOpenException("Registration is not open for this cup");
+    }
+    if (cup.getExternalRegistrationUrl() != null && !cup.getExternalRegistrationUrl().isBlank()) {
+      throw new CupNotOpenException("This cup takes registrations on the organizer's own site");
+    }
+    if (cup.getRegistrationDeadline() != null && LocalDate.now().isAfter(cup.getRegistrationDeadline())) {
+      throw new CupNotOpenException("The registration deadline has passed");
     }
 
     var trimmedNames = trimAndValidateNames(request.teamNames());
@@ -60,6 +71,12 @@ public class RegistrationService {
 
     var resolvedLevels = resolveTeamLevels(cup, trimmedNames.size(), request.teamLevels());
     var resolvedLogos = resolveTeamLogoUrls(trimmedNames.size(), request.teamLogoUrls());
+    var resolvedClasses = resolveTeamAgeClasses(cup, trimmedNames.size(), request.teamAgeClasses());
+    var slots = new ArrayList<CupLevelQuotaService.Slot>();
+    for (var i = 0; i < trimmedNames.size(); i++) {
+      slots.add(new CupLevelQuotaService.Slot(resolvedClasses.get(i), resolvedLevels.get(i)));
+    }
+    quotaService.requireCapacity(cup.getId(), slots);
 
     var now = Instant.now();
     var registration = new Registration(UUID.randomUUID(), cup.getId(), now);
@@ -80,6 +97,7 @@ public class RegistrationService {
           TeamStatus.RESERVED,
           now);
       team.setLevel(resolvedLevels.get(i));
+      team.setAgeClass(resolvedClasses.get(i));
       team.setLogoUrl(resolvedLogos.get(i));
       newTeams.add(teamRepository.save(team));
     }
@@ -143,6 +161,35 @@ public class RegistrationService {
         throw new TeamNameConflictException(name);
       }
     }
+  }
+
+  /**
+   * Resolves per-team age class. Cups with several classes require one valid class per team;
+   * single-class cups put every team in that class; cups without classes store null.
+   */
+  private static List<String> resolveTeamAgeClasses(Cup cup, int teamCount, List<String> raw) {
+    var classes = Arrays.stream(cup.getAgeClasses().split(","))
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .toList();
+    var resolved = new ArrayList<String>(teamCount);
+    if (classes.size() <= 1) {
+      for (var i = 0; i < teamCount; i++) {
+        resolved.add(classes.isEmpty() ? null : classes.getFirst());
+      }
+      return resolved;
+    }
+    if (raw == null || raw.size() != teamCount) {
+      throw new IllegalArgumentException("teamAgeClasses must contain one entry per team");
+    }
+    for (var entry : raw) {
+      var trimmed = entry == null ? "" : entry.trim();
+      resolved.add(classes.stream()
+          .filter(c -> c.equalsIgnoreCase(trimmed))
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException("Unknown age class \"" + trimmed + "\" — allowed: " + classes)));
+    }
+    return resolved;
   }
 
   /**

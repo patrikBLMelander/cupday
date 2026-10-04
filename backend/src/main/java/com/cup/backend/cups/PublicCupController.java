@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicCupController {
 
   private final CupService service;
+  private final CupLevelQuotaService quotaService;
 
-  public PublicCupController(CupService service) {
+  public PublicCupController(CupService service, CupLevelQuotaService quotaService) {
     this.service = service;
+    this.quotaService = quotaService;
   }
 
   /** Landing-page list: all non-draft cups with current free spots. */
@@ -29,6 +31,6 @@ public class PublicCupController {
   @GetMapping("/by-slug/{slug}")
   public CupResponse getBySlug(@PathVariable String slug) {
     var cup = service.getBySlug(slug);
-    return CupResponse.from(cup, service.countActiveTeams(cup.getId()));
+    return CupResponse.from(cup, service.countActiveTeams(cup.getId()), quotaService.quotasWithRemaining(cup.getId()));
   }
 }

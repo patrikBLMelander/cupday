@@ -22,7 +22,8 @@ public final class TeamDtos {
       @NotBlank String contactPhone,
       @NotEmpty @Size(min = 1, max = 2) List<@NotBlank String> teamNames,
       List<String> teamLevels,
-      List<String> teamLogoUrls) {}
+      List<String> teamLogoUrls,
+      List<String> teamAgeClasses) {}
 
   public record RegistrationCreateResponse(UUID registrationId, List<UUID> teamIds) {}
 
@@ -32,7 +33,8 @@ public final class TeamDtos {
       GroupLabel groupLabel,
       TeamStatus status,
       String level,
-      String logoUrl) {
+      String logoUrl,
+      String ageClass) {
 
     public static PublicTeam from(Team team) {
       return new PublicTeam(
@@ -41,7 +43,8 @@ public final class TeamDtos {
           team.getGroupLabel(),
           team.getStatus(),
           team.getLevel(),
-          team.getLogoUrl());
+          team.getLogoUrl(),
+          team.getAgeClass());
     }
   }
 
@@ -78,7 +81,8 @@ public final class TeamDtos {
       Instant paidAt,
       Instant cancelledAt,
       String level,
-      String logoUrl) {
+      String logoUrl,
+      String ageClass) {
 
     public static AdminTeamResponse from(Team team) {
       return new AdminTeamResponse(
@@ -96,7 +100,8 @@ public final class TeamDtos {
           team.getPaidAt(),
           team.getCancelledAt(),
           team.getLevel(),
-          team.getLogoUrl());
+          team.getLogoUrl(),
+          team.getAgeClass());
     }
   }
 

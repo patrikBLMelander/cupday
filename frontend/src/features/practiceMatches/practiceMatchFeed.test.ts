@@ -3,12 +3,15 @@ import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_FILTERS,
   ageKey,
+  cupDays,
+  filterCups,
   filterMatches,
   groupByDay,
   matchRole,
   nextBookableId,
   toFeedItems,
 } from '@/features/practiceMatches/practiceMatchFeed';
+import { buildPostedCup, dateIn } from '@/features/postedCups/testFixtures';
 import { buildMatch, inDays } from '@/features/practiceMatches/testFixtures';
 
 const none = new Set<string>();
@@ -53,7 +56,27 @@ describe('practiceMatchFeed', () => {
 
     const groups = groupByDay(items);
 
-    expect(groups.map((g) => g.items.map((i) => i.match.id))).toEqual([[fullToday.id], [tomorrow.id], [later.id]]);
+    expect(groups.map((g) => g.items.map((i) => (i.kind === 'match' ? i.match.id : i.kind)))).toEqual([[fullToday.id], [tomorrow.id], [later.id]]);
     expect(nextBookableId(items)).toBe(tomorrow.id);
+  });
+
+  it('puts a cup on its first day and a continuation row on later days', () => {
+    const cup = buildPostedCup({ startDate: dateIn(1), endDate: dateIn(2), startTime: '09:00:00' });
+    const match = buildMatch({ kickoffAt: inDays(1, 13) });
+
+    const groups = groupByDay(toFeedItems([match], [cup]));
+
+    expect(groups.map((g) => g.items.map((i) => i.kind))).toEqual([['cup', 'match'], ['cupDay']]);
+    expect(cupDays(toFeedItems([], [cup])).size).toBe(2);
+  });
+
+  it('filters cups by kind, age class and level overlap', () => {
+    const cup = buildPostedCup({ ageClasses: ['P13'], levelMin: 5, levelMax: 8 });
+    const owned = new Set<string>();
+
+    expect(filterCups([cup], { ...DEFAULT_FILTERS, show: 'matches' }, owned)).toEqual([]);
+    expect(filterCups([cup], { ...DEFAULT_FILTERS, ageKey: 'F12' }, owned)).toEqual([]);
+    expect(filterCups([cup], { ...DEFAULT_FILTERS, ageKey: 'P13', levelMin: 7, levelMax: 9 }, owned)).toEqual([cup]);
+    expect(filterCups([cup], { ...DEFAULT_FILTERS, levelMin: 1, levelMax: 3 }, owned)).toEqual([]);
   });
 });

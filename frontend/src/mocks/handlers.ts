@@ -23,6 +23,7 @@ import {
   type TeamStatus,
 } from '@/features/teams/teamTypes';
 import { db, type MockUser } from '@/mocks/db';
+import { postedCupHandlers, quotaProblem, withQuotas } from '@/mocks/postedCupHandlers';
 import { practiceMatchHandlers } from '@/mocks/practiceMatchHandlers';
 
 const EMAIL_RE = /^.+@.+\..+$/;
@@ -180,6 +181,7 @@ type MeResponse = { user: MockUser };
 
 export const handlers = [
   ...practiceMatchHandlers,
+  ...postedCupHandlers,
 
   // --- Auth ---
   http.post('/api/auth/login', async ({ request }) => {
@@ -406,7 +408,7 @@ export const handlers = [
         `Cup with slug "${String(params.slug)}" not found`,
       );
     }
-    return HttpResponse.json(withActiveTeamCount(cup));
+    return HttpResponse.json(withQuotas(withActiveTeamCount(cup)));
   }),
 
   // --- Teams (public) ---
@@ -524,6 +526,20 @@ export const handlers = [
       }
       resolvedLevels = matched;
     }
+    if (cup.externalRegistrationUrl) {
+      return problem(422, 'Registration not open', "This cup takes registrations on the organizer's own site");
+    }
+    const cupClasses = cup.ageClasses ?? [];
+    let resolvedClasses: (string | null)[] = trimmedNames.map(() => (cupClasses.length === 1 ? cupClasses[0] : null));
+    if (cupClasses.length > 1) {
+      const raw = Array.isArray(body.teamAgeClasses) ? body.teamAgeClasses : [];
+      if (raw.length !== trimmedNames.length || raw.some((c) => !cupClasses.includes(c))) {
+        return problem(400, 'Validation', 'teamAgeClasses must contain one valid class per team');
+      }
+      resolvedClasses = raw;
+    }
+    const quotaError = quotaProblem(cup, resolvedClasses, resolvedLevels);
+    if (quotaError) return quotaError;
 
     const registrationId = crypto.randomUUID();
     const createdAt = new Date().toISOString();
@@ -542,6 +558,7 @@ export const handlers = [
       paidAt: null,
       cancelledAt: null,
       level: resolvedLevels[i],
+      ageClass: resolvedClasses[i],
       logoUrl: resolvedLogos[i],
     }));
 

@@ -1,3 +1,4 @@
+import { Trophy } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -53,6 +54,21 @@ export function PublicLandingPage(): JSX.Element {
           <p className="mx-auto mt-4 max-w-xl text-lg text-white/80">
             {t('landing.heroSubtitle')}
           </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Link
+              to="/matcher/ny-cup"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full bg-amber-300 px-6 font-bold text-amber-950 shadow hover:bg-amber-200"
+            >
+              <Trophy className="h-5 w-5" aria-hidden="true" />
+              {t('landing.postCupCta')}
+            </Link>
+            <Link
+              to="/matcher"
+              className="inline-flex min-h-12 items-center rounded-full border border-white/60 px-6 font-bold text-white hover:bg-white/10"
+            >
+              {t('landing.practiceCta')}
+            </Link>
+          </div>
           {nextCup && (
             <NextCupCountdown cup={nextCup} dateFormatter={dateFormatter} t={t} />
           )}
@@ -60,20 +76,6 @@ export function PublicLandingPage(): JSX.Element {
       </section>
 
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 sm:px-6">
-        <Card className="mb-10">
-          <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold tracking-tight">
-                {t('landing.practiceTitle')}
-              </h2>
-              <p className="mt-1 text-muted-foreground">{t('landing.practiceBody')}</p>
-            </div>
-            <Button asChild>
-              <Link to="/matcher">{t('landing.practiceCta')}</Link>
-            </Button>
-          </CardContent>
-        </Card>
-
         <h2 className="mb-6 text-2xl font-semibold tracking-tight">
           {t('landing.upcomingTitle')}
         </h2>
@@ -107,6 +109,20 @@ export function PublicLandingPage(): JSX.Element {
             ))}
           </ul>
         )}
+
+        <section className="mt-8 flex flex-wrap items-center gap-4 rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950">
+          <Trophy className="h-7 w-7 text-amber-800" aria-hidden="true" />
+          <div className="min-w-0 flex-[1_1_280px]">
+            <h2 className="text-lg font-semibold">{t('landing.postCupTitle')}</h2>
+            <p className="text-sm text-amber-900">{t('landing.postCupBody')}</p>
+          </div>
+          <Link
+            to="/matcher/ny-cup"
+            className="inline-flex min-h-11 items-center rounded-full bg-amber-800 px-5 font-bold text-white hover:bg-amber-900"
+          >
+            {t('landing.postCupButton')}
+          </Link>
+        </section>
       </main>
 
       <footer className="mt-8 border-t border-border bg-card px-4 py-10 sm:px-6">

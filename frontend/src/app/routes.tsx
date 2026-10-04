@@ -9,6 +9,9 @@ import { AdminCupSettingsPage } from '@/features/cups/AdminCupSettingsPage';
 import { PublicCupLandingPage } from '@/features/cups/PublicCupLandingPage';
 import { PublicLandingPage } from '@/features/cups/PublicLandingPage';
 import { AdminPracticeMatchesPage } from '@/features/practiceMatches/AdminPracticeMatchesPage';
+import { PostedCupFormPage } from '@/features/postedCups/PostedCupFormPage';
+import { PostedCupManagePage } from '@/features/postedCups/PostedCupManagePage';
+import { SaveCupLinkPage } from '@/features/postedCups/SaveCupLinkPage';
 import { PracticeLayout } from '@/features/practiceMatches/PracticeLayout';
 import { PracticeMatchDetailPage } from '@/features/practiceMatches/PracticeMatchDetailPage';
 import { PracticeMatchFormPage } from '@/features/practiceMatches/PracticeMatchFormPage';
@@ -64,6 +67,10 @@ export const router = createBrowserRouter([
       { index: true, element: <PracticeMatchListPage /> },
       { path: 'ny', element: <PracticeMatchFormPage /> },
       { path: 'integritet', element: <PracticeMatchPrivacyPage /> },
+      { path: 'ny-cup', element: <PostedCupFormPage /> },
+      { path: 'cup/:id/spara-lank', element: <SaveCupLinkPage /> },
+      { path: 'cup/:id/hantera', element: <PostedCupManagePage /> },
+      { path: 'cup/:id/redigera', element: <PostedCupFormPage /> },
       { path: ':id', element: <PracticeMatchDetailPage /> },
       { path: ':id/hantera', element: <PracticeMatchManagePage /> },
       { path: ':id/redigera', element: <PracticeMatchFormPage /> },

@@ -1,8 +1,10 @@
-import { Moon, Plus, Sun } from 'lucide-react';
+import { Moon, Plus, Sun, Trophy } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { PostChooserSheet } from '@/features/postedCups/PostChooserSheet';
 import { useGrassTheme } from '@/features/practiceMatches/useGrassTheme';
 import { cn } from '@/lib/cn';
 
@@ -11,7 +13,9 @@ export function PracticeLayout(): JSX.Element {
   const { t } = useTranslation();
   const { isDark, toggle } = useGrassTheme();
   const { pathname } = useLocation();
-  const onCreatePage = pathname === '/matcher/ny';
+  const onCreatePage = pathname === '/matcher/ny' || pathname === '/matcher/ny-cup';
+  const [chooserOpen, setChooserOpen] = useState(false);
+  const closeChooser = useCallback(() => setChooserOpen(false), []);
 
   return (
     <div className={cn('theme-grass flex min-h-screen flex-col bg-background text-foreground', isDark && 'dark')}>
@@ -37,6 +41,15 @@ export function PracticeLayout(): JSX.Element {
         </button>
         {!onCreatePage && (
           <Link
+            to="/matcher/ny-cup"
+            className="hidden h-11 items-center gap-2 rounded-full border-2 border-amber-800 bg-card px-5 font-bold text-amber-900 hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex dark:border-amber-500 dark:text-amber-300 dark:hover:bg-amber-950/40"
+          >
+            <Trophy className="h-5 w-5" aria-hidden="true" />
+            {t('postedCup.nav.postCup')}
+          </Link>
+        )}
+        {!onCreatePage && (
+          <Link
             to="/matcher/ny"
             className="hidden h-11 items-center gap-2 rounded-full bg-primary px-5 font-bold text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:inline-flex"
           >
@@ -54,14 +67,16 @@ export function PracticeLayout(): JSX.Element {
         </Link>
       </footer>
       {!onCreatePage && (
-        <Link
-          to="/matcher/ny"
+        <button
+          type="button"
+          onClick={() => setChooserOpen(true)}
           className="fixed bottom-5 right-4 inline-flex h-14 items-center gap-2 rounded-full bg-primary px-6 text-base font-bold text-primary-foreground shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:hidden"
         >
           <Plus className="h-5 w-5" aria-hidden="true" />
-          {t('practice.nav.postMatch')}
-        </Link>
+          {t('postedCup.nav.post')}
+        </button>
       )}
+      <PostChooserSheet open={chooserOpen} onClose={closeChooser} />
     </div>
   );
 }

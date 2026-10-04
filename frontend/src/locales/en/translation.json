@@ -737,12 +737,16 @@
     "copied": "Link copied",
     "matchTitle": "Share the match",
     "cupTitle": "Share the cup",
-    "matchHeadline": "⚽ {{team}} is looking for opponents!",
+    "matchHeadline": "{{team}} is looking for opponents!",
     "matchCta": "Book here",
     "cupCta": "Register your team here",
     "matchCardTitle": "Share the match in your team chat",
     "matchCardBody": "The more people see it, the faster you find opponents. Share it in your team's or club's WhatsApp group.",
     "cupCardTitle": "Spread the word",
-    "cupCardBody": "Share the cup in club and coach groups so teams find it. The link opens the public cup page – not your admin link."
+    "cupCardBody": "Share the cup in club and coach groups so teams find it. The link opens the public cup page – not your admin link.",
+    "cupHeadline": "Cup: {{name}}",
+    "when": "Time",
+    "where": "Venue",
+    "dates": "Dates"
   }
 }

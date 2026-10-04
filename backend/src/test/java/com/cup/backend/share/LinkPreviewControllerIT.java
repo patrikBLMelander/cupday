@@ -74,7 +74,8 @@ class LinkPreviewControllerIT extends AbstractIntegrationTest {
         .andExpect(content().string(containsString("Nivå Lätt–Lätt+ · 2 av 2 platser lediga")))
         .andExpect(content().string(containsString("/matcher/" + id)))
         .andExpect(content().string(containsString("og-image.png")))
-        .andExpect(content().string(not(containsString("<F11>"))));
+        .andExpect(content().string(not(containsString("<F11>"))))
+        .andExpect(content().string(not(containsString(".\u0020"))));
   }
 
   @Test

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -98,7 +99,7 @@ public class LinkPreviewController {
     var kickoff = match.kickoffAt().atZone(ZONE);
     var end = match.endsAt().atZone(ZONE);
     var parts = new ArrayList<String>();
-    parts.add(capitalize(DAY.format(kickoff)) + " " + TIME.format(kickoff) + "–" + TIME.format(end));
+    parts.add(capitalize(day(kickoff)) + " " + TIME.format(kickoff) + "–" + TIME.format(end));
     parts.add(match.venue());
     parts.add("Nivå " + levelRange(match.levelMin(), match.levelMax()));
     parts.add(match.freeSlots() == 0
@@ -152,8 +153,8 @@ public class LinkPreviewController {
   }
 
   private static String dateSpan(LocalDate start, LocalDate end) {
-    var first = capitalize(DAY.format(start));
-    return start.equals(end) ? first : first + " – " + DAY.format(end);
+    var first = capitalize(day(start));
+    return start.equals(end) ? first : first + " – " + day(end);
   }
 
   private static String times(LocalTime start, LocalTime end) {
@@ -161,6 +162,11 @@ public class LinkPreviewController {
       return "";
     }
     return " " + TIME.format(start) + (end == null ? "" : "–" + TIME.format(end));
+  }
+
+  /** Swedish short dates come out as "lör 10 okt." — drop the abbreviation dots. */
+  private static String day(TemporalAccessor date) {
+    return DAY.format(date).replace(".", "");
   }
 
   private static String capitalize(String value) {

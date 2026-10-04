@@ -33,8 +33,8 @@ export function matchShare(t: TFunction, match: PracticeMatch, locale: string): 
     body: [
       t('share.matchHeadline', { team: match.teamName }),
       `${matchAgeLabel(match)} · ${formatLabel(t, match.playersPerSide)} · ${levelRangeLabel(t, match.levelMin, match.levelMax)}`,
-      `📅 ${formatLongDate(match.kickoffAt, locale)} ${formatTimeRange(match.kickoffAt, match.endsAt, locale)}`,
-      `📍 ${match.venue}`,
+      `${t('share.when')}: ${formatLongDate(match.kickoffAt, locale)} ${formatTimeRange(match.kickoffAt, match.endsAt, locale)}`,
+      `${t('share.where')}: ${match.venue}`,
       slots,
     ].join('\n'),
     cta: t('share.matchCta'),
@@ -48,12 +48,12 @@ export function cupShare(t: TFunction, cup: Cup, locale: string): ShareContent {
   const times = formatCupTimes(cup.startTime, cup.endTime);
   const details = [(cup.ageClasses ?? []).join(', '), t('practice.formatLabel', { n: cup.playersPerTeam })].filter(Boolean);
   return {
-    title: `🏆 ${cup.name}`,
+    title: t('share.cupHeadline', { name: cup.name }),
     body: [
-      `🏆 ${cup.name}`,
-      `📅 ${formatDateSpan(cup.startDate, cup.endDate, locale)}${times ? ` · ${times}` : ''}`,
+      t('share.cupHeadline', { name: cup.name }),
+      `${t('share.dates')}: ${formatDateSpan(cup.startDate, cup.endDate, locale)}${times ? ` · ${times}` : ''}`,
       details.join(' · '),
-      `📍 ${cup.venueName}`,
+      `${t('share.where')}: ${cup.venueName}`,
       remaining === 0 ? t('postedCup.feed.full') : t('postedCup.feed.spotsLeft', { remaining, max: cup.maxTeams }),
     ].join('\n'),
     cta: t('share.cupCta'),
@@ -65,7 +65,11 @@ export function fullMessage(content: ShareContent): string {
   return `${content.body}\n\n${content.cta}: ${content.url}`;
 }
 
-/** wa.me opens WhatsApp (app or web) with the message prefilled; the user picks the chat. */
+/**
+ * Opens WhatsApp (app or web) with the message prefilled; the user picks the chat. Uses
+ * api.whatsapp.com rather than wa.me, whose redirect garbles special characters on some clients,
+ * and the message itself avoids emoji for the same reason.
+ */
 export function whatsappUrl(content: ShareContent): string {
-  return `https://wa.me/?text=${encodeURIComponent(fullMessage(content))}`;
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage(content))}`;
 }

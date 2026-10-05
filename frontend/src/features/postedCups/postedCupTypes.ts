@@ -45,6 +45,8 @@ export interface PostedCupRequest {
 export interface CreatePostedCupResponse {
   cup: Cup;
   manageToken: string;
+  /** The admin link is also on its way by email. */
+  confirmationEmail?: boolean;
 }
 
 export interface ManagedCup {

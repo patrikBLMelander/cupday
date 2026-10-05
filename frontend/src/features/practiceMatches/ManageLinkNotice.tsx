@@ -11,6 +11,8 @@ interface ManageLinkNoticeProps {
   token: string;
   /** Right after posting: loud until the organizer has saved the link one way or another. */
   emphasized: boolean;
+  /** The backend also emailed the link to the organizer. */
+  emailSent?: boolean;
 }
 
 function manageLink(matchId: string, token: string): string {
@@ -21,7 +23,7 @@ function manageLink(matchId: string, token: string): string {
  * The manage link is the only key to edit/cancel a match (no accounts, no email service),
  * so this card pushes the organizer to mail, share or copy it.
  */
-export function ManageLinkNotice({ match, token, emphasized }: ManageLinkNoticeProps): JSX.Element {
+export function ManageLinkNotice({ match, token, emphasized, emailSent = false }: ManageLinkNoticeProps): JSX.Element {
   const { t, i18n } = useTranslation();
   const locale = i18n.resolvedLanguage ?? 'sv';
   const [saved, setSaved] = useState(!emphasized);
@@ -86,6 +88,12 @@ export function ManageLinkNotice({ match, token, emphasized }: ManageLinkNoticeP
           </p>
         </div>
       </div>
+
+      {emailSent && (
+        <p role="status" className="mt-3 rounded-xl bg-card p-3 text-sm font-semibold">
+          {t('practice.manage.emailSent', { email: match.contactEmail })}
+        </p>
+      )}
 
       <div className="mt-4 flex flex-col gap-2">
         <label htmlFor="manage-link" className="sr-only">

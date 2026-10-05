@@ -94,11 +94,15 @@ export interface Booking {
 export interface CreatePracticeMatchResponse {
   match: PracticeMatch;
   manageToken: string;
+  /** A confirmation with the manage link is on its way by email. */
+  confirmationEmail?: boolean;
 }
 
 export interface CreateBookingResponse {
   booking: Booking;
   manageToken: string;
+  /** Both sides are notified by email. */
+  confirmationEmail?: boolean;
 }
 
 export interface ManagedPracticeMatch {

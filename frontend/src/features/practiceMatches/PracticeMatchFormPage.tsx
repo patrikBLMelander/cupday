@@ -147,7 +147,7 @@ export function PracticeMatchFormPage(): JSX.Element {
         onSubmit={async (body) => {
           const result = await createMatch(body).unwrap();
           saveMatchToken(result.match.id, result.manageToken);
-          navigate(`/matcher/${result.match.id}/hantera`, { state: { justCreated: true } });
+          navigate(`/matcher/${result.match.id}/hantera`, { state: { justCreated: true, emailSent: result.confirmationEmail === true } });
         }}
       />
     );

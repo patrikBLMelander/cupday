@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.cup.backend.mail.LoggingMailSender;
 import com.cup.backend.practicematches.PracticeMatchDtos.BookingRequest;
 import java.time.Duration;
 import java.time.Instant;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 class PracticeMatchServiceTest {
 
@@ -24,7 +26,7 @@ class PracticeMatchServiceTest {
   private final PracticeMatchBookingRepository bookingRepository = mock(PracticeMatchBookingRepository.class);
   private final ManageTokenService tokenService = new ManageTokenService();
   private final PracticeMatchService service =
-      new PracticeMatchService(matchRepository, bookingRepository, tokenService);
+      new PracticeMatchService(matchRepository, bookingRepository, tokenService, mock(ApplicationEventPublisher.class), new LoggingMailSender());
 
   private PracticeMatch match(String token, int slots) {
     var match = new PracticeMatch(UUID.randomUUID(), tokenService.hash(token), Instant.now());

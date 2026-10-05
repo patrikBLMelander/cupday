@@ -1,7 +1,7 @@
 import { KeyRound, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { AdminLinkActions } from '@/features/postedCups/AdminLinkActions';
 import { getCupToken } from '@/features/postedCups/cupTokens';
@@ -16,6 +16,7 @@ export function SaveCupLinkPage(): JSX.Element {
   const { t } = useTranslation();
   const { id = '' } = useParams();
   const navigate = useNavigate();
+  const emailSent = (useLocation().state as { emailSent?: boolean } | null)?.emailSent === true;
   const token = getCupToken(id);
   const [saved, setSaved] = useState(false);
   const { data, isError } = useGetManagedCupQuery({ id, token: token ?? '' }, { skip: !token });
@@ -59,6 +60,11 @@ export function SaveCupLinkPage(): JSX.Element {
           ))}
         </ul>
         <p className="mt-3 rounded-xl bg-accent p-3 text-sm font-semibold">{t('postedCup.link.noAccount')}</p>
+        {emailSent && (
+          <p role="status" className="mt-3 text-sm font-semibold">
+            {t('postedCup.link.emailSent', { email: data.cup.organizerContactEmail })}
+          </p>
+        )}
 
         <div className="mt-5">
           <AdminLinkActions cup={data.cup} token={token} onSaved={() => setSaved(true)} />

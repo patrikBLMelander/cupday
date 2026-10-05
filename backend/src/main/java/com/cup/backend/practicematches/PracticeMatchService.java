@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.cup.backend.mail.MailSender;
+import com.cup.backend.mail.NotificationEvents.PracticeMatchBooked;
+import com.cup.backend.mail.NotificationEvents.PracticeMatchPosted;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,14 +36,20 @@ public class PracticeMatchService {
   private final PracticeMatchRepository matchRepository;
   private final PracticeMatchBookingRepository bookingRepository;
   private final ManageTokenService tokenService;
+  private final ApplicationEventPublisher events;
+  private final MailSender mailSender;
 
   public PracticeMatchService(
       PracticeMatchRepository matchRepository,
       PracticeMatchBookingRepository bookingRepository,
-      ManageTokenService tokenService) {
+      ManageTokenService tokenService,
+      ApplicationEventPublisher events,
+      MailSender mailSender) {
     this.matchRepository = matchRepository;
     this.bookingRepository = bookingRepository;
     this.tokenService = tokenService;
+    this.events = events;
+    this.mailSender = mailSender;
   }
 
   /** Active matches between {@code from} (default now) and {@code to} (default from + 60 days), soonest first. */
@@ -98,7 +108,8 @@ public class PracticeMatchService {
     var match = new PracticeMatch(UUID.randomUUID(), tokenService.hash(token), Instant.now());
     apply(match, request);
     matchRepository.save(match);
-    return new CreatePracticeMatchResponse(PublicPracticeMatch.from(match, List.of()), token);
+    events.publishEvent(new PracticeMatchPosted(match.getId(), token));
+    return new CreatePracticeMatchResponse(PublicPracticeMatch.from(match, List.of()), token, mailSender.enabled());
   }
 
   /** Replaces the editable fields of an active match. */
@@ -169,7 +180,8 @@ public class PracticeMatchService {
         tokenService.hash(token),
         Instant.now());
     bookingRepository.save(booking);
-    return new CreateBookingResponse(BookingResponse.from(booking), token);
+    events.publishEvent(new PracticeMatchBooked(matchId, booking.getId(), token));
+    return new CreateBookingResponse(BookingResponse.from(booking), token, mailSender.enabled());
   }
 
   /** Cancels a booking with either the booker's or the organizer's token. Idempotent. */

@@ -80,4 +80,35 @@ describe('PracticeMatchDetailPage', () => {
 
     expect(await screen.findByText('ekens if f12 har redan bokat den här matchen.')).toBeInTheDocument();
   });
+
+  it('picks up the cancel link from the booking email and lets the booker cancel', async () => {
+    const match = buildMockMatch({ opponentSlots: 1 });
+    const bookingId = '11111111-2222-3333-4444-555555555555';
+    db.write((d) => {
+      d.practiceMatches.push(match);
+      d.practiceBookings.push({
+        id: bookingId,
+        matchId: match.id,
+        teamName: 'Solna BK',
+        contactName: 'Jonas',
+        contactPhone: '1',
+        contactEmail: 'j@example.com',
+        message: null,
+        status: 'booked',
+        createdAt: new Date().toISOString(),
+        cancelledAt: null,
+        manageToken: 'booking-token',
+      });
+    });
+    window.location.hash = `#avboka.${bookingId}.booking-token`;
+    renderDetail(match.id);
+
+    expect(await screen.findByText('Du har en bokning på den här matchen')).toBeInTheDocument();
+    expect(window.location.hash).toBe('');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Avboka' }));
+
+    await screen.findByText('1 av 1 plats ledig');
+    expect(db.read().practiceBookings[0].status).toBe('cancelled');
+  });
 });

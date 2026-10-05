@@ -8,6 +8,8 @@ import com.cup.backend.cups.CupLevelQuotaService;
 import com.cup.backend.cups.CupNotFoundException;
 import com.cup.backend.cups.CupRepository;
 import com.cup.backend.cups.CupStatus;
+import com.cup.backend.mail.MailSender;
+import com.cup.backend.mail.NotificationEvents.CupPosted;
 import com.cup.backend.practicematches.InvalidManageTokenException;
 import com.cup.backend.practicematches.ManageTokenService;
 import com.cup.backend.postedcups.PostedCupDtos.CreatePostedCupResponse;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +53,8 @@ public class PostedCupService {
   private final TeamRepository teamRepository;
   private final AdminTeamService adminTeamService;
   private final ManageTokenService tokenService;
+  private final ApplicationEventPublisher events;
+  private final MailSender mailSender;
 
   public PostedCupService(
       CupRepository cupRepository,
@@ -57,13 +62,17 @@ public class PostedCupService {
       CupLevelQuotaService quotaService,
       TeamRepository teamRepository,
       AdminTeamService adminTeamService,
-      ManageTokenService tokenService) {
+      ManageTokenService tokenService,
+      ApplicationEventPublisher events,
+      MailSender mailSender) {
     this.cupRepository = cupRepository;
     this.quotaRepository = quotaRepository;
     this.quotaService = quotaService;
     this.teamRepository = teamRepository;
     this.adminTeamService = adminTeamService;
     this.tokenService = tokenService;
+    this.events = events;
+    this.mailSender = mailSender;
   }
 
   /** Publishes a cup (status OPEN, visible at once) and returns its one-time manage token. */
@@ -107,7 +116,8 @@ public class PostedCupService {
     apply(cup, request);
     cupRepository.save(cup);
     replaceQuotas(cup, normalizedSlots(request));
-    return new CreatePostedCupResponse(response(cup), token);
+    events.publishEvent(new CupPosted(cup.getId(), token));
+    return new CreatePostedCupResponse(response(cup), token, mailSender.enabled());
   }
 
   /** Organizer view with all teams (including cancelled) and their contact details. */

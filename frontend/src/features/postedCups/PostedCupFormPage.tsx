@@ -179,7 +179,7 @@ export function PostedCupFormPage(): JSX.Element {
         onSubmit={async (body) => {
           const result = await createCup(body).unwrap();
           saveCupToken(result.cup.id, result.manageToken);
-          navigate(`/matcher/cup/${result.cup.id}/spara-lank`);
+          navigate(`/matcher/cup/${result.cup.id}/spara-lank`, { state: { emailSent: result.confirmationEmail === true } });
         }}
       />
     );

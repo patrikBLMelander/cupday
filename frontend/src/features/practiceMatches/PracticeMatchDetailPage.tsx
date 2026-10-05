@@ -34,11 +34,25 @@ import { matchShare } from '@/features/share/shareText';
 
 const EMAIL_RE = /^.+@.+\..+$/;
 
+/**
+ * The booking confirmation email links to `/matcher/<id>#avboka.<bookingId>.<token>`; remember that
+ * booking in this browser (so "Avboka" shows) and drop the token from the address bar.
+ */
+function adoptBookingLink(matchId: string): void {
+  const match = /^#avboka\.([0-9a-fA-F-]{36})\.(.+)$/.exec(window.location.hash);
+  if (!match) return;
+  saveBooking({ bookingId: match[1], matchId, token: decodeURIComponent(match[2]), teamName: '' });
+  window.history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
 export function PracticeMatchDetailPage(): JSX.Element {
   const { t, i18n } = useTranslation();
   const { id = '' } = useParams();
   const { data: match, isLoading, isError } = useGetPracticeMatchQuery(id);
-  const [myBookings, setMyBookings] = useState<StoredBooking[]>(() => bookingsForMatch(id));
+  const [myBookings, setMyBookings] = useState<StoredBooking[]>(() => {
+    adoptBookingLink(id);
+    return bookingsForMatch(id);
+  });
 
   if (isLoading) {
     return (
@@ -226,7 +240,9 @@ function MyBooking({ booking, onCancelled }: { booking: StoredBooking; onCancell
 
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-primary bg-accent p-4">
-      <span className="flex-1 font-bold">{t('practice.booking.yourBooking', { team: booking.teamName })}</span>
+      <span className="flex-1 font-bold">
+        {booking.teamName ? t('practice.booking.yourBooking', { team: booking.teamName }) : t('practice.booking.yourBookingGeneric')}
+      </span>
       <button
         type="button"
         onClick={cancel}
@@ -259,6 +275,7 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
   const [bookMatch, { isLoading }] = useBookPracticeMatchMutation();
   const [formError, setFormError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
   const {
     register,
     handleSubmit,
@@ -292,6 +309,7 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
         teamName: result.booking.teamName,
       });
       setSuccess(t('practice.booking.success', { team: result.booking.teamName }));
+      setEmailSent(result.confirmationEmail === true);
       reset();
     } catch (err) {
       const problem = asProblem(err);
@@ -313,7 +331,9 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
       {success && (
         <div role="status" className="mb-4 rounded-xl bg-accent p-3">
           <p className="font-bold text-accent-foreground">{success}</p>
-          <p className="text-sm text-muted-foreground">{t('practice.booking.successHint')}</p>
+          <p className="text-sm text-muted-foreground">
+            {emailSent ? t('practice.booking.successHintEmail') : t('practice.booking.successHint')}
+          </p>
         </div>
       )}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3.5">

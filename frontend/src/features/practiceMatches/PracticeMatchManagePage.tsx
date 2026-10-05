@@ -33,7 +33,9 @@ export function PracticeMatchManagePage(): JSX.Element {
   const { id = '' } = useParams();
   const location = useLocation();
   const [token] = useState(() => resolveToken(id, location.hash));
-  const justCreated = (location.state as { justCreated?: boolean } | null)?.justCreated === true;
+  const navState = location.state as { justCreated?: boolean; emailSent?: boolean } | null;
+  const justCreated = navState?.justCreated === true;
+  const emailSent = navState?.emailSent === true;
   const { data, error, isLoading } = useGetManagedPracticeMatchQuery({ id, token: token ?? '' }, { skip: !token });
 
   if (!token || asProblem(error).status === 403) {
@@ -61,7 +63,7 @@ export function PracticeMatchManagePage(): JSX.Element {
         </p>
       )}
 
-      <ManageLinkNotice match={match} token={token} emphasized={justCreated} />
+      <ManageLinkNotice match={match} token={token} emphasized={justCreated} emailSent={justCreated && emailSent} />
 
       {justCreated && isActive && (
         <ShareCard

@@ -138,10 +138,12 @@ public final class PracticeMatchDtos {
   }
 
   /** Returned once on create; the raw token is never stored or shown again. */
-  public record CreatePracticeMatchResponse(PublicPracticeMatch match, String manageToken) {}
+  /** {@code confirmationEmail}: a confirmation with the manage link is on its way to the organizer. */
+  public record CreatePracticeMatchResponse(PublicPracticeMatch match, String manageToken, boolean confirmationEmail) {}
 
   /** Returned once on booking; the raw token is never stored or shown again. */
-  public record CreateBookingResponse(BookingResponse booking, String manageToken) {}
+  /** {@code confirmationEmail}: both sides are being notified by email. */
+  public record CreateBookingResponse(BookingResponse booking, String manageToken, boolean confirmationEmail) {}
 
   /** One page of the admin moderation list, newest posts first. */
   public record AdminPracticeMatchPage(

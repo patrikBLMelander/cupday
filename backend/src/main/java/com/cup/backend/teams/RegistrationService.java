@@ -5,6 +5,7 @@ import com.cup.backend.cups.CupLevelQuotaService;
 import com.cup.backend.cups.CupNotFoundException;
 import com.cup.backend.cups.CupRepository;
 import com.cup.backend.cups.CupStatus;
+import com.cup.backend.mail.NotificationEvents.CupTeamsRegistered;
 import com.cup.backend.teams.TeamDtos.PublicTeam;
 import com.cup.backend.teams.TeamDtos.RegistrationCreateRequest;
 import com.cup.backend.teams.TeamDtos.RegistrationCreateResponse;
@@ -18,6 +19,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,16 +34,19 @@ public class RegistrationService {
   private final TeamRepository teamRepository;
   private final RegistrationRepository registrationRepository;
   private final CupLevelQuotaService quotaService;
+  private final ApplicationEventPublisher events;
 
   public RegistrationService(
       CupRepository cupRepository,
       TeamRepository teamRepository,
       RegistrationRepository registrationRepository,
-      CupLevelQuotaService quotaService) {
+      CupLevelQuotaService quotaService,
+      ApplicationEventPublisher events) {
     this.cupRepository = cupRepository;
     this.teamRepository = teamRepository;
     this.registrationRepository = registrationRepository;
     this.quotaService = quotaService;
+    this.events = events;
   }
 
   @Transactional
@@ -100,6 +105,10 @@ public class RegistrationService {
       team.setAgeClass(resolvedClasses.get(i));
       team.setLogoUrl(resolvedLogos.get(i));
       newTeams.add(teamRepository.save(team));
+    }
+
+    if (cup.isPubliclyPosted()) {
+      events.publishEvent(new CupTeamsRegistered(cup.getId(), newTeams.stream().map(Team::getId).toList()));
     }
 
     var newActiveCount = existingActive.size() + newTeams.size();

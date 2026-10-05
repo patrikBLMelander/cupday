@@ -474,7 +474,9 @@
       "full": "This match is fully booked.",
       "conflict": "{{team}} has already booked this match.",
       "notBookable": "This match can no longer be booked.",
-      "genericError": "Something went wrong. Try again."
+      "genericError": "Something went wrong. Try again.",
+      "successHintEmail": "You'll get a confirmation by email, and the organiser has been emailed your contact details.",
+      "yourBookingGeneric": "You have a booking for this match"
     },
     "form": {
       "createTitle": "New practice match",
@@ -551,7 +553,8 @@
       "emailSubject": "Manage link – {{team}}",
       "emailBody": "Here is the link to edit or cancel the practice match for {{team}} ({{date}}):\n\n{{link}}\n\nKeep this email.",
       "savedConfirm": "I have saved the link",
-      "saved": "Great! Keep the email or note so you can always get back."
+      "saved": "Great! Keep the email or note so you can always get back.",
+      "emailSent": "We also emailed the link to {{email}}. If you can't find it, check your spam folder."
     },
     "consent": {
       "match": "I agree that the contact details are shown publicly on the site so that other teams can reach me. The match and the details are deleted automatically 30 days after the match day.",
@@ -567,7 +570,7 @@
       "whoTitle": "Who can see it?",
       "whoBody": "The organiser's contact details are shown publicly so that other teams can get in touch. Names of teams that booked are also public. A booker's contact details and message are only visible to the organiser via the manage link.",
       "whyTitle": "Why?",
-      "whyBody": "The data is only used so that teams can find each other and book practice matches. It is not sold or used for advertising. You give your consent when you post or book a match.",
+      "whyBody": "The data is only used so that teams can find each other and book practice matches and cups. We send email with confirmations, manage links and notices about bookings and registrations to the addresses you give. It is not sold or used for advertising. You give your consent when you post or book.",
       "howLongTitle": "How long is it kept?",
       "howLongBody": "Matches and bookings, including contact details, are deleted automatically 30 days after the match day. You can cancel your match or booking at any time.",
       "browserTitle": "What is stored in your browser?",
@@ -700,7 +703,8 @@
       "copy": "Copy link",
       "copied": "Copied!",
       "emailSubject": "Admin link – {{name}}",
-      "emailBody": "Here is the admin link for {{name}}. Use it to see registered teams, mark payments and edit the cup:\n\n{{link}}\n\nKeep this email – the link cannot be sent again."
+      "emailBody": "Here is the admin link for {{name}}. Use it to see registered teams, mark payments and edit the cup:\n\n{{link}}\n\nKeep this email – the link cannot be sent again.",
+      "emailSent": "We also emailed the admin link to {{email}}. Keep that email – and check your spam folder if you can't find it."
     },
     "manage": {
       "kicker": "Manage cup",

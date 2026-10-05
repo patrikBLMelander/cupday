@@ -72,7 +72,8 @@ public final class PostedCupDtos {
   public record SlotRequest(@Size(max = 20) String ageClass, @Size(max = 40) String level, @NotNull @Min(1) Integer maxTeams) {}
 
   /** Returned once on create; the raw token is never stored or shown again. */
-  public record CreatePostedCupResponse(CupResponse cup, String manageToken) {}
+  /** {@code confirmationEmail}: the admin link is also on its way to the organizer by email. */
+  public record CreatePostedCupResponse(CupResponse cup, String manageToken, boolean confirmationEmail) {}
 
   /** Organizer view: the cup plus every team with contact details and payment status. */
   public record ManagedCupResponse(CupResponse cup, List<AdminTeamResponse> teams) {}

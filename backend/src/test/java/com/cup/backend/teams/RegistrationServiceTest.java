@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 
 class RegistrationServiceTest {
 
@@ -86,7 +87,7 @@ class RegistrationServiceTest {
     when(teamRepo.findActiveByCupId(cup.getId())).thenReturn(List.of());
     when(teamRepo.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class));
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class), mock(ApplicationEventPublisher.class));
     var response = service.register(cup.getId(), req("IFK Lag 1"));
 
     assertThat(response.teamIds()).hasSize(1);
@@ -103,7 +104,7 @@ class RegistrationServiceTest {
     cup.setStatus(CupStatus.DRAFT);
     when(cupRepo.findByIdForUpdate(cup.getId())).thenReturn(Optional.of(cup));
 
-    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class));
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class), mock(ApplicationEventPublisher.class));
 
     assertThatThrownBy(() -> service.register(cup.getId(), req("Lag")))
         .isInstanceOf(CupNotOpenException.class);
@@ -119,7 +120,7 @@ class RegistrationServiceTest {
     when(teamRepo.findActiveByCupId(cup.getId())).thenReturn(List.of());
     when(teamRepo.save(any(Team.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class));
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class), mock(ApplicationEventPublisher.class));
     service.register(cup.getId(), req("A", "B"));
 
     assertThat(cup.getStatus()).isEqualTo(CupStatus.FULL);
@@ -134,7 +135,7 @@ class RegistrationServiceTest {
     when(cupRepo.findByIdForUpdate(cup.getId())).thenReturn(Optional.of(cup));
     when(teamRepo.findActiveByCupId(cup.getId())).thenReturn(List.of());
 
-    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class));
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class), mock(ApplicationEventPublisher.class));
 
     assertThatThrownBy(() ->
         service.register(cup.getId(), reqWithLevels(List.of("IFK Lag 1"), List.of("Pro"))))
@@ -157,7 +158,7 @@ class RegistrationServiceTest {
       return t;
     });
 
-    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class));
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class), mock(ApplicationEventPublisher.class));
     service.register(cup.getId(),
         reqWithLevels(List.of("IFK Lag 1", "IFK Lag 2"), List.of("medel", "Svår")));
 
@@ -191,7 +192,7 @@ class RegistrationServiceTest {
         List.of("https://example.com/a.png", "https://example.com/b.png"),
         null);
 
-    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class));
+    var service = new RegistrationService(cupRepo, teamRepo, regRepo, mock(CupLevelQuotaService.class), mock(ApplicationEventPublisher.class));
     service.register(cup.getId(), request);
 
     assertThat(saved).hasSize(2);

@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-const OWNER_NAME = 'Patrik Melander';
-const OWNER_EMAIL = 'patrikblmelander@gmail.com';
+import { SITE_OWNER_EMAIL as OWNER_EMAIL, SITE_OWNER_NAME as OWNER_NAME } from '@/lib/siteContact';
 const SECTIONS = ['what', 'who', 'why', 'howLong', 'browser'] as const;
 
 /** Plain-language privacy notice for the practice-match board (GDPR transparency). */

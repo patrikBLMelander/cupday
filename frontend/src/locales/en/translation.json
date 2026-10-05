@@ -370,7 +370,9 @@
       "home": "Din Cup",
       "postMatch": "Post a match",
       "toggleTheme": "Toggle light/dark mode",
-      "privacy": "Privacy & personal data"
+      "privacy": "Privacy & personal data",
+      "feedback": "Feedback & contact",
+      "feedbackSubject": "Feedback about dincup.se"
     },
     "formatLabel": "{{n}}v{{n}}",
     "levels": {

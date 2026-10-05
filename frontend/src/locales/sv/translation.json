@@ -370,7 +370,9 @@
       "home": "Din Cup",
       "postMatch": "Lägg upp match",
       "toggleTheme": "Växla ljust/mörkt läge",
-      "privacy": "Integritet & personuppgifter"
+      "privacy": "Integritet & personuppgifter",
+      "feedback": "Feedback och kontakt",
+      "feedbackSubject": "Feedback om dincup.se"
     },
     "formatLabel": "{{n}}v{{n}}",
     "levels": {

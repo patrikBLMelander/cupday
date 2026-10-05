@@ -110,4 +110,13 @@ describe('PracticeMatchListPage', () => {
     expect(screen.queryByRole('article', { name: 'Cup: Grimsta Höstcup' })).not.toBeInTheDocument();
     expect(screen.getByText('Solna BK')).toBeInTheDocument();
   });
+
+  it('links to feedback by email in the footer', async () => {
+    renderList();
+
+    expect(await screen.findByRole('link', { name: 'Feedback och kontakt' })).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^mailto:patrikblmelander@gmail\.com\?subject=/),
+    );
+  });
 });

@@ -7,6 +7,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { PostChooserSheet } from '@/features/postedCups/PostChooserSheet';
 import { useGrassTheme } from '@/features/practiceMatches/useGrassTheme';
 import { cn } from '@/lib/cn';
+import { SITE_OWNER_EMAIL } from '@/lib/siteContact';
 
 /** Shell for the practice-match board: own theme (light/dark), header and routes. Independent of cups. */
 export function PracticeLayout(): JSX.Element {
@@ -61,7 +62,13 @@ export function PracticeLayout(): JSX.Element {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-8 sm:px-6">
         <Outlet />
       </main>
-      <footer className="mx-auto w-full max-w-6xl px-4 pb-28 pt-4 text-sm sm:px-6 sm:pb-10">
+      <footer className="mx-auto flex w-full max-w-6xl flex-wrap gap-x-6 px-4 pb-28 pt-4 text-sm sm:px-6 sm:pb-10">
+        <a
+          href={`mailto:${SITE_OWNER_EMAIL}?subject=${encodeURIComponent(t('practice.nav.feedbackSubject'))}`}
+          className="inline-flex min-h-11 items-center text-muted-foreground underline hover:text-foreground"
+        >
+          {t('practice.nav.feedback')}
+        </a>
         <Link to="/matcher/integritet" className="inline-flex min-h-11 items-center text-muted-foreground underline hover:text-foreground">
           {t('practice.nav.privacy')}
         </Link>

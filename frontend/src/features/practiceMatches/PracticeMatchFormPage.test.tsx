@@ -70,7 +70,7 @@ describe('PracticeMatchFormPage', () => {
       'href',
       expect.stringContaining('mailto:ali%40example.com'),
     );
-    expect(screen.getByRole('region', { name: 'Dela matchen i din lagchatt' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Dela matchen i WhatsApp' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Dela i WhatsApp' })).toHaveAttribute(
       'href',
       expect.stringContaining(encodeURIComponent('Ekens IF F11 söker träningsmatch.')),

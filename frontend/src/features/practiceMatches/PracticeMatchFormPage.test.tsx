@@ -55,7 +55,7 @@ describe('PracticeMatchFormPage', () => {
     await user.click(screen.getByRole('radio', { name: '5v5' }));
     await user.click(screen.getByRole('button', { name: 'Lätt' }));
     await user.click(screen.getByRole('button', { name: 'Medel' }));
-    expect(screen.getByText('Vald nivå: Lätt–Medel')).toBeInTheDocument();
+    expect(screen.getByText('Vald nivå: Lätt till Medel')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Fler platser' }));
     await user.type(screen.getByLabelText('Namn'), 'Ali Hassan');
     await user.type(screen.getByLabelText('Telefon'), '070-123 45 67');

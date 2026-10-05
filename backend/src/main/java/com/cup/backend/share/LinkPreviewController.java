@@ -149,7 +149,7 @@ public class LinkPreviewController {
   }
 
   private static String levelRange(int min, int max) {
-    return min == max ? LEVELS.get(min - 1) : LEVELS.get(min - 1) + "–" + LEVELS.get(max - 1);
+    return min == max ? LEVELS.get(min - 1) : LEVELS.get(min - 1) + " till " + LEVELS.get(max - 1);
   }
 
   private static String dateSpan(LocalDate start, LocalDate end) {

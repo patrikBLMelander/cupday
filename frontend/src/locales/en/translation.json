@@ -572,7 +572,8 @@
       "browserBody": "The site uses no tracking cookies. Your browser stores manage keys for matches you posted and slots you booked, the team name in the search field and your light/dark choice. You can remove it at any time by clearing site data.",
       "removeTitle": "Want data removed?",
       "removeBody": "Contact {{name}} at {{email}} and we will remove it. You also have the right to know what data is stored about you."
-    }
+    },
+    "levelRange": "{{from}} to {{to}}"
   },
   "postedCup": {
     "nav": {

@@ -572,7 +572,8 @@
       "browserBody": "Sidan använder inga spårningscookies. I din webbläsare sparas hanteringsnycklar för matcher du lagt upp och platser du bokat, lagnamnet i sökfältet och om du valt ljust eller mörkt läge. Du kan ta bort det när som helst genom att rensa webbplatsdata.",
       "removeTitle": "Vill du få uppgifter borttagna?",
       "removeBody": "Kontakta {{name}} på {{email}}, så tar vi bort uppgifterna. Du har också rätt att få veta vilka uppgifter som finns sparade om dig."
-    }
+    },
+    "levelRange": "{{from}} till {{to}}"
   },
   "postedCup": {
     "nav": {

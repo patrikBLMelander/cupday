@@ -8,9 +8,12 @@ export function levelLabel(t: TFunction, level: number): string {
   return t(`practice.levels.${key}`);
 }
 
-/** "Lätt+–Medel", or a single label when min = max. */
+/**
+ * "Medel− till Medel", or a single label when min = max. Words instead of a dash, because the
+ * level names themselves end in "−"/"+" and "Medel−–Medel" reads as a double dash.
+ */
 export function levelRangeLabel(t: TFunction, min: number, max: number): string {
-  return min === max ? levelLabel(t, min) : `${levelLabel(t, min)}–${levelLabel(t, max)}`;
+  return min === max ? levelLabel(t, min) : t('practice.levelRange', { from: levelLabel(t, min), to: levelLabel(t, max) });
 }
 
 export function formatLabel(t: TFunction, playersPerSide: number): string {

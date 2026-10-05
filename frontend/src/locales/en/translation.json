@@ -737,7 +737,7 @@
     "copied": "Link copied",
     "matchTitle": "Share the match",
     "cupTitle": "Share the cup",
-    "matchHeadline": "{{team}} is looking for opponents!",
+    "matchHeadline": "{{team}} is looking for a practice match.",
     "matchCta": "Book here",
     "cupCta": "Register your team here",
     "matchCardTitle": "Share the match in your team chat",
@@ -747,6 +747,11 @@
     "cupHeadline": "Cup: {{name}}",
     "when": "Time",
     "where": "Venue",
-    "dates": "Dates"
+    "date": "Date",
+    "level": "Level",
+    "cost": "Cost",
+    "fee": "Fee",
+    "copyText": "Copy text",
+    "copiedText": "Text copied"
   }
 }

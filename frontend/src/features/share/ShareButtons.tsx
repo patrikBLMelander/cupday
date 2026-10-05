@@ -1,4 +1,4 @@
-import { Check, Link2, MessageCircle, Share2 } from 'lucide-react';
+import { Check, ClipboardCopy, Link2, MessageCircle, Share2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -11,15 +11,15 @@ const button =
 /** WhatsApp, the native share sheet (where available) and copy-link for a match or cup. */
 export function ShareButtons({ content, className }: { content: ShareContent; className?: string }): JSX.Element {
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<'link' | 'text' | null>(null);
   const canShare = typeof navigator.share === 'function';
 
-  async function copy(): Promise<void> {
+  async function copy(what: 'link' | 'text'): Promise<void> {
     try {
-      await navigator.clipboard.writeText(content.url);
-      setCopied(true);
+      await navigator.clipboard.writeText(what === 'link' ? content.url : fullMessage(content));
+      setCopied(what);
     } catch {
-      setCopied(false);
+      setCopied(null);
     }
   }
 
@@ -48,9 +48,13 @@ export function ShareButtons({ content, className }: { content: ShareContent; cl
           {t('share.native')}
         </button>
       )}
-      <button type="button" onClick={() => void copy()} className={cn(button, 'border border-input bg-card hover:bg-muted')}>
-        {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Link2 className="h-4 w-4" aria-hidden="true" />}
-        {copied ? t('share.copied') : t('share.copy')}
+      <button type="button" onClick={() => void copy('text')} className={cn(button, 'border border-input bg-card hover:bg-muted')}>
+        {copied === 'text' ? <Check className="h-4 w-4" aria-hidden="true" /> : <ClipboardCopy className="h-4 w-4" aria-hidden="true" />}
+        {copied === 'text' ? t('share.copiedText') : t('share.copyText')}
+      </button>
+      <button type="button" onClick={() => void copy('link')} className={cn(button, 'border border-input bg-card hover:bg-muted')}>
+        {copied === 'link' ? <Check className="h-4 w-4" aria-hidden="true" /> : <Link2 className="h-4 w-4" aria-hidden="true" />}
+        {copied === 'link' ? t('share.copied') : t('share.copy')}
       </button>
     </div>
   );

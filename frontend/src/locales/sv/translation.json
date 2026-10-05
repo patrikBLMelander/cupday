@@ -737,7 +737,7 @@
     "copied": "Länken är kopierad",
     "matchTitle": "Dela matchen",
     "cupTitle": "Dela cupen",
-    "matchHeadline": "{{team}} söker motstånd!",
+    "matchHeadline": "{{team}} söker träningsmatch.",
     "matchCta": "Boka här",
     "cupCta": "Anmäl laget här",
     "matchCardTitle": "Dela matchen i din lagchatt",
@@ -747,6 +747,11 @@
     "cupHeadline": "Cup: {{name}}",
     "when": "Tid",
     "where": "Plats",
-    "dates": "Datum"
+    "date": "Datum",
+    "level": "Nivå",
+    "cost": "Kostnad",
+    "fee": "Avgift",
+    "copyText": "Kopiera text",
+    "copiedText": "Texten är kopierad"
   }
 }

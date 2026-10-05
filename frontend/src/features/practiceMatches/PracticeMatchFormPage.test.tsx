@@ -73,7 +73,7 @@ describe('PracticeMatchFormPage', () => {
     expect(screen.getByRole('region', { name: 'Dela matchen i din lagchatt' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Dela i WhatsApp' })).toHaveAttribute(
       'href',
-      expect.stringContaining(encodeURIComponent('Ekens IF F11 söker motstånd!')),
+      expect.stringContaining(encodeURIComponent('Ekens IF F11 söker träningsmatch.')),
     );
     await user.click(screen.getByRole('button', { name: 'Jag har sparat länken' }));
     expect(screen.getByRole('heading', { name: 'Din hanteringslänk' })).toBeInTheDocument();

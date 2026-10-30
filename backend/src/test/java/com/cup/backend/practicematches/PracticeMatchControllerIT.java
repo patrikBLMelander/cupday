@@ -107,6 +107,9 @@ class PracticeMatchControllerIT extends AbstractIntegrationTest {
 
     mvc.perform(get(BASE + "/" + matchId))
         .andExpect(jsonPath("$.freeSlots").value(2));
+    mvc.perform(get(BASE + "/" + matchId + "/manage").header("X-Manage-Token", organizerToken))
+        .andExpect(jsonPath("$.bookings[0].status").value("cancelled"))
+        .andExpect(jsonPath("$.bookings[0].cancelledBy").value("booker"));
   }
 
   @Test

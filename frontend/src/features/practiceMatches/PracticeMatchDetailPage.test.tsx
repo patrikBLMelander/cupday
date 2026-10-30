@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -71,6 +71,7 @@ describe('PracticeMatchDetailPage', () => {
         status: 'booked',
         createdAt: new Date().toISOString(),
         cancelledAt: null,
+        cancelledBy: null,
         manageToken: 't',
       });
     });
@@ -97,6 +98,7 @@ describe('PracticeMatchDetailPage', () => {
         status: 'booked',
         createdAt: new Date().toISOString(),
         cancelledAt: null,
+        cancelledBy: null,
         manageToken: 'booking-token',
       });
     });
@@ -107,8 +109,31 @@ describe('PracticeMatchDetailPage', () => {
     expect(window.location.hash).toBe('');
 
     await userEvent.click(screen.getByRole('button', { name: 'Avboka' }));
+    expect(db.read().practiceBookings[0].status).toBe('booked');
+    expect(screen.getByText('Vill du avboka?')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Ja, avboka' }));
 
     await screen.findByText('1 av 1 plats ledig');
     expect(db.read().practiceBookings[0].status).toBe('cancelled');
+    expect(db.read().practiceBookings[0].cancelledBy).toBe('booker');
+  });
+
+  it('keeps the confirmation when the booking takes the last slot, and asks before cancelling', async () => {
+    const match = buildMockMatch({ opponentSlots: 1 });
+    db.write((d) => {
+      d.practiceMatches.push(match);
+    });
+    renderDetail(match.id);
+
+    await fillBooking('AIK P2017 Svart');
+
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Boka plats' })).not.toBeInTheDocument());
+    expect(screen.getByText('Klart! AIK P2017 Svart har bokat en plats.')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Avboka' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Nej, behåll' }));
+
+    expect(db.read().practiceBookings[0].status).toBe('booked');
+    expect(screen.getByText('Ni har bokat som AIK P2017 Svart')).toBeInTheDocument();
   });
 });

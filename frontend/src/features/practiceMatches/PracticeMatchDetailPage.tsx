@@ -53,6 +53,8 @@ export function PracticeMatchDetailPage(): JSX.Element {
     adoptBookingLink(id);
     return bookingsForMatch(id);
   });
+  // Lives here, not in the form: booking the last slot unmounts the form, and the confirmation must stay.
+  const [justBooked, setJustBooked] = useState<JustBooked | null>(null);
 
   if (isLoading) {
     return (
@@ -99,6 +101,8 @@ export function PracticeMatchDetailPage(): JSX.Element {
         </Link>
       )}
 
+      {justBooked && <BookingSuccess {...justBooked} />}
+
       {myBookings.map((booking) => (
         <MyBooking
           key={booking.bookingId}
@@ -106,6 +110,7 @@ export function PracticeMatchDetailPage(): JSX.Element {
           onCancelled={() => {
             removeBooking(booking.bookingId);
             setMyBookings(bookingsForMatch(id));
+            setJustBooked(null);
           }}
         />
       ))}
@@ -113,9 +118,10 @@ export function PracticeMatchDetailPage(): JSX.Element {
       {isBookable && (
         <BookingForm
           match={match}
-          onBooked={(booking) => {
+          onBooked={(booking, emailSent) => {
             saveBooking(booking);
             setMyBookings(bookingsForMatch(id));
+            setJustBooked({ team: booking.teamName, emailSent });
           }}
         />
       )}
@@ -226,6 +232,7 @@ export function MatchSummary({ match }: { match: PracticeMatch }): JSX.Element {
 function MyBooking({ booking, onCancelled }: { booking: StoredBooking; onCancelled: () => void }): JSX.Element {
   const { t } = useTranslation();
   const [cancelBooking, { isLoading }] = useCancelBookingMutation();
+  const [confirming, setConfirming] = useState(false);
   const [failed, setFailed] = useState(false);
 
   async function cancel(): Promise<void> {
@@ -243,14 +250,38 @@ function MyBooking({ booking, onCancelled }: { booking: StoredBooking; onCancell
       <span className="flex-1 font-bold">
         {booking.teamName ? t('practice.booking.yourBooking', { team: booking.teamName }) : t('practice.booking.yourBookingGeneric')}
       </span>
-      <button
-        type="button"
-        onClick={cancel}
-        disabled={isLoading}
-        className="min-h-11 rounded-full border border-input bg-card px-4 font-bold disabled:opacity-50"
-      >
-        {t('practice.booking.cancel')}
-      </button>
+      {confirming ? (
+        <div className="flex w-full flex-wrap items-center gap-2">
+          <span className="w-full font-semibold">
+            {booking.teamName
+              ? t('practice.booking.confirmCancelQuestion', { team: booking.teamName })
+              : t('practice.booking.confirmCancelQuestionGeneric')}
+          </span>
+          <button
+            type="button"
+            onClick={cancel}
+            disabled={isLoading}
+            className="min-h-11 rounded-full bg-destructive px-4 font-bold text-destructive-foreground disabled:opacity-50"
+          >
+            {t('practice.booking.confirmCancel')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirming(false)}
+            className="min-h-11 rounded-full border border-input bg-card px-4 font-bold hover:bg-muted"
+          >
+            {t('practice.booking.keep')}
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="min-h-11 rounded-full border border-input bg-card px-4 font-bold"
+        >
+          {t('practice.booking.cancel')}
+        </button>
+      )}
       {failed && (
         <p role="alert" className="w-full text-sm text-destructive">
           {t('practice.booking.genericError')}
@@ -270,12 +301,33 @@ interface BookingFormShape {
   website: string;
 }
 
-function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (booking: StoredBooking) => void }): JSX.Element {
+interface JustBooked {
+  team: string;
+  emailSent: boolean;
+}
+
+function BookingSuccess({ team, emailSent }: JustBooked): JSX.Element {
+  const { t } = useTranslation();
+  return (
+    <div role="status" className="rounded-2xl bg-accent p-4">
+      <p className="font-bold text-accent-foreground">{t('practice.booking.success', { team })}</p>
+      <p className="text-sm text-muted-foreground">
+        {emailSent ? t('practice.booking.successHintEmail') : t('practice.booking.successHint')}
+      </p>
+    </div>
+  );
+}
+
+function BookingForm({
+  match,
+  onBooked,
+}: {
+  match: PracticeMatch;
+  onBooked: (booking: StoredBooking, emailSent: boolean) => void;
+}): JSX.Element {
   const { t } = useTranslation();
   const [bookMatch, { isLoading }] = useBookPracticeMatchMutation();
   const [formError, setFormError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
   const {
     register,
     handleSubmit,
@@ -288,7 +340,6 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
 
   async function onSubmit(values: BookingFormShape): Promise<void> {
     setFormError(null);
-    setSuccess(null);
     try {
       const result = await bookMatch({
         id: match.id,
@@ -302,15 +353,16 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
           website: values.website,
         },
       }).unwrap();
-      onBooked({
-        bookingId: result.booking.id,
-        matchId: match.id,
-        token: result.manageToken,
-        teamName: result.booking.teamName,
-      });
-      setSuccess(t('practice.booking.success', { team: result.booking.teamName }));
-      setEmailSent(result.confirmationEmail === true);
       reset();
+      onBooked(
+        {
+          bookingId: result.booking.id,
+          matchId: match.id,
+          token: result.manageToken,
+          teamName: result.booking.teamName,
+        },
+        result.confirmationEmail === true,
+      );
     } catch (err) {
       const problem = asProblem(err);
       if (problem.status === 409) {
@@ -328,14 +380,6 @@ function BookingForm({ match, onBooked }: { match: PracticeMatch; onBooked: (boo
       <h2 id="booking-title" className="mb-4 font-display text-xl font-extrabold">
         {t('practice.booking.title')}
       </h2>
-      {success && (
-        <div role="status" className="mb-4 rounded-xl bg-accent p-3">
-          <p className="font-bold text-accent-foreground">{success}</p>
-          <p className="text-sm text-muted-foreground">
-            {emailSent ? t('practice.booking.successHintEmail') : t('practice.booking.successHint')}
-          </p>
-        </div>
-      )}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-3.5">
         <Field id="booking-team" label={t('practice.booking.teamName')} error={errors.teamName?.message}>
           <input id="booking-team" className={inputClass} {...register('teamName', required)} />

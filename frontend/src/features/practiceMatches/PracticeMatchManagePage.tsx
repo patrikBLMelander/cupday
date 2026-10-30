@@ -119,13 +119,20 @@ export function PracticeMatchManagePage(): JSX.Element {
 function BookingItem({ booking, token }: { booking: Booking; token: string }): JSX.Element {
   const { t } = useTranslation();
   const [cancelBooking, { isLoading }] = useCancelBookingMutation();
+  const [confirming, setConfirming] = useState(false);
   const isBooked = booking.status === 'booked';
+  const cancelledLabel =
+    booking.cancelledBy === 'booker'
+      ? t('practice.manage.cancelledByBooker')
+      : booking.cancelledBy === 'organizer'
+        ? t('practice.manage.cancelledByOrganizer')
+        : t('practice.manage.bookingCancelled');
 
   return (
     <li className={cn('rounded-2xl border border-border bg-card p-4', !isBooked && 'opacity-60')}>
       <div className="flex flex-wrap items-center gap-2">
         <span className="flex-1 font-bold">{booking.teamName}</span>
-        {!isBooked && <span className="text-sm font-semibold text-muted-foreground">{t('practice.manage.bookingCancelled')}</span>}
+        {!isBooked && <span className="text-sm font-semibold text-muted-foreground">{cancelledLabel}</span>}
       </div>
       <div className="mt-1 text-sm">{booking.contactName}</div>
       <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
@@ -139,15 +146,34 @@ function BookingItem({ booking, token }: { booking: Booking; token: string }): J
         </a>
       </div>
       {booking.message && <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{booking.message}</p>}
-      {isBooked && (
+      {isBooked && !confirming && (
         <button
           type="button"
-          disabled={isLoading}
-          onClick={() => void cancelBooking({ matchId: booking.matchId, bookingId: booking.id, token })}
-          className="mt-3 min-h-11 rounded-full border border-input px-4 text-sm font-bold hover:bg-muted disabled:opacity-50"
+          onClick={() => setConfirming(true)}
+          className="mt-3 min-h-11 rounded-full border border-input px-4 text-sm font-bold hover:bg-muted"
         >
           {t('practice.manage.removeBooking')}
         </button>
+      )}
+      {isBooked && confirming && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <p className="w-full text-sm font-semibold">{t('practice.manage.confirmRemoveBooking', { team: booking.teamName })}</p>
+          <button
+            type="button"
+            disabled={isLoading}
+            onClick={() => void cancelBooking({ matchId: booking.matchId, bookingId: booking.id, token })}
+            className="min-h-11 rounded-full bg-destructive px-4 text-sm font-bold text-destructive-foreground disabled:opacity-50"
+          >
+            {t('practice.manage.confirmRemove')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirming(false)}
+            className="min-h-11 rounded-full border border-input px-4 text-sm font-bold hover:bg-muted"
+          >
+            {t('practice.manage.keepBooking')}
+          </button>
+        </div>
       )}
     </li>
   );

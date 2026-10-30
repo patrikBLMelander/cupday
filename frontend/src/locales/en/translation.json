@@ -476,7 +476,11 @@
       "notBookable": "This match can no longer be booked.",
       "genericError": "Something went wrong. Try again.",
       "successHintEmail": "You'll get a confirmation by email, and the organiser has been emailed your contact details.",
-      "yourBookingGeneric": "You have a booking for this match"
+      "yourBookingGeneric": "You have a booking for this match",
+      "confirmCancelQuestion": "Cancel the booking for {{team}}?",
+      "confirmCancelQuestionGeneric": "Cancel your booking?",
+      "confirmCancel": "Yes, cancel",
+      "keep": "No, keep it"
     },
     "form": {
       "createTitle": "New practice match",
@@ -554,7 +558,12 @@
       "emailBody": "Here is the link to edit or cancel the practice match for {{team}} ({{date}}):\n\n{{link}}\n\nKeep this email.",
       "savedConfirm": "I have saved the link",
       "saved": "Great! Keep the email or note so you can always get back.",
-      "emailSent": "We also emailed the link to {{email}}. If you can't find it, check your spam folder."
+      "emailSent": "We also emailed the link to {{email}}. If you can't find it, check your spam folder.",
+      "confirmRemoveBooking": "Remove the booking from {{team}}? The team gets an email about it.",
+      "confirmRemove": "Yes, remove",
+      "keepBooking": "No, keep it",
+      "cancelledByBooker": "Cancelled by the team",
+      "cancelledByOrganizer": "Removed by you"
     },
     "consent": {
       "match": "I agree that the contact details are shown publicly on the site so that other teams can reach me. The match and the details are deleted automatically 30 days after the match day.",

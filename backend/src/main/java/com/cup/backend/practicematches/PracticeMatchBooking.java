@@ -51,6 +51,10 @@ public class PracticeMatchBooking {
   @Column(name = "cancelled_at")
   private Instant cancelledAt;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "cancelled_by")
+  private BookingCanceller cancelledBy;
+
   protected PracticeMatchBooking() {
     // Required by JPA.
   }
@@ -88,7 +92,9 @@ public class PracticeMatchBooking {
   public BookingStatus getStatus() { return status; }
   public Instant getCreatedAt() { return createdAt; }
   public Instant getCancelledAt() { return cancelledAt; }
+  public BookingCanceller getCancelledBy() { return cancelledBy; }
 
   public void setStatus(BookingStatus status) { this.status = status; }
   public void setCancelledAt(Instant cancelledAt) { this.cancelledAt = cancelledAt; }
+  public void setCancelledBy(BookingCanceller cancelledBy) { this.cancelledBy = cancelledBy; }
 }

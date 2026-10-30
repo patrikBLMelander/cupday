@@ -42,6 +42,7 @@ describe('PracticeMatchListPage', () => {
         status: 'booked',
         createdAt: new Date().toISOString(),
         cancelledAt: null,
+        cancelledBy: null,
         manageToken: 't',
       });
     });

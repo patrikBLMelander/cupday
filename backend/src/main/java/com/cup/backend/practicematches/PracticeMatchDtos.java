@@ -120,7 +120,8 @@ public final class PracticeMatchDtos {
       String message,
       BookingStatus status,
       Instant createdAt,
-      Instant cancelledAt) {
+      Instant cancelledAt,
+      BookingCanceller cancelledBy) {
 
     public static BookingResponse from(PracticeMatchBooking booking) {
       return new BookingResponse(
@@ -133,7 +134,8 @@ public final class PracticeMatchDtos {
           booking.getMessage(),
           booking.getStatus(),
           booking.getCreatedAt(),
-          booking.getCancelledAt());
+          booking.getCancelledAt(),
+          booking.getCancelledBy());
     }
   }
 

@@ -6,6 +6,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.clearInvocations;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -110,6 +112,22 @@ class NotificationIT extends AbstractIntegrationTest {
     assertThat(toBooker.to()).isEqualTo("jonas@example.com");
     assertThat(toBooker.replyTo()).isEqualTo("andreas@example.com");
     assertThat(toBooker.text()).contains("/matcher/" + matchId + "#avboka." + bookingId + ".");
+
+    clearInvocations(mailSender);
+    var bookerToken = booking.get("manageToken").asText();
+    mvc.perform(delete("/api/practice-matches/" + matchId + "/bookings/" + bookingId).header("X-Manage-Token", bookerToken))
+        .andExpect(status().isNoContent());
+    var cancelCaptor = ArgumentCaptor.forClass(MailMessage.class);
+    verify(mailSender, timeout(5000).times(2)).send(cancelCaptor.capture());
+    var cancelMails = cancelCaptor.getAllValues();
+
+    var cancelToOrganizer = cancelMails.stream().filter(m -> m.to().equals("andreas@example.com")).findFirst().orElseThrow();
+    assertThat(cancelToOrganizer.subject()).startsWith("Solna BK P17 har avbokat");
+    assertThat(cancelToOrganizer.text()).contains("har avbokat sin plats", "Lediga platser nu: 1");
+
+    var cancelToBooker = cancelMails.stream().filter(m -> m.to().equals("jonas@example.com")).findFirst().orElseThrow();
+    assertThat(cancelToBooker.subject()).startsWith("Avbokad:");
+    assertThat(cancelToBooker.text()).contains("Avbokade du av misstag?");
   }
 
   @Test

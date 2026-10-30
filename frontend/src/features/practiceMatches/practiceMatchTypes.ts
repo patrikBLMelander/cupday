@@ -3,6 +3,9 @@ export type PlayersPerSide = 5 | 7 | 9 | 11;
 export type PracticeMatchStatus = 'active' | 'cancelled';
 export type BookingStatus = 'booked' | 'cancelled';
 
+/** Who cancelled a booking: the booking team or the organizer. */
+export type BookingCanceller = 'booker' | 'organizer';
+
 export const GENDERS: readonly Gender[] = ['P', 'F', 'MIX'];
 export const PLAYERS_PER_SIDE: readonly PlayersPerSide[] = [5, 7, 9, 11];
 export const MIN_LEVEL = 1;
@@ -89,6 +92,7 @@ export interface Booking {
   status: BookingStatus;
   createdAt: string;
   cancelledAt: string | null;
+  cancelledBy: BookingCanceller | null;
 }
 
 export interface CreatePracticeMatchResponse {

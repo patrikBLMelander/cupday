@@ -476,7 +476,11 @@
       "notBookable": "Matchen går inte längre att boka.",
       "genericError": "Något gick fel. Försök igen.",
       "successHintEmail": "Ni får en bekräftelse på mejlen, och arrangören har fått ett mejl med era kontaktuppgifter.",
-      "yourBookingGeneric": "Du har en bokning på den här matchen"
+      "yourBookingGeneric": "Du har en bokning på den här matchen",
+      "confirmCancelQuestion": "Vill du avboka {{team}}?",
+      "confirmCancelQuestionGeneric": "Vill du avboka?",
+      "confirmCancel": "Ja, avboka",
+      "keep": "Nej, behåll"
     },
     "form": {
       "createTitle": "Ny träningsmatch",
@@ -554,7 +558,12 @@
       "emailBody": "Här är länken för att ändra eller ställa in träningsmatchen för {{team}} ({{date}}):\n\n{{link}}\n\nSpara det här mejlet.",
       "savedConfirm": "Jag har sparat länken",
       "saved": "Bra! Spara mejlet eller anteckningen, så hittar du alltid tillbaka.",
-      "emailSent": "Vi har också mejlat länken till {{email}}. Hittar du inte mejlet, titta i skräpposten."
+      "emailSent": "Vi har också mejlat länken till {{email}}. Hittar du inte mejlet, titta i skräpposten.",
+      "confirmRemoveBooking": "Ta bort bokningen från {{team}}? Laget får ett mejl om det.",
+      "confirmRemove": "Ja, ta bort",
+      "keepBooking": "Nej, behåll",
+      "cancelledByBooker": "Avbokad av laget",
+      "cancelledByOrganizer": "Borttagen av dig"
     },
     "consent": {
       "match": "Jag godkänner att kontaktuppgifterna visas öppet på sidan så att andra lag kan nå mig. Matchen och uppgifterna raderas automatiskt 30 dagar efter matchdagen.",

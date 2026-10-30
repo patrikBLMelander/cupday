@@ -92,5 +92,19 @@ class PracticeMatchServiceTest {
 
     assertThat(booking.getStatus()).isEqualTo(BookingStatus.CANCELLED);
     assertThat(booking.getCancelledAt()).isNotNull();
+    assertThat(booking.getCancelledBy()).isEqualTo(BookingCanceller.ORGANIZER);
+  }
+
+  @Test
+  void bookerTokenCancelsAsBookerAndRepeatCancelKeepsTheFirstCanceller() {
+    var match = match("organizer", 1);
+    var booking = booking(match.getId(), "Solna BK", tokenService.hash("booker"));
+    when(matchRepository.findById(match.getId())).thenReturn(Optional.of(match));
+    when(bookingRepository.findByIdAndMatchId(booking.getId(), match.getId())).thenReturn(Optional.of(booking));
+
+    service.cancelBooking(match.getId(), booking.getId(), "booker");
+    service.cancelBooking(match.getId(), booking.getId(), "organizer");
+
+    assertThat(booking.getCancelledBy()).isEqualTo(BookingCanceller.BOOKER);
   }
 }

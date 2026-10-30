@@ -16,7 +16,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import com.cup.backend.mail.MailSender;
 import com.cup.backend.mail.NotificationEvents.PracticeMatchBooked;
+import com.cup.backend.mail.NotificationEvents.PracticeMatchBookingCancelled;
 import com.cup.backend.mail.NotificationEvents.PracticeMatchPosted;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 /** Public practice-match board: posting, booking and token-based management without accounts. */
 @Service
 public class PracticeMatchService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(PracticeMatchService.class);
 
   private static final Set<Integer> ALLOWED_PLAYERS_PER_SIDE = Set.of(5, 7, 9, 11);
   private static final Duration DEFAULT_WINDOW = Duration.ofDays(60);
@@ -190,14 +195,20 @@ public class PracticeMatchService {
     var match = findMatch(matchId);
     var booking = bookingRepository.findByIdAndMatchId(bookingId, matchId)
         .orElseThrow(() -> new BookingNotFoundException("Booking " + bookingId + " not found"));
-    var authorized = tokenService.matches(token, booking.getManageTokenHash())
-        || tokenService.matches(token, match.getManageTokenHash());
-    if (!authorized) {
+    BookingCanceller canceller;
+    if (tokenService.matches(token, booking.getManageTokenHash())) {
+      canceller = BookingCanceller.BOOKER;
+    } else if (tokenService.matches(token, match.getManageTokenHash())) {
+      canceller = BookingCanceller.ORGANIZER;
+    } else {
       throw new InvalidManageTokenException("Invalid manage token");
     }
     if (booking.getStatus() == BookingStatus.BOOKED) {
       booking.setStatus(BookingStatus.CANCELLED);
       booking.setCancelledAt(Instant.now());
+      booking.setCancelledBy(canceller);
+      LOG.info("Booking {} on practice match {} cancelled by {}", bookingId, matchId, canceller);
+      events.publishEvent(new PracticeMatchBookingCancelled(matchId, bookingId));
     }
   }
 

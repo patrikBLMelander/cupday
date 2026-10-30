@@ -243,6 +243,7 @@ export const practiceMatchHandlers = [
       status: 'booked',
       createdAt: new Date().toISOString(),
       cancelledAt: null,
+      cancelledBy: null,
       manageToken: crypto.randomUUID(),
     };
     db.write((draft) => {
@@ -265,6 +266,7 @@ export const practiceMatchHandlers = [
       if (target && target.status === 'booked') {
         target.status = 'cancelled';
         target.cancelledAt = new Date().toISOString();
+        target.cancelledBy = token === booking.manageToken ? 'booker' : 'organizer';
       }
     });
     return new HttpResponse(null, { status: 204 });

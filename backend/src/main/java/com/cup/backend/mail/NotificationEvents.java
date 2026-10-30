@@ -17,6 +17,8 @@ public final class NotificationEvents {
 
   public record PracticeMatchBooked(UUID matchId, UUID bookingId, String bookingToken) {}
 
+  public record PracticeMatchBookingCancelled(UUID matchId, UUID bookingId) {}
+
   public record CupPosted(UUID cupId, String manageToken) {}
 
   public record CupTeamsRegistered(UUID cupId, List<UUID> teamIds) {}

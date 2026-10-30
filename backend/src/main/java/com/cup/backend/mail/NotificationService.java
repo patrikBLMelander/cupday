@@ -9,7 +9,9 @@ import com.cup.backend.mail.MailLayout.Paragraph;
 import com.cup.backend.mail.NotificationEvents.CupPosted;
 import com.cup.backend.mail.NotificationEvents.CupTeamsRegistered;
 import com.cup.backend.mail.NotificationEvents.PracticeMatchBooked;
+import com.cup.backend.mail.NotificationEvents.PracticeMatchBookingCancelled;
 import com.cup.backend.mail.NotificationEvents.PracticeMatchPosted;
+import com.cup.backend.practicematches.BookingCanceller;
 import com.cup.backend.practicematches.BookingStatus;
 import com.cup.backend.practicematches.PracticeMatch;
 import com.cup.backend.practicematches.PracticeMatchBooking;
@@ -37,7 +39,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
  * Turns domain events into emails: confirmations with the manage link when something is posted,
- * and notices to both sides when a match is booked or a team registers for a cup. Runs after
+ * and notices to both sides when a match is booked or cancelled, or a team registers for a cup. Runs after
  * commit on a background thread; failures are logged and never affect the request.
  */
 @Service
@@ -127,6 +129,45 @@ public class NotificationService {
         new Paragraph("Avboka gärna i god tid om ni inte kan komma, så att platsen blir ledig för ett annat lag."));
     send(booking.getContactEmail(), "Bokningsbekräftelse: " + match.getTeamName() + " " + shortWhen(match),
         "Ni har bokat en plats", bookerBlocks, match.getContactEmail());
+  }
+
+  @Async
+  @TransactionalEventListener
+  @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+  public void onBookingCancelled(PracticeMatchBookingCancelled event) {
+    var match = matchRepository.findById(event.matchId()).orElse(null);
+    var booking = bookingRepository.findById(event.bookingId()).orElse(null);
+    if (match == null || booking == null) {
+      return;
+    }
+    var byBooker = booking.getCancelledBy() == BookingCanceller.BOOKER;
+    var free = Math.max(0, match.getOpponentSlots()
+        - bookingRepository.findByMatchIdInAndStatusOrderByCreatedAtAsc(List.of(match.getId()),
+            BookingStatus.BOOKED).size());
+
+    var organizerIntro = byBooker
+        ? booking.getTeamName() + " har avbokat sin plats i er match " + shortWhen(match) + "."
+        : "Du har tagit bort bokningen från " + booking.getTeamName() + " i er match " + shortWhen(match) + ". Laget har fått ett mejl om det.";
+    var organizerBlocks = List.<Block>of(
+        new Paragraph("Hej " + firstName(match.getContactName()) + "! " + organizerIntro),
+        new Facts(bookerFacts(booking)),
+        new Paragraph("Lediga platser nu: " + free + ". Har det blivit fel kan laget boka igen så länge det finns en ledig plats."),
+        new Button("Visa matchen", matchUrl(match)));
+    send(match.getContactEmail(), booking.getTeamName() + " har avbokat er match " + shortWhen(match),
+        "En bokning har avbokats", organizerBlocks, booking.getContactEmail());
+
+    var bookerIntro = byBooker
+        ? "Er bokning som " + booking.getTeamName() + " är avbokad, och arrangören har fått besked."
+        : "Arrangören har tagit bort er bokning som " + booking.getTeamName() + ".";
+    var bookerBlocks = List.<Block>of(
+        new Paragraph("Hej " + firstName(booking.getContactName()) + "! " + bookerIntro),
+        new Facts(matchFacts(match)),
+        new Paragraph(byBooker
+            ? "Avbokade du av misstag? Boka igen via länken nedan så länge platsen är ledig."
+            : "Du kan svara direkt på det här mejlet för att nå arrangören."),
+        new Button("Visa matchen", matchUrl(match)));
+    send(booking.getContactEmail(), "Avbokad: " + match.getTeamName() + " " + shortWhen(match),
+        "Bokningen är avbokad", bookerBlocks, match.getContactEmail());
   }
 
   @Async
